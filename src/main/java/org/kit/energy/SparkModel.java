@@ -19,10 +19,13 @@ public class SparkModel {
         // First output to see if it works till here
         System.out.println("I do stuff, dough!");
 
-        // Initialize Spark for Java
+
+        /*
+         // Initialize Spark for Java
         SparkConf conf = new SparkConf().setAppName("simple app")
                 .setMaster("local").set("spark.executor.memory","1g");
         JavaSparkContext sc = new JavaSparkContext(conf);
+        */
 
         /*
         // Parallelized Collections example
@@ -32,6 +35,7 @@ public class SparkModel {
         System.out.println(distData.collect());
         */
 
+        /*
         // Key-Value-Pairs printing example
         // each line of the file is one element
         JavaRDD<String> lines = sc.textFile("README.txt");
@@ -43,6 +47,7 @@ public class SparkModel {
         counts.collect();
         System.out.println("Here it comes!:");
         counts.foreach(l -> System.out.println(l._1() + " " + l._2()));
+        */
 
         /*
         // Text reading and counting example
@@ -53,8 +58,10 @@ public class SparkModel {
         System.out.println("Lines with a: " + numAs + ", lines with b: " + numBs);
         */
 
+
         // stop spark
-        sc.stop();
+        //sc.stop();
+
     }
 
 }
