@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,9 @@ import java.security.Principal;
 @Controller
 public class GreetingController {
 
+    @Autowired
+    private TestClass testClass;
+
     @RequestMapping("/greeting")
     public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
         model.addAttribute("name", name);
@@ -27,6 +31,7 @@ public class GreetingController {
     public ModelAndView handleRequest(HttpServletRequest request,
                                       HttpServletResponse response) throws Exception {
         ModelAndView mav = new ModelAndView("greeting");
+        testClass.startHere();
         return mav;
     }
 

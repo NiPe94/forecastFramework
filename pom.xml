@@ -25,50 +25,65 @@
 	</properties>
 
 	<dependencies>
+
+		<!-- *** SPRING FRAMEWORK *** -->
+		<!-- Spring Security -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- Spring Thymleaf -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+		<!-- Spring Web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<!-- Spring Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- *** SPARK FRAMEWORK *** -->
+		<!-- Spark 2.10 for Scala 2.11 -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.11</artifactId>
 			<version>2.1.0</version>
 		</dependency>
+		<!-- Spark SQL -->
 		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.10 -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-sql_2.10</artifactId>
+			<artifactId>spark-sql_2.11</artifactId>
 			<version>2.1.0</version>
 		</dependency>
+
+
+		<!-- *** JACKSON MODULES *** -->
+		<!-- Scala Jackson module -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-scala_2.10</artifactId>
 			<version>2.6.4</version>
 		</dependency>
+		<!-- Jackson core -->
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.6.4</version>
 		</dependency>
+
 		<dependency>
-			<groupId>com.databricks</groupId>
-			<artifactId>spark-csv_2.10</artifactId>
-			<version>1.5.0</version>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>commons-compiler</artifactId>
+			<version>2.7.8</version>
 		</dependency>
 
 	</dependencies>
