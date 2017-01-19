@@ -21,6 +21,9 @@ public class GreetingController {
     @Autowired
     private TestClass testClass;
 
+    @Autowired
+    private LogisticRegressionClass logRegClass;
+
     @RequestMapping("/greeting")
     public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
         model.addAttribute("name", name);
@@ -31,7 +34,7 @@ public class GreetingController {
     public ModelAndView handleRequest(HttpServletRequest request,
                                       HttpServletResponse response) throws Exception {
         ModelAndView mav = new ModelAndView("greeting");
-        testClass.startHere();
+        logRegClass.startHere(); //testClass.startHere();
         return mav;
     }
 
