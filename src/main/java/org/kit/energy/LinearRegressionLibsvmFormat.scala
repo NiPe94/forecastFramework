@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
   * Created by qa5147 on 19.01.2017.
   */
 @Component
-class LogisticRegressionClass extends Serializable{
+class LinearRegressionLibsvmFormat extends Serializable{
 
   def timeConversion (str: String) : Int = {
     val timeStringValues = str.split(":")
@@ -20,7 +20,7 @@ class LogisticRegressionClass extends Serializable{
 
   def startHere(): Unit = {
 
-
+    // Initialze context vars and settings
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
 
     val conf = new SparkConf().setAppName("Simple Application")

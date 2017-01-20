@@ -22,7 +22,10 @@ public class GreetingController {
     private TestClass testClass;
 
     @Autowired
-    private LogisticRegressionClass logRegClass;
+    private LinearRegressionLibsvmFormat logRegClass;
+
+    @Autowired
+    private LinearRegressionCSVFormat linRegCSV;
 
     @RequestMapping("/greeting")
     public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
@@ -34,7 +37,7 @@ public class GreetingController {
     public ModelAndView handleRequest(HttpServletRequest request,
                                       HttpServletResponse response) throws Exception {
         ModelAndView mav = new ModelAndView("greeting");
-        logRegClass.startHere(); //testClass.startHere();
+        linRegCSV.startHere();
         return mav;
     }
 
