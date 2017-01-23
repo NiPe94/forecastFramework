@@ -5,7 +5,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-<p>Get your greeting <a href="/greeting">here</a></p>
-<input type="button"  onclick="location.href='/doMethod'" value="Register" >
+<p>Start the Method <a href="/greeting">NOT here</a></p>
+<input type="button"  onclick="location.href='/doMethod'" value="But here!" >
+
+<form action="" method="POST" enctype="multipart/form-data">
+    <input type="file" name="userFile" /><br />
+    <input type="submit" name="upload_btn" value="upload"/>
+</form>
+
 </body>
 </html>

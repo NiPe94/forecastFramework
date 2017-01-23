@@ -1,7 +1,9 @@
 package org.kit.energy
 
-import org.apache.spark.ml.regression.LinearRegressionModel
+import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
 import org.apache.spark.mllib.linalg.Vectors
+//import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.sql.functions.udf
 import org.apache.spark.mllib.regression.{LabeledPoint, LinearRegressionWithSGD}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
@@ -51,6 +53,7 @@ class LinearRegressionCSVFormat extends Serializable{
 
     try {
 
+      /*
       // read data and show part of Data
       val data = spark.read
         .format("com.databricks.spark.csv")
@@ -73,6 +76,7 @@ class LinearRegressionCSVFormat extends Serializable{
       val numIts = 100
       val steps = 0.0000001
       val model = LinearRegressionWithSGD.train(dataParsed, numIts, steps)
+
       println("print model weights:")
       println(model.weights)
 
@@ -84,13 +88,14 @@ class LinearRegressionCSVFormat extends Serializable{
       val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2) }.mean()
       println("training Mean Squared Error = " + MSE)
 
-      /*// save and load the evaluated model
+      /* save and load the evaluated model
       model.save(sc,"DADModel")
       val sameOldThing = LinearRegressionModel.load("DADModel")
       */
+      */
 
       // ************************
-      /* Working Nile csv example, csv format here: "","time","Nile"\n"1",10,400\n"2",32,4345\n....
+      // Working Nile csv example, csv format here: "","time","Nile"\n"1",10,400\n"2",32,4345\n....
       //https://spark.apache.org/docs/2.1.0/mllib-linear-methods.html#linear-least-squares-lasso-and-ridge-regression
       val nilCSV = spark.read
         .format("com.databricks.spark.csv")
@@ -105,7 +110,7 @@ class LinearRegressionCSVFormat extends Serializable{
       nilData.show()
 
       val nilData2 = nilData.select("time", "Nile")
-        .map( r =>LabeledPoint(r(0).toString.toDouble, Vectors.dense(r(1).toString.toDouble)) )
+        .map( r =>LabeledPoint(r(0).toString.toDouble, Vectors.dense(1.0, r(1).toString.toDouble)) )
         .rdd.cache()
 
       println("Nil data 2 after labeling")
@@ -115,8 +120,12 @@ class LinearRegressionCSVFormat extends Serializable{
       val steps = 0.0000001
       val model = LinearRegressionWithSGD.train(nilData2, numIts, steps)
 
+      val bias = 1020 - model.weights.apply(0)*38
+
       println("print model weights:")
       println(model.weights)
+      println("and")
+      println(bias)
 
       // Evaluate model on training examples and compute training error
       val valuesAndPreds = nilData2.map { point =>
@@ -126,12 +135,65 @@ class LinearRegressionCSVFormat extends Serializable{
       val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2) }.mean()
       println("training Mean Squared Error = " + MSE)
 
-      model.save(sc,"DADModel")
+      /*model.save(sc,"DADModel")
       val sameOldThing = LinearRegressionModel.load(sc, "DADModel")
       println("should be the same:")
       println(sameOldThing.weights)
-      */ // working Nil example
+      */
+      // working Nil example
       // ************************
+
+      // **********************
+      /* tescht
+      val dataSelected = data.select("_c0")
+        .map(r => timeConversion(r(0).toString.split(";").apply(1)).toDouble , r(0).toString.split(";").apply(2).toDouble )
+
+      val dataFixed = data.withColumn(
+        "features",
+
+      )
+
+      // craete vector
+
+      val upper: String => String = _.toUpperCase
+      val UpperUDF = udf(upper)
+
+      val toVec: Integer => Integer = _.intValue()
+
+      /*val toVec4    = udf[Vector, Int, Int, String, String] { (a,b,c,d) =>
+        val e3 = c match {
+          case "hs-grad" => 0
+          case "bachelors" => 1
+          case "masters" => 2
+        }
+        val e4 = d match {case "male" => 0 case "female" => 1}
+        Vectors.dense((a, b, e3, e4))
+      }*/
+
+
+      /*val lr = new LinearRegression()
+        .setMaxIter(10)
+        .setRegParam(0.3)
+        .setElasticNetParam(0.8)
+
+      println("Start Training:")
+
+      // Fit the model
+      val lrModel = lr.fit(dataParsed.toDS())
+
+      // Print the coefficients and intercept for linear regression
+      println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
+
+      // Summarize the model over the training set and print out some metrics
+      val trainingSummary = lrModel.summary
+      println(s"numIterations: ${trainingSummary.totalIterations}")
+      println(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]")
+      trainingSummary.residuals.show()
+      println(s"RMSE: ${trainingSummary.rootMeanSquaredError}")
+      println(s"r2: ${trainingSummary.r2}")
+      */
+      */
+      // ***********************
 
     } finally {
       // do a clean stop on spark
