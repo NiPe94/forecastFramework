@@ -1,13 +1,16 @@
 package org.kit.energy;
 
+import java.util.Collection;
+
 /**
  * Created by qa5147 on 23.01.2017.
  */
-public class Algorithm {
+public class Forecast {
 
     private String dataPath;
     private String savePath;
     private AlgorithmType algoType;
+    private String modelParameters;
 
     public String getDataPath() {
         return dataPath;
@@ -31,5 +34,13 @@ public class Algorithm {
 
     public void setAlgoType(AlgorithmType algoType) {
         this.algoType = algoType;
+    }
+
+    public String getModelParameters() {
+        return modelParameters;
+    }
+
+    public void setModelParameters(String modelParameters) {
+        this.modelParameters = modelParameters;
     }
 }

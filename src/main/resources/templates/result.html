@@ -6,9 +6,10 @@
 </head>
 <body>
 <h1>Result</h1>
-<p th:text="'Save Path: ' + ${algorithm.savePath}" />
-<p th:text="'Data Path: ' + ${algorithm.dataPath}" />
-<p th:text="'AlgoName: ' + ${algorithm.algorithmName}" />
-<a href="/run">Submit another message</a>
+<p th:text="'Data Path: ' + ${forecast.dataPath}" />
+<p th:text="'AlgoName: ' + ${forecast.algoType}" />
+<p th:text="'Save Path: ' + ${forecast.savePath}" />
+<p th:text="'Result: ' + ${forecast.modelParameters}" />
+<a href="/test">Submit another message</a>
 </body>
 </html>

@@ -1,6 +1,5 @@
 package org.kit.energy;
 
-import org.apache.spark.mllib.tree.configuration.Algo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +11,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.Collection;
 
 /**
  * Created by qa5147 on 23.01.2017.
@@ -33,19 +34,37 @@ public class FunctionController {
     public ModelAndView handleRequest(HttpServletRequest request,
                                       HttpServletResponse response) throws Exception {
         ModelAndView mav = new ModelAndView("greeting");
-        linRegCSV.startHere();
+        //linRegCSV.startHere();
         return mav;
     }
 
-    @GetMapping("/run")
-    public String runForm(Model model){
-        model.addAttribute("algorithm", new Algorithm());
-        return "runForm";
+    @GetMapping("/test")
+    public String testForm(Model model){
+        model.addAttribute("forecast", new Forecast());
+        return "testForm";
     }
 
-    @PostMapping("/run")
-    public String submitRunForm(@ModelAttribute Algorithm algorithm){
+    @PostMapping("/test")
+    public String submitTestForm(@ModelAttribute Forecast forecast){
+        String modelParameters = "";
+        /*
+        if(checkIfFileIsValid(forecast.getDataPath()) == false) {
+            return "testForm";
+        }
+        */
+        if(forecast.getAlgoType() == AlgorithmType.LinearRegressionType) {
+            System.out.println("Starting scala function:");
+            modelParameters = linRegCSV.startHere(forecast.getDataPath(), forecast.getSavePath());
+        }
+        System.out.println("model parameter errechnet:");
+        System.out.println(modelParameters);
+        forecast.setModelParameters(modelParameters);
         return "result";
+    }
+
+    private boolean checkIfFileIsValid(String path){
+        File f = new File(path);
+        return (f.exists() && !f.isDirectory());
     }
 
 

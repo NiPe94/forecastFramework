@@ -1,18 +1,19 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+<link />
     <title>Forecast Framework</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <!-- Bootstrap stuff: -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous" />
 
     <!-- Custom styles for this template -->
-    <link href="theme.css" rel="stylesheet">
+    <link href="theme.css" rel="stylesheet" />
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
@@ -22,7 +23,7 @@
     <h1 align="center">Forecast Framework</h1>
     <p align="center">Made by Nico Peter.</p>
 </div>
-<form class="form-horizontal" action="#" th:action="@{/run}" th:object="${algorithm}" method="post">
+<form class="form-horizontal" action="#" th:action="@{/test}" th:object="${forecast}" method="post">
     <fieldset>
 
         <!-- Form Name -->
@@ -32,7 +33,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput1">Take file from:</label>
             <div class="col-md-4">
-                <input id="textinput1" name="textinput1" type="text" th:field="*{dataPath}" placeholder="path" class="form-control input-md">
+                <input id="textinput1" name="textinput1" type="text" th:field="*{dataPath}" placeholder="path" class="form-control input-md" />
             </div>
         </div>
 
@@ -40,8 +41,8 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="selectbasic">Select Algorithm:</label>
             <div class="col-md-4">
-                <select id="selectbasic" name="selectbasic" class="form-control" th:field="*{algorithmName}">
-                    <option th:each="a : ${allTypes}" th:value="${a.id}" th:text="${a.name}">Uiii</option>
+                <select id="selectbasic" name="selectbasic" class="form-control" th:field="*{algoType}">
+                    <option th:each="algorithmType : ${T(org.kit.energy.AlgorithmType).values()}" th:value="${algorithmType}" th:text="${algorithmType}"></option>
                 </select>
             </div>
         </div>
@@ -50,7 +51,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput2">Save Model to:</label>
             <div class="col-md-4">
-                <input id="textinput2" name="textinput2" type="text" placeholder="path" class="form-control input-md">
+                <input id="textinput2" name="textinput2" type="text" th:field="*{savePath}" placeholder="path" class="form-control input-md" />
 
             </div>
         </div>
@@ -65,6 +66,12 @@
 
     </fieldset>
 </form>
+
+<!-- Error Box for Exception -->
+<div class="alert alert-danger">
+    <p align="center"><strong>Danger!</strong> This alert box could indicate a dangerous or potentially negative action.</p>
+</div>
+
 </body>
 </html>
 
