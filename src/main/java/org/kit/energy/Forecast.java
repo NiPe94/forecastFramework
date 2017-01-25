@@ -10,7 +10,7 @@ public class Forecast {
     private String dataPath;
     private String savePath;
     private AlgorithmType algoType;
-    private String modelParameters;
+    private String[] modelParameters;
 
     public String getDataPath() {
         return dataPath;
@@ -36,11 +36,16 @@ public class Forecast {
         this.algoType = algoType;
     }
 
-    public String getModelParameters() {
+    public String[] getModelParameters() {
         return modelParameters;
     }
 
-    public void setModelParameters(String modelParameters) {
+    public void setModelParameters(String[] modelParameters) {
         this.modelParameters = modelParameters;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

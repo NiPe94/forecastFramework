@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,6 +48,8 @@ public class FunctionController {
     @PostMapping("/test")
     public String submitTestForm(@ModelAttribute Forecast forecast){
         String modelParameters = "";
+        String[] modelParametersArray;
+        String jsonResult;
         /*
         if(checkIfFileIsValid(forecast.getDataPath()) == false) {
             return "testForm";
@@ -55,16 +58,23 @@ public class FunctionController {
         if(forecast.getAlgoType() == AlgorithmType.LinearRegressionType) {
             System.out.println("Starting scala function:");
             modelParameters = linRegCSV.startHere(forecast.getDataPath(), forecast.getSavePath());
+            modelParametersArray = modelParameters.split(" ");
+            forecast.setModelParameters(modelParametersArray);
+            jsonResult = writeJSON(forecast);
         }
-        System.out.println("model parameter errechnet:");
-        System.out.println(modelParameters);
-        forecast.setModelParameters(modelParameters);
+
         return "result";
     }
 
     private boolean checkIfFileIsValid(String path){
         File f = new File(path);
         return (f.exists() && !f.isDirectory());
+    }
+
+    private String writeJSON(Forecast forecast){
+        Gson gson = new Gson();
+        String resultString = gson.toJson(forecast);
+        return resultString;
     }
 
 
