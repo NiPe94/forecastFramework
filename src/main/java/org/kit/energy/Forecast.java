@@ -11,6 +11,7 @@ public class Forecast {
     private String savePath;
     private AlgorithmType algoType;
     private String[] modelParameters;
+    String result;
 
     public String getDataPath() {
         return dataPath;
@@ -44,8 +45,11 @@ public class Forecast {
         this.modelParameters = modelParameters;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }

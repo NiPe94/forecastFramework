@@ -60,7 +60,7 @@ public class FunctionController {
             modelParameters = linRegCSV.startHere(forecast.getDataPath(), forecast.getSavePath());
             modelParametersArray = modelParameters.split(" ");
             forecast.setModelParameters(modelParametersArray);
-            jsonResult = writeJSON(forecast);
+            forecast.result = writeJSON(forecast);
         }
 
         return "result";
