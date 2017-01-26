@@ -93,7 +93,6 @@ class LinearRegressionCSVFormat extends Serializable{
       val lrModelStart = new LinearRegression().setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
       val lrModel = lrModelStart.fit(nilDataFormatted)
 
-
       println("parameters:")
       println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
 
@@ -106,6 +105,11 @@ class LinearRegressionCSVFormat extends Serializable{
       println(s"r2: ${trainingSummary.r2}")
 
       stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
+
+      lrModel.save("HERE")
+      val bla = LinearRegressionModel.load("HERE")
+      println("Loaded params:")
+      println(s"Coefficients: ${bla.coefficients} Intercept: ${bla.intercept}")
 
       return stringToReturn
 

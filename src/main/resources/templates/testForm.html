@@ -19,6 +19,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <body>
+<script>
+
+    document.getElementById('selectaction').addEventListener('change', function () {
+        var style = this.value == 2 ? 'inline' : 'none';
+        document.getElementById('hidden_div').style.display = style;
+    });
+
+</script>
 <div class="jumbotron">
     <h1 align="center">Forecast Framework</h1>
     <p align="center">Made by Nico Peter.</p>
@@ -49,18 +57,55 @@
 
         <!-- Text input-->
         <div class="form-group">
-            <label class="col-md-4 control-label" for="textinput2">Save Model to:</label>
+            <label class="col-md-4 control-label" for="textinput2">Save to:</label>
             <div class="col-md-4">
                 <input id="textinput2" name="textinput2" type="text" th:field="*{savePath}" placeholder="path" class="form-control input-md" />
 
             </div>
         </div>
 
+        <!-- Select Action -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="selectaction">Perform:</label>
+            <div class="col-md-4">
+                <select id="selectaction" name="selectaction" class="form-control">
+                    <option id="modeling" value="1">Modeling and Evaluation</option>
+                    <option id="application" value="2">Model Application</option>
+                    <option id="both" value="3">Both</option>
+                </select>
+            </div>
+        </div>
+
         <!-- Button -->
         <div class="form-group">
             <label class="col-md-4 control-label" for="singlebutton"></label>
+            <div class="col-md-1">
+                <button id="singlebutton" name="singlebutton" class="btn btn-primary">Start</button>
+            </div>
+            <!-- Progressbar -->
+            <!--
+            <div class="col-md-1 control-label" style="width:10%">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50" style="width:100%"></div>
+                </div>
+            </div>
+            -->
+        </div>
+
+        <!-- Text input-->
+        <!--
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinput3">Forecast Horizon:</label>
             <div class="col-md-4">
-                <button id="singlebutton" name="singlebutton" class="btn btn-primary">Run Method</button>
+                <input id="textinput3" name="textinput3" type="text" th:field="*{horizon}" placeholder="number of datapoints" class="form-control input-md" />
+            </div>
+        </div> -->
+
+        <!-- Textarea -->
+        <div class="form-group" th:if="${modellingDone} == true">
+            <label class="col-md-4 control-label" for="textarea">Result model:</label>
+            <div class="col-md-4">
+                <textarea class="form-control" id="textarea" name="textarea" th:text="*{result}"></textarea>
             </div>
         </div>
 
@@ -68,9 +113,11 @@
 </form>
 
 <!-- Error Box for Exception -->
-<div class="alert alert-danger">
-    <p align="center"><strong>Danger!</strong> This alert box could indicate a dangerous or potentially negative action.</p>
+<div class="alert alert-danger" th:if="${inputError} == true" >
+    <p align="center"><strong>File not found!</strong> Please provide a valid path to a file.</p>
 </div>
+
+<div id="horizonDiv" style="display: none;">Bla Blub fasel brabbel</div>
 
 </body>
 </html>

@@ -11,7 +11,8 @@ public class Forecast {
     private String savePath;
     private AlgorithmType algoType;
     private String[] modelParameters;
-    String result;
+    private String result;
+    private Integer horizon;
 
     public String getDataPath() {
         return dataPath;
@@ -51,5 +52,13 @@ public class Forecast {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public Integer getHorizon() {
+        return horizon;
+    }
+
+    public void setHorizon(Integer horizon) {
+        this.horizon = horizon;
     }
 }
