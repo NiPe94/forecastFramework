@@ -20,15 +20,20 @@
 </head>
 <body>
 <script>
-
-    document.getElementById('selectaction').addEventListener('change', function () {
-        var style = this.value == 2 ? 'inline' : 'none';
-        document.getElementById('hidden_div').style.display = style;
-    });
-
+    function myFunction() {
+        document.getElementById("progress").style.display="block";
+    }
+    function myChangeFunction() {
+        var x = document.getElementById("selectaction").value;
+        if (x == "2" || x == "3") {
+            document.getElementById("horizon").style.display="block";
+        } else {
+            document.getElementById("horizon").style.display="none";
+        }
+    }
 </script>
 <div class="jumbotron">
-    <h1 align="center">Forecast Framework</h1>
+    <h1 align="center">Forecast Service</h1>
     <p align="center">Made by Nico Peter.</p>
 </div>
 <form class="form-horizontal" action="#" th:action="@{/test}" th:object="${forecast}" method="post">
@@ -57,7 +62,7 @@
 
         <!-- Text input-->
         <div class="form-group">
-            <label class="col-md-4 control-label" for="textinput2">Save to:</label>
+            <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
             <div class="col-md-4">
                 <input id="textinput2" name="textinput2" type="text" th:field="*{savePath}" placeholder="path" class="form-control input-md" />
 
@@ -68,38 +73,39 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="selectaction">Perform:</label>
             <div class="col-md-4">
-                <select id="selectaction" name="selectaction" class="form-control">
-                    <option id="modeling" value="1">Modeling and Evaluation</option>
-                    <option id="application" value="2">Model Application</option>
-                    <option id="both" value="3">Both</option>
+                <select id="selectaction" name="selectaction" class="form-control" onchange="myChangeFunction()" th:field="*{performType}">
+                    <option id="modeling" value="1" th:value="Modeling">Modeling and Evaluation</option>
+                    <option id="application" value="2" th:value="Application">Model Application</option>
+                    <option id="both" value="3" th:value="Both">Both</option>
                 </select>
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group" id="horizon" style="display: none">
+            <label class="col-md-4 control-label" for="textinput3">Forecast Horizon:</label>
+            <div class="col-md-4">
+                <input id="textinput3" name="textinput3" type="text" placeholder="number of datapoints" class="form-control input-md" />
             </div>
         </div>
 
         <!-- Button -->
         <div class="form-group">
-            <label class="col-md-4 control-label" for="singlebutton"></label>
-            <div class="col-md-1">
-                <button id="singlebutton" name="singlebutton" class="btn btn-primary">Start</button>
+            <label class="col-md-5 control-label" for="singlebutton"></label>
+            <div class="col-md-2">
+                <button id="singlebutton" style="width: 100%; font-size: large" align="right" name="singlebutton" class="btn btn-primary" onclick="myFunction()">Start</button>
             </div>
-            <!-- Progressbar -->
-            <!--
-            <div class="col-md-1 control-label" style="width:10%">
+        </div>
+
+        <!-- Progressbar -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="singlebutton"></label>
+            <div class="col-md-4 control-label" id="progress" style="display: none">
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50" style="width:100%"></div>
                 </div>
             </div>
-            -->
         </div>
-
-        <!-- Text input-->
-        <!--
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="textinput3">Forecast Horizon:</label>
-            <div class="col-md-4">
-                <input id="textinput3" name="textinput3" type="text" th:field="*{horizon}" placeholder="number of datapoints" class="form-control input-md" />
-            </div>
-        </div> -->
 
         <!-- Textarea -->
         <div class="form-group" th:if="${modellingDone} == true">
@@ -116,8 +122,6 @@
 <div class="alert alert-danger" th:if="${inputError} == true" >
     <p align="center"><strong>File not found!</strong> Please provide a valid path to a file.</p>
 </div>
-
-<div id="horizonDiv" style="display: none;">Bla Blub fasel brabbel</div>
 
 </body>
 </html>

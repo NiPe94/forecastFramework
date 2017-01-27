@@ -1,16 +1,10 @@
 package org.kit.energy
 
-import java.io.FileNotFoundException
-
-import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.linalg.Vectors
-import org.apache.spark.ml.regression.LinearRegression
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
 import org.springframework.stereotype.Component
-import org.apache.spark.sql.{DataFrame, Row, SQLContext, SparkSession}
-import org.apache.spark.mllib.regression.{LabeledPoint, LinearRegressionModel, LinearRegressionWithSGD}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.types.{ArrayType, DoubleType, StructField, StructType}
 
 /**
   * Created by qa5147 on 16.01.2017.
@@ -22,7 +16,7 @@ class TestClass extends Serializable{
   // ML: new, pipelines, dataframes, easier to construct ml pipeline
   // MLLib: Old, RDDs, More features
 
-  // convert the Times to values via fc
+  // convert the Times to Integer values via this function
   def timeConversion (str: String) : Int = {
     val timeStringValues = str.split(":")
     val timeIntValues = timeStringValues.map( str => str.toInt )
@@ -30,21 +24,13 @@ class TestClass extends Serializable{
     return timeFinalValue
   }
 
-  // method to start and execute regression
-  def startHere(dataPath:String, savePath:String): String = {
-
-    // only for printing something to the console
-    println("Here is where scala starts!")
+  // method to start and execute the regression
+  def start(dataPath:String, savePath:String, performModeling:Boolean, performModelApplication:Boolean): String = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
 
     // initialize spark context vars
-    val conf = new SparkConf().setAppName("Simple Application")
-      .setMaster("local")
-
-    val sc = new SparkContext(conf)
-
     val spark = SparkSession
       .builder()
       .master("local")
@@ -56,47 +42,73 @@ class TestClass extends Serializable{
 
     try {
 
-      var nilCSV = spark.emptyDataFrame
-
-
-      nilCSV = spark.read
+      // read the dataset
+      val nilCSV = spark.read
         .format("com.databricks.spark.csv")
         .option("header", "true")
         .option("mode", "DROPMALFORMED")
         .load(dataPath)
 
-
+      // drop the unimportant column
       val nilData = nilCSV.drop("_c0")
 
+      // user defined functions to convert the column data for the regression
       val toDouble = udf[Double, String](_.toDouble)
       val toVector = udf( (i : String) => (Vectors.dense(i.toDouble) : org.apache.spark.ml.linalg.Vector) )
-      //val toVector = udf[Vector, String](Vectors.dense(_.toDouble))
 
+      // copy the columns and rename their header names, also convert their data
       val nilDataFormatted1 = nilData
         .withColumn("features", toVector(nilData("time")))
         .withColumn("label", toDouble(nilData("Nile")) )
 
+      // drop the old columns
       val nilDataFormatted = nilDataFormatted1.drop("time","Nile")
       nilDataFormatted.show()
 
-      val lrModelStart = new LinearRegression().setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
-      val lrModel = lrModelStart.fit(nilDataFormatted)
-      //val resultDF = lrModel.transform(nilDataFormatted)
+      var lrModel = new LinearRegressionModel
 
-      //println("Show predicted Data:")
-      //resultDF.show()
+      // if the user wants to start a modeling job
+      if(performModeling) {
+        // set regression parameter and start the regression
+        val lrModelStart = new LinearRegression().setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
+        lrModel = lrModelStart.fit(nilDataFormatted)
 
-      println("parameters:")
-      println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
+        // print parameter
+        println("parameters:")
+        println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
 
-      // Summarize the model over the training set and print out some metrics
-      val trainingSummary = lrModel.summary
-      println(s"numIterations: ${trainingSummary.totalIterations}")
-      println(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]")
-      //trainingSummary.residuals.show()
-      println(s"MSE: ${trainingSummary.meanSquaredError}")
-      println(s"r2: ${trainingSummary.r2}")
+        // Summarize the model over the training set and print out some metrics
+        val trainingSummary = lrModel.summary
+        println(s"numIterations: ${trainingSummary.totalIterations}")
+        println(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]")
+        trainingSummary.residuals.show()
+        println(s"MSE: ${trainingSummary.meanSquaredError}")
+        println(s"r2: ${trainingSummary.r2}")
 
+        // save the model
+        lrModel.write.overwrite().save(savePath)
+
+      }
+
+      // if the user wants to start a modelapplication job
+      if(performModelApplication) {
+        // if no modeling was performed, load the user given model
+        if(performModeling == false) {
+            lrModel = LinearRegressionModel.load(savePath)
+          }
+
+        // predict new data
+        val transformedData = lrModel.transform(nilDataFormatted)
+
+        val savePathChanged = savePath + "myData.csv"
+
+        transformedData.write
+          .format("com.databricks.spark.csv")
+          .option("header","true")
+          .save(savePathChanged)
+      }
+
+      // the model coefficients will be returned to server
       stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
 
       return stringToReturn
@@ -109,6 +121,5 @@ class TestClass extends Serializable{
     }
 
   }
-
 
 }

@@ -1,5 +1,7 @@
 package org.kit.energy;
 
+
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -10,6 +12,7 @@ public class Forecast {
     private String dataPath;
     private String savePath;
     private AlgorithmType algoType;
+    private PerformType performType;
     private String[] modelParameters;
     private String result;
     private Integer horizon;
@@ -60,5 +63,13 @@ public class Forecast {
 
     public void setHorizon(Integer horizon) {
         this.horizon = horizon;
+    }
+
+    public PerformType getPerformType() {
+        return performType;
+    }
+
+    public void setPerformType(PerformType performType) {
+        this.performType = performType;
     }
 }

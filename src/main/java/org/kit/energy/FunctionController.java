@@ -44,19 +44,21 @@ public class FunctionController {
 
     @GetMapping("/test")
     public String testForm(Model model){
-        model.addAttribute("forecast", new Forecast());;
+        model.addAttribute("forecast", new Forecast());
         return "testForm";
     }
 
     @PostMapping("/test")
     public String submitTestForm(@ModelAttribute Forecast forecast, Model model){
+
+        // some vars
         boolean inputError = false;
         boolean modellingDone = false;
         String modelParameters = "";
         String[] modelParametersArray;
         String jsonResult;
 
-
+        // When file is a dir or does not exist, return to form and display a error bar
         if(checkIfFileIsValid(forecast.getDataPath()) == false) {
             inputError = true;
             model.addAttribute("inputError", inputError);
@@ -67,8 +69,14 @@ public class FunctionController {
         model.addAttribute("inputError", inputError);
 
         if(forecast.getAlgoType() == AlgorithmType.LinearRegressionType) {
-            System.out.println("Starting scala function:");
-            modelParameters = linRegCSV.startHere(forecast.getDataPath(), forecast.getSavePath());
+            boolean startModeling = true, startApplication = true;
+            if(forecast.getPerformType() == PerformType.Modeling){
+                startApplication = false;
+            }
+            if(forecast.getPerformType() == PerformType.Application){
+                startModeling = false;
+            }
+            modelParameters = testClass.start(forecast.getDataPath(), forecast.getSavePath(), startModeling, startApplication);
             modelParametersArray = modelParameters.split(" ");
             forecast.setModelParameters(modelParametersArray);
             forecast.setResult(writeJSON(forecast));
@@ -90,7 +98,9 @@ public class FunctionController {
         String resultString = gson.toJson(forecast);
 
         //2. Convert object to JSON string and save into a file directly
-        try (FileWriter writer = new FileWriter(forecast.getSavePath())) {
+        String completePath = forecast.getSavePath() + forecast.getAlgoType() + ".JSON";
+        System.out.println(completePath);
+        try (FileWriter writer = new FileWriter(completePath)) {
 
             gson.toJson(forecast, writer);
 

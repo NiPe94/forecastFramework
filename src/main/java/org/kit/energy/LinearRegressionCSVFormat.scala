@@ -1,15 +1,9 @@
 package org.kit.energy
 
-import java.io.FileNotFoundException
-
 import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
-import org.apache.spark.sql.Row
-//import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.functions.udf
-import org.apache.spark.mllib.regression.{LabeledPoint, LinearRegressionWithSGD}
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.{SparkConf, SparkContext}
 import org.springframework.stereotype.Component
 
 /**
@@ -22,7 +16,7 @@ class LinearRegressionCSVFormat extends Serializable{
   // ML: new, pipelines, dataframes, easier to construct ml pipeline
   // MLLib: Old, RDDs, More features
 
-  // convert the Times to values via fc
+  // convert the Times to Integer values via this function
   def timeConversion (str: String) : Int = {
     val timeStringValues = str.split(":")
     val timeIntValues = timeStringValues.map( str => str.toInt )
@@ -30,7 +24,7 @@ class LinearRegressionCSVFormat extends Serializable{
     return timeFinalValue
   }
 
-  // method to start and execute regression
+  // method to start and execute the regression
   def startHere(dataPath:String, savePath:String): String = {
 
     // only for printing something to the console
@@ -40,11 +34,6 @@ class LinearRegressionCSVFormat extends Serializable{
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
 
     // initialize spark context vars
-    val conf = new SparkConf().setAppName("Simple Application")
-      .setMaster("local")
-
-    val sc = new SparkContext(conf)
-
     val spark = SparkSession
       .builder()
       .master("local")
@@ -56,43 +45,34 @@ class LinearRegressionCSVFormat extends Serializable{
 
     try {
 
-      // ************************
-      // Working Nile csv example, csv format here: "","time","Nile"\n"1",10,400\n"2",32,4345\n....
-      //https://spark.apache.org/docs/2.1.0/mllib-linear-methods.html#linear-least-squares-lasso-and-ridge-regression
+      // read the dataset
+      val nilCSV = spark.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true")
+        .option("mode", "DROPMALFORMED")
+        .load(dataPath)
 
-      var nilCSV = spark.emptyDataFrame
-
-      try {
-        nilCSV = spark.read
-          .format("com.databricks.spark.csv")
-          .option("header", "true")
-          .option("mode", "DROPMALFORMED")
-          .load(dataPath)
-      } catch {
-        case ex: FileNotFoundException => {
-          stringToReturn = "File not found"
-          return stringToReturn
-        }
-      }
-
+      // drop the unimportant column
       val nilData = nilCSV.drop("_c0")
 
+      // user defined functions to convert the column data for the regression
       val toDouble = udf[Double, String](_.toDouble)
       val toVector = udf( (i : String) => (Vectors.dense(i.toDouble) : org.apache.spark.ml.linalg.Vector) )
-      //val toVector = udf[Vector, String](Vectors.dense(_.toDouble))
 
+      // copy the columns and rename their header names, also convert their data
       val nilDataFormatted1 = nilData
           .withColumn("features", toVector(nilData("time")))
           .withColumn("label", toDouble(nilData("Nile")) )
 
-      //val nilDataChanged = nilData.withColumnRenamed("Nile","features")
-
+      // drop the old columns
       val nilDataFormatted = nilDataFormatted1.drop("time","Nile")
       nilDataFormatted.show()
 
+      // set regression parameter and start the regression
       val lrModelStart = new LinearRegression().setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
       val lrModel = lrModelStart.fit(nilDataFormatted)
 
+      // print parameter
       println("parameters:")
       println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
 
@@ -104,17 +84,15 @@ class LinearRegressionCSVFormat extends Serializable{
       println(s"MSE: ${trainingSummary.meanSquaredError}")
       println(s"r2: ${trainingSummary.r2}")
 
-      stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
-
-      lrModel.save("HERE")
-      val bla = LinearRegressionModel.load("HERE")
+      // save and load the model
+      lrModel.write.overwrite().save(savePath)
+      val bla = LinearRegressionModel.load(savePath)
       println("Loaded params:")
       println(s"Coefficients: ${bla.coefficients} Intercept: ${bla.intercept}")
 
+      // return the model parameters
+      stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
       return stringToReturn
-
-      // working Nil example
-      // ************************
 
 
     } finally {
