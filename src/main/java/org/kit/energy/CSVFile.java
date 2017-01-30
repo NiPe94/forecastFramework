@@ -1,5 +1,7 @@
 package org.kit.energy;
 
+import java.io.File;
+
 /**
  * Created by qa5147 on 30.01.2017.
  */
@@ -32,6 +34,13 @@ public class CSVFile {
     }
 
     public void setDelimeter(String delimeter) {
+        if(Integer.parseInt(delimeter) == 2){
+            delimeter = ";";
+        }
+        else {
+            delimeter = ",";
+        }
+
         this.delimeter = delimeter;
     }
 
@@ -49,5 +58,10 @@ public class CSVFile {
 
     public void setFeatureColumnsIndexes(int[] featureColumnsIndexes) {
         this.featureColumnsIndexes = featureColumnsIndexes;
+    }
+
+    private boolean checkIfFileIsValid(String path){
+        File f = new File(path);
+        return (f.exists() && !f.isDirectory());
     }
 }

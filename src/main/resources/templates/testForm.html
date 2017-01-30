@@ -50,7 +50,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput1">Take file from:</label>
             <div class="col-md-4">
-                <input id="textinput1" name="textinput1" type="text" th:field="*{dataPath}" placeholder="path" class="form-control input-md" />
+                <input id="textinput1" name="textinput1" type="text" th:field="${csvfile.dataPath}" placeholder="path" class="form-control input-md" />
             </div>
         </div>
 
@@ -60,16 +60,16 @@
             <div class="col-md-1">
                 <div class="checkbox">
                     <label for="checkboxes-0">
-                        <input type="checkbox" name="checkboxes" id="checkboxes-0" value="1" />
+                        <input type="checkbox" name="checkboxes" id="checkboxes-0" value="1" th:field="${csvfile.hasHeader}" />
                         Head
                     </label>
                 </div>
             </div>
             <label class="col-md-1 control-label" for="selectDel">Select Delimeter</label>
             <div class="col-md-2" style="width: 5%">
-                <select id="selectDel" name="selectDel" class="form-control">
-                    <option value="1"><b>,</b></option>
-                    <option value="2"><b>;</b></option>
+                <select id="selectDel" name="selectDel" class="form-control" th:field="${csvfile.delimeter}" >
+                    <option value="1" th:value="1" ><b>,</b></option>
+                    <option value="2" th:value="2" ><b>;</b></option>
                 </select>
             </div>
         </div>
@@ -78,7 +78,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
             <div class="col-md-4">
-                <input id="textinput2" name="textinput2" type="text" th:field="*{savePathModel}" placeholder="path" class="form-control input-md" />
+                <input id="textinput2" name="textinput2" type="text" th:field="${modeling.savePathModel}" placeholder="path" class="form-control input-md" />
 
             </div>
         </div>
@@ -96,7 +96,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="selectbasic">Select Algorithm:</label>
             <div class="col-md-4">
-                <select id="selectbasic" name="selectbasic" class="form-control" th:field="*{algoType}">
+                <select id="selectbasic" name="selectbasic" class="form-control" th:field="${modeling.algoType}">
                     <option th:each="algorithmType : ${T(org.kit.energy.AlgorithmType).values()}" th:value="${algorithmType}" th:text="${algorithmType}"></option>
                 </select>
             </div>
@@ -126,7 +126,7 @@
         <div class="form-group">
             <label class="col-md-5 control-label" for="singlebutton"></label>
             <div class="col-md-2">
-                <button id="singlebutton" style="width: 100%; font-size: large" align="right" name="singlebutton" class="btn btn-primary" onclick="myFunction()">Start</button>
+                <button id="singlebutton" style="width: 100%; font-size: large" align="right" name="singlebutton" class="btn btn-primary" onclick="myFunction()"><span class="glyphicon glyphicon-flash"></span> Start</button>
             </div>
         </div>
 

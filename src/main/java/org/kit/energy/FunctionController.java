@@ -51,7 +51,7 @@ public class FunctionController {
     }
 
     @PostMapping("/test")
-    public String submitTestForm(@ModelAttribute Forecast forecast, Model model){
+    public String submitTestForm(@ModelAttribute("forecast")Forecast forecast, @ModelAttribute("csvfile")CSVFile fileCSV, @ModelAttribute("modeling")Modeling modeling, Model model, BindingResult bindResult){
 
         // some vars
         boolean inputError = false;
@@ -59,9 +59,12 @@ public class FunctionController {
         String modelParameters = "";
         String[] modelParametersArray;
         String jsonResult;
+        forecast.setFileCSV(fileCSV);
+        forecast.setModeling(modeling);
+
 
         // When file is a dir or does not exist, return to form and display a error bar
-        if(checkIfFileIsValid(forecast.getDataPath()) == false) {
+        if(checkIfFileIsValid(fileCSV.getDataPath()) == false) {
             inputError = true;
             model.addAttribute("inputError", inputError);
             model.addAttribute("modellingDone", modellingDone);
@@ -70,7 +73,7 @@ public class FunctionController {
 
         model.addAttribute("inputError", inputError);
 
-        if(forecast.getAlgoType() == AlgorithmType.LinearRegressionType) {
+        if(modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {
             boolean startModeling = true, startApplication = true;
             if(forecast.getPerformType() == PerformType.Modeling){
                 startApplication = false;
@@ -78,15 +81,17 @@ public class FunctionController {
             if(forecast.getPerformType() == PerformType.Application){
                 startModeling = false;
             }
-            modelParameters = testClass.start(forecast.getDataPath(), forecast.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication);
+            modelParameters = testClass.start(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication);
             modelParametersArray = modelParameters.split(" ");
-            forecast.setModelParameters(modelParametersArray);
+            modeling.setModelParameters(modelParametersArray);
             forecast.setResult(writeJSON(forecast));
             modellingDone = true;
         }
 
         model.addAttribute("inputError", inputError);
         model.addAttribute("modellingDone", modellingDone);
+
+
         return "testForm";
     }
 
@@ -100,8 +105,7 @@ public class FunctionController {
         String resultString = gson.toJson(forecast);
 
         //2. Convert object to JSON string and save into a file directly
-        String completePath = forecast.getSavePathModel() + forecast.getAlgoType() + ".JSON";
-        System.out.println(completePath);
+        String completePath = forecast.getModeling().getSavePathModel() + forecast.getModeling().getAlgoType() + ".JSON";
         try (FileWriter writer = new FileWriter(completePath)) {
 
             gson.toJson(forecast, writer);
@@ -109,6 +113,7 @@ public class FunctionController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         return resultString;
     }

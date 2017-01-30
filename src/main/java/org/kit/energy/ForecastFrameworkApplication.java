@@ -37,9 +37,6 @@ public class ForecastFrameworkApplication extends WebSecurityConfigurerAdapter{
 		SpringApplication.run(ForecastFrameworkApplication.class, args);
 	}
 
-	@Autowired
-	private SparkModel exampleModel;
-
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.inMemoryAuthentication()
@@ -69,16 +66,6 @@ public class ForecastFrameworkApplication extends WebSecurityConfigurerAdapter{
 		return "test";
 	}
 	*/
-
-	/**
-     * Mapping zu den Spark-Algorithmen
-	 */
-	@RequestMapping("/example")
-	public String example(Model model) {
-		exampleModel.doStuff();
-		model.addAttribute("path", "Shit just got real!");
-		return "test";
-	}
 
 	/**
 	* logout Methode
