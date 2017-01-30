@@ -9,44 +9,18 @@ import java.util.Collection;
  */
 public class Forecast {
 
-    private String dataPath;
-    private String savePath;
-    private AlgorithmType algoType;
+    private String savePathCSV;
     private PerformType performType;
-    private String[] modelParameters;
     private String result;
-    private Integer horizon;
+    private CSVFile fileCSV;
+    private Modeling modeling;
 
-    public String getDataPath() {
-        return dataPath;
+    public String getSavePathCSV() {
+        return savePathCSV;
     }
 
-    public void setDataPath(String dataPath) {
-        this.dataPath = dataPath;
-    }
-
-    public String getSavePath() {
-        return savePath;
-    }
-
-    public void setSavePath(String savePath) {
-        this.savePath = savePath;
-    }
-
-    public AlgorithmType getAlgoType() {
-        return algoType;
-    }
-
-    public void setAlgoType(AlgorithmType algoType) {
-        this.algoType = algoType;
-    }
-
-    public String[] getModelParameters() {
-        return modelParameters;
-    }
-
-    public void setModelParameters(String[] modelParameters) {
-        this.modelParameters = modelParameters;
+    public void setSavePathCSV(String savePathCSV) {
+        this.savePathCSV = savePathCSV;
     }
 
     public String getResult() {
@@ -57,19 +31,27 @@ public class Forecast {
         this.result = result;
     }
 
-    public Integer getHorizon() {
-        return horizon;
-    }
-
-    public void setHorizon(Integer horizon) {
-        this.horizon = horizon;
-    }
-
     public PerformType getPerformType() {
         return performType;
     }
 
     public void setPerformType(PerformType performType) {
         this.performType = performType;
+    }
+
+    public CSVFile getFileCSV() {
+        return fileCSV;
+    }
+
+    public void setFileCSV(CSVFile fileCSV) {
+        this.fileCSV = fileCSV;
+    }
+
+    public Modeling getModeling() {
+        return modeling;
+    }
+
+    public void setModeling(Modeling modeling) {
+        this.modeling = modeling;
     }
 }

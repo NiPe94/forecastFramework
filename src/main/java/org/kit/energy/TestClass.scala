@@ -2,9 +2,12 @@ package org.kit.energy
 
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
+import org.apache.spark.sql
 import org.springframework.stereotype.Component
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions.round
+import org.apache.spark.sql.Column
 
 /**
   * Created by qa5147 on 16.01.2017.
@@ -18,14 +21,40 @@ class TestClass extends Serializable{
 
   // convert the Times to Integer values via this function
   def timeConversion (str: String) : Int = {
+
     val timeStringValues = str.split(":")
     val timeIntValues = timeStringValues.map( str => str.toInt )
     val timeFinalValue = (timeIntValues.apply(0) * 60) + timeIntValues.apply(1)
     return timeFinalValue
   }
 
+  // perform Model application and save the resulting csv dataset on the given path
+  def doApplication (lr: LinearRegressionModel, df: sql.DataFrame, savePathCSV:String) : Unit = {
+
+    val transformedData = lr.transform(df)
+
+    println("transformed Data schema:")
+    transformedData.printSchema()
+
+    println("transformed data:")
+    transformedData.show()
+
+    val savePathChanged = savePathCSV + "myData.csv"
+
+    println("begin saving:")
+    val selectedDataBefore = transformedData.withColumn("prediction2", round(new Column("prediction"),3))
+    val selectedData = selectedDataBefore.select("label", "prediction2")
+    selectedData
+      .write
+      .format("com.databricks.spark.csv")
+      .option("header","false")
+      .option("sep",";")
+      .save(savePathChanged)
+
+  }
+
   // method to start and execute the regression
-  def start(dataPath:String, savePath:String, performModeling:Boolean, performModelApplication:Boolean): String = {
+  def start(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean): String = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
@@ -65,13 +94,11 @@ class TestClass extends Serializable{
       val nilDataFormatted = nilDataFormatted1.drop("time","Nile")
       nilDataFormatted.show()
 
-      var lrModel = new LinearRegressionModel
-
       // if the user wants to start a modeling job
       if(performModeling) {
         // set regression parameter and start the regression
-        val lrModelStart = new LinearRegression().setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
-        lrModel = lrModelStart.fit(nilDataFormatted)
+        val lrModelStart = new LinearRegression().setRegParam(0.0).setElasticNetParam(0.0).setFitIntercept(true)
+        val lrModel = lrModelStart.fit(nilDataFormatted)
 
         // print parameter
         println("parameters:")
@@ -86,30 +113,29 @@ class TestClass extends Serializable{
         println(s"r2: ${trainingSummary.r2}")
 
         // save the model
-        lrModel.write.overwrite().save(savePath)
+        lrModel.write.overwrite().save(savePathModel)
+
+        if(performModelApplication) {
+          // predict new data
+          doApplication(lrModel,nilDataFormatted,savePathCSV)
+        }
+
+        // the model coefficients will be returned to server
+        stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
 
       }
 
       // if the user wants to start a modelapplication job
-      if(performModelApplication) {
+      if(performModeling == false && performModelApplication) {
         // if no modeling was performed, load the user given model
-        if(performModeling == false) {
-            lrModel = LinearRegressionModel.load(savePath)
-          }
+        val lrModel = LinearRegressionModel.load(savePathModel)
 
         // predict new data
-        val transformedData = lrModel.transform(nilDataFormatted)
+        doApplication(lrModel,nilDataFormatted,savePathCSV)
 
-        val savePathChanged = savePath + "myData.csv"
-
-        transformedData.write
-          .format("com.databricks.spark.csv")
-          .option("header","true")
-          .save(savePathChanged)
+        // the model coefficients will be returned to server
+        stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
       }
-
-      // the model coefficients will be returned to server
-      stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
 
       return stringToReturn
 

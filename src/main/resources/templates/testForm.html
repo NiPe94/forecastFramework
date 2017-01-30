@@ -17,20 +17,24 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script src="webjars/jquery/2.0.3/jquery.min.js"></script>
 </head>
 <body>
-<script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
     function myFunction() {
         document.getElementById("progress").style.display="block";
     }
     function myChangeFunction() {
         var x = document.getElementById("selectaction").value;
-        if (x == "2" || x == "3") {
+        if (x == "Application" || x == "Both") {
             document.getElementById("horizon").style.display="block";
         } else {
             document.getElementById("horizon").style.display="none";
         }
     }
+    /*]]>*/
 </script>
 <div class="jumbotron">
     <h1 align="center">Forecast Service</h1>
@@ -42,7 +46,7 @@
         <!-- Form Name -->
         <legend></legend>
 
-        <!-- Text input-->
+        <!-- Take file from -->
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput1">Take file from:</label>
             <div class="col-md-4">
@@ -50,22 +54,51 @@
             </div>
         </div>
 
-        <!-- Select Basic -->
+        <!-- CSV options -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="checkboxes-0">CSV Options:</label>
+            <div class="col-md-1">
+                <div class="checkbox">
+                    <label for="checkboxes-0">
+                        <input type="checkbox" name="checkboxes" id="checkboxes-0" value="1" />
+                        Head
+                    </label>
+                </div>
+            </div>
+            <label class="col-md-1 control-label" for="selectDel">Select Delimeter</label>
+            <div class="col-md-2" style="width: 5%">
+                <select id="selectDel" name="selectDel" class="form-control">
+                    <option value="1"><b>,</b></option>
+                    <option value="2"><b>;</b></option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Save Model to -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
+            <div class="col-md-4">
+                <input id="textinput2" name="textinput2" type="text" th:field="*{savePathModel}" placeholder="path" class="form-control input-md" />
+
+            </div>
+        </div>
+
+        <!-- Save CSV to -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinput3">Save resulting csv to:</label>
+            <div class="col-md-4">
+                <input id="textinput3" name="textinput3" type="text" th:field="*{savePathCSV}" placeholder="path" class="form-control input-md" />
+
+            </div>
+        </div>
+
+        <!-- Select Algorithm -->
         <div class="form-group">
             <label class="col-md-4 control-label" for="selectbasic">Select Algorithm:</label>
             <div class="col-md-4">
                 <select id="selectbasic" name="selectbasic" class="form-control" th:field="*{algoType}">
                     <option th:each="algorithmType : ${T(org.kit.energy.AlgorithmType).values()}" th:value="${algorithmType}" th:text="${algorithmType}"></option>
                 </select>
-            </div>
-        </div>
-
-        <!-- Text input-->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
-            <div class="col-md-4">
-                <input id="textinput2" name="textinput2" type="text" th:field="*{savePath}" placeholder="path" class="form-control input-md" />
-
             </div>
         </div>
 
@@ -81,15 +114,15 @@
             </div>
         </div>
 
-        <!-- Text input-->
+        <!-- Forecast Past Horizon -->
         <div class="form-group" id="horizon" style="display: none">
-            <label class="col-md-4 control-label" for="textinput3">Forecast Horizon:</label>
+            <label class="col-md-4 control-label" for="textinput4">Past Values for modeling:</label>
             <div class="col-md-4">
-                <input id="textinput3" name="textinput3" type="text" placeholder="number of datapoints" class="form-control input-md" />
+                <input id="textinput4" name="textinput4" type="text" placeholder="number of datapoints to the past" class="form-control input-md" />
             </div>
         </div>
 
-        <!-- Button -->
+        <!-- Start Button -->
         <div class="form-group">
             <label class="col-md-5 control-label" for="singlebutton"></label>
             <div class="col-md-2">
@@ -114,6 +147,7 @@
                 <textarea class="form-control" id="textarea" name="textarea" th:text="*{result}"></textarea>
             </div>
         </div>
+
 
     </fieldset>
 </form>

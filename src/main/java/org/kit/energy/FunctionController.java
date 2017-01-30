@@ -45,6 +45,8 @@ public class FunctionController {
     @GetMapping("/test")
     public String testForm(Model model){
         model.addAttribute("forecast", new Forecast());
+        model.addAttribute("csvfile", new CSVFile());
+        model.addAttribute("modeling", new Modeling());
         return "testForm";
     }
 
@@ -76,7 +78,7 @@ public class FunctionController {
             if(forecast.getPerformType() == PerformType.Application){
                 startModeling = false;
             }
-            modelParameters = testClass.start(forecast.getDataPath(), forecast.getSavePath(), startModeling, startApplication);
+            modelParameters = testClass.start(forecast.getDataPath(), forecast.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication);
             modelParametersArray = modelParameters.split(" ");
             forecast.setModelParameters(modelParametersArray);
             forecast.setResult(writeJSON(forecast));
@@ -98,7 +100,7 @@ public class FunctionController {
         String resultString = gson.toJson(forecast);
 
         //2. Convert object to JSON string and save into a file directly
-        String completePath = forecast.getSavePath() + forecast.getAlgoType() + ".JSON";
+        String completePath = forecast.getSavePathModel() + forecast.getAlgoType() + ".JSON";
         System.out.println(completePath);
         try (FileWriter writer = new FileWriter(completePath)) {
 
