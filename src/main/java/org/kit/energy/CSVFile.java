@@ -10,8 +10,8 @@ public class CSVFile {
     private String dataPath;
     private boolean hasHeader;
     private String delimeter;
-    private int labelColumnIndex;
-    private int[] featureColumnsIndexes;
+    private String labelColumnIndex;
+    private String featureColumnsIndexes;
 
     public String getDataPath() {
         return dataPath;
@@ -40,28 +40,23 @@ public class CSVFile {
         else {
             delimeter = ",";
         }
-
         this.delimeter = delimeter;
     }
 
-    public int getLabelColumnIndex() {
+    public String getLabelColumnIndex() {
         return labelColumnIndex;
     }
 
-    public void setLabelColumnIndex(int labelColumnIndex) {
+    public void setLabelColumnIndex(String labelColumnIndex) {
         this.labelColumnIndex = labelColumnIndex;
     }
 
-    public int[] getFeatureColumnsIndexes() {
+    public String getFeatureColumnsIndexes() {
         return featureColumnsIndexes;
     }
 
-    public void setFeatureColumnsIndexes(int[] featureColumnsIndexes) {
-        this.featureColumnsIndexes = featureColumnsIndexes;
-    }
+    public void setFeatureColumnsIndexes(String featureColumnsIndexes) {
 
-    private boolean checkIfFileIsValid(String path){
-        File f = new File(path);
-        return (f.exists() && !f.isDirectory());
+        this.featureColumnsIndexes = featureColumnsIndexes;
     }
 }

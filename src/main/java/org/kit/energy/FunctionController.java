@@ -43,7 +43,7 @@ public class FunctionController {
     }
 
     @GetMapping("/test")
-    public String testForm(Model model){
+    public String testForm(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
@@ -51,34 +51,33 @@ public class FunctionController {
     }
 
     @PostMapping("/test")
-    public String submitTestForm(@ModelAttribute("forecast")Forecast forecast, @ModelAttribute("csvfile")CSVFile fileCSV, @ModelAttribute("modeling")Modeling modeling, Model model, BindingResult bindResult){
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("csvfile") CSVFile fileCSV, @ModelAttribute("modeling") Modeling modeling, Model model, BindingResult bindResult) {
 
         // some vars
-        boolean inputError = false;
         boolean modellingDone = false;
         String modelParameters = "";
         String[] modelParametersArray;
-        String jsonResult;
         forecast.setFileCSV(fileCSV);
         forecast.setModeling(modeling);
 
+        // validate input data
+        Validator validator = new Validator(fileCSV);
+        model.addAttribute("validatorError", !validator.isValid());
+        model.addAttribute("validatorMessage", validator.getMessage());
 
         // When file is a dir or does not exist, return to form and display a error bar
-        if(checkIfFileIsValid(fileCSV.getDataPath()) == false) {
-            inputError = true;
-            model.addAttribute("inputError", inputError);
+        if (validator.isValid() == false) {
             model.addAttribute("modellingDone", modellingDone);
             return "testForm";
         }
 
-        model.addAttribute("inputError", inputError);
-
-        if(modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {
+        /*
+        if (modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {
             boolean startModeling = true, startApplication = true;
-            if(forecast.getPerformType() == PerformType.Modeling){
+            if (forecast.getPerformType() == PerformType.Modeling) {
                 startApplication = false;
             }
-            if(forecast.getPerformType() == PerformType.Application){
+            if (forecast.getPerformType() == PerformType.Application) {
                 startModeling = false;
             }
             modelParameters = testClass.start(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication);
@@ -86,21 +85,19 @@ public class FunctionController {
             modeling.setModelParameters(modelParametersArray);
             forecast.setResult(writeJSON(forecast));
             modellingDone = true;
-        }
+        }*/
 
-        model.addAttribute("inputError", inputError);
+        modellingDone = true;
+
         model.addAttribute("modellingDone", modellingDone);
 
+        //testzwecke:
+        forecast.setResult("Test");
 
         return "testForm";
     }
 
-    private boolean checkIfFileIsValid(String path){
-        File f = new File(path);
-        return (f.exists() && !f.isDirectory());
-    }
-
-    private String writeJSON(Forecast forecast){
+    private String writeJSON(Forecast forecast) {
         Gson gson = new Gson();
         String resultString = gson.toJson(forecast);
 

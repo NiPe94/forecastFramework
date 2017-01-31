@@ -65,7 +65,7 @@
                     </label>
                 </div>
             </div>
-            <label class="col-md-1 control-label" for="selectDel">Select Delimeter</label>
+            <label class="col-md-1 control-label" for="selectDel">Delimeter:</label>
             <div class="col-md-2" style="width: 5%">
                 <select id="selectDel" name="selectDel" class="form-control" th:field="${csvfile.delimeter}" >
                     <option value="1" th:value="1" ><b>,</b></option>
@@ -74,12 +74,23 @@
             </div>
         </div>
 
+        <!-- Modeling Label/Features options -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinputLabel">Label at:</label>
+            <div class="col-md-1">
+                <input id="textinputLabel" name="textinputLabel" type="text" th:field="${modeling.savePathModel}" placeholder="1" class="form-control input-md" />
+            </div>
+            <label class="col-md-1 control-label" for="textinputFeatures">Features at:</label>
+            <div class="col-md-1">
+                <input id="textinputFeatures" name="textinputFeatures" type="text" th:field="${modeling.savePathModel}" placeholder="2,3,4 or 2 3 4" class="form-control input-md" />
+            </div>
+        </div>
+
         <!-- Save Model to -->
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
             <div class="col-md-4">
                 <input id="textinput2" name="textinput2" type="text" th:field="${modeling.savePathModel}" placeholder="path" class="form-control input-md" />
-
             </div>
         </div>
 
@@ -153,8 +164,8 @@
 </form>
 
 <!-- Error Box for Exception -->
-<div class="alert alert-danger" th:if="${inputError} == true" >
-    <p align="center"><strong>File not found!</strong> Please provide a valid path to a file.</p>
+<div class="alert alert-danger" th:if="${validatorError} == true" >
+    <p align="center" th:text="${validatorMessage}"><strong>Error!</strong> Please provide a valid path to a file.</p>
 </div>
 
 </body>
