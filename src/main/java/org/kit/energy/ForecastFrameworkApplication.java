@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @SpringBootApplication
 @Controller
-public class ForecastFrameworkApplication extends WebSecurityConfigurerAdapter{
+public class ForecastFrameworkApplication{
     /**
      * Hauptprogramm
      *
@@ -35,23 +35,6 @@ public class ForecastFrameworkApplication extends WebSecurityConfigurerAdapter{
      */
 	public static void main(String[] args) {
 		SpringApplication.run(ForecastFrameworkApplication.class, args);
-	}
-
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication()
-				.withUser("user")
-				.password("password")
-				.roles("USER");
-	}
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests()
-				.antMatchers("/").permitAll()
-				.antMatchers("/test").permitAll()
-				.antMatchers("/page1").hasRole("USER")
-				.and().formLogin();
 	}
 
 	@RequestMapping("/page1")

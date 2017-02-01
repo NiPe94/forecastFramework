@@ -29,7 +29,7 @@ public class Validator {
 
         // label input test
         if(!this.checkLabelInput(this.file.getLabelColumnIndex())){
-            this.message += "Wrong label input: Please type in a number ";
+            this.message += "Wrong label input: Please type in a number! ";
             test = false;
         }
 
@@ -50,36 +50,47 @@ public class Validator {
         return isValid;
     }
 
-    public boolean checkIfFileIsValid(String path) {
+    private boolean checkIfFileIsValid(String path) {
 
         File f = new File(path);
         return (f.exists() && !f.isDirectory());
     }
 
-    public boolean checkFeatureInputFormat(String string) {
+    private boolean checkFeatureInputFormat(String string) {
 
         String delimeter = ",";
         String[] splittedString;
 
-        if (string.contains(delimeter)) {
-            string = string.replace(" ","");
-        } else {
+        if(string.isEmpty()){
             return false;
         }
 
-        try {
-            splittedString = string.split(delimeter);
-            for(String str:splittedString){
-                Integer.parseInt(str);
+        if (string.contains(delimeter)) {
+            string = string.replace(" ","");
+
+            try {
+                splittedString = string.split(delimeter);
+                for(String str:splittedString){
+                    Integer.parseInt(str);
+                }
+            } catch (Exception e) {
+                return false;
             }
-        } catch (Exception e) {
-            return false;
+
+        } else {
+            // There has to be only one number
+            try {
+                Integer.parseInt(string);
+            } catch (Exception e) {
+                return false;
+            }
         }
+
 
         return true;
     }
 
-    public boolean checkLabelInput(String string) {
+    private boolean checkLabelInput(String string) {
 
         try {
             int number = Integer.parseInt(string);

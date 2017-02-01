@@ -1,8 +1,8 @@
 package org.kit.energy
 
 import org.apache.spark.ml.regression.LinearRegression
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.{SparkConf, SparkContext}
 import org.springframework.stereotype.Component
 
 /**
@@ -34,8 +34,6 @@ class LinearRegressionLibsvmFormat extends Serializable{
       .appName("New Name")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
-
-    import spark.implicits._
 
     // Load training data
     val training = spark.read.format("libsvm")

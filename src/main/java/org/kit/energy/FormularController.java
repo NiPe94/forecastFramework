@@ -22,7 +22,7 @@ import java.util.Collection;
  * Created by qa5147 on 23.01.2017.
  */
 @Controller
-public class FunctionController {
+public class FormularController {
 
 
     @Autowired
@@ -71,32 +71,33 @@ public class FunctionController {
             return "testForm";
         }
 
-        /*
+
+        // start selected algorithm. -> Algorithm-Starter-Manager-Class?
         if (modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {
             boolean startModeling = true, startApplication = true;
+            // what action will be performed?
             if (forecast.getPerformType() == PerformType.Modeling) {
                 startApplication = false;
             }
             if (forecast.getPerformType() == PerformType.Application) {
                 startModeling = false;
             }
-            modelParameters = testClass.start(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication);
+            // start the algorithm
+            modelParameters = linRegCSV.start(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication, fileCSV.isHasHeader(), fileCSV.getDelimeter(), fileCSV.getLabelColumnIndex(), fileCSV.getFeatureColumnsIndexes());
+            // save the parameters
             modelParametersArray = modelParameters.split(" ");
             modeling.setModelParameters(modelParametersArray);
             forecast.setResult(writeJSON(forecast));
-            modellingDone = true;
-        }*/
+        }
 
         modellingDone = true;
 
         model.addAttribute("modellingDone", modellingDone);
 
-        //testzwecke:
-        forecast.setResult("Test");
-
         return "testForm";
     }
 
+    // write a json out of an object
     private String writeJSON(Forecast forecast) {
         Gson gson = new Gson();
         String resultString = gson.toJson(forecast);

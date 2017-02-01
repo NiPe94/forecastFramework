@@ -23,6 +23,9 @@
 <body>
 <script th:inline="javascript">
     /*<![CDATA[*/
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
     function myFunction() {
         document.getElementById("progress").style.display="block";
     }
@@ -50,7 +53,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput1">Take file from:</label>
             <div class="col-md-4">
-                <input id="textinput1" name="textinput1" type="text" th:field="${csvfile.dataPath}" placeholder="path" class="form-control input-md" />
+                <input data-toggle="tooltip" title="file path to a csv file" id="textinput1" name="textinput1" type="text" th:field="${csvfile.dataPath}" placeholder="path" class="form-control input-md" />
             </div>
         </div>
 
@@ -78,11 +81,11 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinputLabel">Label at:</label>
             <div class="col-md-1">
-                <input id="textinputLabel" name="textinputLabel" type="text" th:field="${modeling.savePathModel}" placeholder="1" class="form-control input-md" />
+                <input data-toggle="tooltip" title="1 means first column" id="textinputLabel" name="textinputLabel" type="text" th:field="${csvfile.labelColumnIndex}" placeholder="1" class="form-control input-md" />
             </div>
             <label class="col-md-1 control-label" for="textinputFeatures">Features at:</label>
             <div class="col-md-1">
-                <input id="textinputFeatures" name="textinputFeatures" type="text" th:field="${modeling.savePathModel}" placeholder="2,3,4 or 2 3 4" class="form-control input-md" />
+                <input data-toggle="tooltip" title="columns with feature values" id="textinputFeatures" name="textinputFeatures" type="text" th:field="${csvfile.featureColumnsIndexes}" placeholder="2,3,4 or 2 3 4" class="form-control input-md" />
             </div>
         </div>
 
@@ -90,7 +93,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
             <div class="col-md-4">
-                <input id="textinput2" name="textinput2" type="text" th:field="${modeling.savePathModel}" placeholder="path" class="form-control input-md" />
+                <input data-toggle="tooltip" title="path to a directory where the model will be saved" id="textinput2" name="textinput2" type="text" th:field="${modeling.savePathModel}" placeholder="path" class="form-control input-md" />
             </div>
         </div>
 
@@ -98,7 +101,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="textinput3">Save resulting csv to:</label>
             <div class="col-md-4">
-                <input id="textinput3" name="textinput3" type="text" th:field="*{savePathCSV}" placeholder="path" class="form-control input-md" />
+                <input data-toggle="tooltip" title="path to a directory where the predicted data will be saved" id="textinput3" name="textinput3" type="text" th:field="*{savePathCSV}" placeholder="path" class="form-control input-md" />
 
             </div>
         </div>
@@ -151,7 +154,7 @@
             </div>
         </div>
 
-        <!-- Textarea -->
+        <!-- Result -->
         <div class="form-group" th:if="${modellingDone} == true">
             <label class="col-md-4 control-label" for="textarea">Result model:</label>
             <div class="col-md-4">
