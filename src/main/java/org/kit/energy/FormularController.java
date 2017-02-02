@@ -83,7 +83,7 @@ public class FormularController {
                 startModeling = false;
             }
             // start the algorithm
-            modelParameters = linRegCSV.start(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication, fileCSV.isHasHeader(), fileCSV.getDelimeter(), fileCSV.getLabelColumnIndex(), fileCSV.getFeatureColumnsIndexes());
+            modelParameters = testClass.start(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication, fileCSV.isHasHeader(), fileCSV.getDelimeter(), fileCSV.getLabelColumnIndex(), fileCSV.getFeatureColumnsIndexes());
             // save the parameters
             modelParametersArray = modelParameters.split(" ");
             modeling.setModelParameters(modelParametersArray);

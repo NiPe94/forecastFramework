@@ -1,11 +1,13 @@
 package org.kit.energy
 
+import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
 import org.apache.spark.sql
 import org.apache.spark.sql.{Column, SparkSession}
-import org.apache.spark.sql.functions.{round, udf}
+import org.apache.spark.sql.functions.{round, udf, col}
 import org.springframework.stereotype.Component
+import org.apache.spark.sql.functions.{concat, lit, concat_ws}
 
 /**
   * Created by qa5147 on 16.01.2017.
@@ -94,36 +96,39 @@ class TestClass extends Serializable{
       println("columns:")
       dataColumns.foreach(println)
 
-      // split feature index string into ints
-      //val featuresSplit = featuresIndex.split(",")
+      // split feature index string into ints => Array[String]
+      val featuresSplit = featuresIndex.split(",")
+      println("splitted feature vector:")
+      featuresSplit.foreach(println)
 
-      // user defined functions to convert the column data for the regression
+      // get column array with only the features in it
+      val testArray = new Array[String](featuresSplit.length)
+      var counter = 0;
+
+      for (featureString <- featuresSplit){
+        testArray(counter) = dataColumns.apply(featureString.toInt - 1)
+        counter += 1
+      }
+
+      println("test array:")
+      testArray.foreach(println)
+
       val toDouble = udf[Double, String](_.toDouble)
-      val toVector = udf( (i : String) => (Vectors.dense(i.toDouble) : org.apache.spark.ml.linalg.Vector) )
-      //val toArrayVector = udf( (j: Array[String]) => j.foreach( str => toVector(nilCSV(str)))  )
+      val toVector = udf( (i : String) => (Vectors.dense(i.split(",").map(str => str.toDouble)) : org.apache.spark.ml.linalg.Vector) )
 
+      val preData = nilCSV
+        .withColumn("test", concat_ws(",",testArray.map(str=>col(str)): _*))
 
-
-
-
-      // copy the columns and rename their header names, also convert their data
-      val nilDataNotFormatted = nilCSV //nilData
-        .withColumn("features", toVector(nilCSV(dataColumns.apply(featuresIndex.toInt - 1))))//nilData
-        .withColumn("label", toDouble(nilCSV(dataColumns.apply(labelIndex.toInt - 1))) )//nilData
-
-      val nilDataFormatted = nilDataNotFormatted.select("features","label")
-
-      println("Not formatted:")
-      nilDataNotFormatted.show()
-
-      println("formatted:")
-      nilDataFormatted.show()
+      val finalData = preData
+        .withColumn("features",toVector(preData("test")))
+        .withColumn("label", toDouble(preData(dataColumns.apply(labelIndex.toInt - 1))) )
+        .select("features","label")
 
       // if the user wants to start a modeling job
       if(performModeling) {
         // set regression parameter and start the regression
         val lrModelStart = new LinearRegression().setRegParam(0.0).setElasticNetParam(0.0).setFitIntercept(true)
-        val lrModel = lrModelStart.fit(nilDataFormatted)
+        val lrModel = lrModelStart.fit(finalData)
 
         // print parameter
         println("parameters:")
@@ -140,7 +145,7 @@ class TestClass extends Serializable{
 
         if(performModelApplication) {
           // predict new data
-          doApplication(lrModel,nilDataFormatted,savePathCSV)
+          doApplication(lrModel,finalData,savePathCSV)
         }
 
         // the model coefficients will be returned to server
@@ -154,18 +159,20 @@ class TestClass extends Serializable{
         val lrModel = LinearRegressionModel.load(savePathModel)
 
         // predict new data
-        doApplication(lrModel,nilDataFormatted,savePathCSV)
+        doApplication(lrModel,finalData,savePathCSV)
 
         // the model coefficients will be returned to server
         stringToReturn = lrModel.coefficients.toString + " " + lrModel.intercept.toString
       }
 
 
+
+
       return stringToReturn
 
 
     } catch {
-      case e: Exception => return "error while calculating the algorithm"
+      case e: Exception => e.printStackTrace(); return "error while calculating the algorithm"
     }
     finally {
       // do a clean stop on spark
