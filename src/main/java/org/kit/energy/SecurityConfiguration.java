@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
  * Created by qa5147 on 01.02.2017.
  */
 @Controller
-public class Configuration extends WebSecurityConfigurerAdapter{
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

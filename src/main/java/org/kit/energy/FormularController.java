@@ -13,10 +13,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.Socket;
+import java.net.URL;
 import java.util.Collection;
+
+import static org.springframework.http.HttpHeaders.USER_AGENT;
 
 /**
  * Created by qa5147 on 23.01.2017.
@@ -47,6 +50,7 @@ public class FormularController {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
+        telIt();
         return "testForm";
     }
 
@@ -114,6 +118,49 @@ public class FormularController {
 
 
         return resultString;
+    }
+
+    public void telIt(){
+        System.out.println("Bin schon hier!");
+        /*try(Socket sock = new Socket("localhost", 4242)){
+            String point = "put testmetrik 1486538632 155 bla=blub\n";
+            sock.getOutputStream().write(point.getBytes());
+        }
+        catch(IOException ex){
+            System.out.println("Böser Fehler!");
+        }*/
+
+        try{
+            String url = "http://localhost:4242/api/query?start=1486425600&m=sum:testmetrik";
+            URL urlObj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
+
+            con.setRequestMethod("GET");
+
+            con.setRequestProperty("User-Agent", USER_AGENT);
+
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            //print result
+            System.out.println("This is what you get man!:");
+            System.out.println(response.toString());
+
+        }
+        catch(Exception e){
+
+        }
     }
 
 

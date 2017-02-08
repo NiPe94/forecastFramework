@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Created by qa5147 on 31.01.2017.
  */
-public class Validator {
+public class Validator{
 
     CSVFile file;
     String message;
