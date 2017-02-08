@@ -121,7 +121,11 @@ public class FormularController {
     }
 
     public void telIt(){
+        // POST via telnet, but not so important as getting the data
         System.out.println("Bin schon hier!");
+        String[] strArray = new String[0];
+        Example.main(strArray);
+        System.out.println("Fertig");
         /*try(Socket sock = new Socket("localhost", 4242)){
             String point = "put testmetrik 1486538632 155 bla=blub\n";
             sock.getOutputStream().write(point.getBytes());
@@ -130,6 +134,8 @@ public class FormularController {
             System.out.println("Böser Fehler!");
         }*/
 
+        /*
+        // GET
         try{
             String url = "http://localhost:4242/api/query?start=1486425600&m=sum:testmetrik";
             URL urlObj = new URL(url);
@@ -161,6 +167,7 @@ public class FormularController {
         catch(Exception e){
 
         }
+        */
     }
 
 

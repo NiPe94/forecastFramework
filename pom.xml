@@ -54,6 +54,22 @@
 			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
 		</dependency> -->
 
+		<!-- https://mvnrepository.com/artifact/org.apache.hbase/hbase -->
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-server</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.apache.hbase/hbase -->
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-client</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+
 		<!-- *** SPARK FRAMEWORK *** -->
 		<!-- Spark 2.1.0 for Scala 2.11 -->
 		<dependency>
