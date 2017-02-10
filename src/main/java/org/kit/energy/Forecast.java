@@ -54,4 +54,5 @@ public class Forecast {
     public void setModeling(Modeling modeling) {
         this.modeling = modeling;
     }
+
 }

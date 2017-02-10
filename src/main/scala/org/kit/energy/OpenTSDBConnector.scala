@@ -5,22 +5,18 @@ import java.sql.Timestamp
 import java.util
 import java.util.Arrays
 import java.util.Map.Entry
-
 import org.apache.commons.logging.{Log, LogFactory}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.HBaseConfiguration
-import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types.{FloatType, StructField, StructType, TimestampType}
-import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-
-import scala.Array.canBuildFrom
-import scala.collection.mutable.ArrayBuffer
 import org.apache.hadoop.hbase.client.Result
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
-
-
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{DataFrame, Row, SQLContext}
+import org.apache.spark.sql.types.{FloatType, StructField, StructType, TimestampType}
+import scala.Array.canBuildFrom
+import scala.collection.mutable.ArrayBuffer
 class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: String = "tsdb", tsdbUidTableName: String = "tsdb-uid") extends Serializable {
   private val zookeeperQuorum = zkQuorum
   private val zookeeperClientPort = zkClientPort
@@ -44,50 +40,38 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
   def generateRDD(metricName: String, tagsKeysValues: String, startdate: String, enddate: String,
                   sc: SparkContext): RDD[(Long, Float)] = {
     LOG.info("Generating RDD...for metric..." + metricName)
-
     val tags: Map[String, String] = parseTags(tagsKeysValues)
-
     val tsdbUID = read_tsdbUID_table(metricName, tags, sc)
     LOG.debug("tsdbUID Count: " + tsdbUID.count)
-
     LOG.debug("MetricsUID: ")
     val metricsUID = getMetricUID(tsdbUID)
     metricsUID.foreach(arr => LOG.debug(arr.mkString(", ")))
-
     if (metricsUID.isEmpty) {
       LOG.error("Can't find metric: " + metricName)
       System.exit(1)
     }
-
     LOG.debug("tagKUIDs: ")
     val tagKUIDs = getTagUIDs(tsdbUID, "tagk")
     tagKUIDs.foreach(m => LOG.debug(m._1 + " => " + m._2.mkString(", ")))
-
     LOG.debug("tagVUIDs: ")
     val tagVUIDs = getTagUIDs(tsdbUID, "tagv")
     tagVUIDs.foreach(m => LOG.debug(m._1 + " => " + m._2.mkString(", ")))
-
     // all tags must exist
     if (tags.size != tagKUIDs.size || tagKUIDs.size != tagVUIDs.size) {
       LOG.error("Can't find keys or values")
       // TODO print missing values
       System.exit(1)
     }
-
     val tagKV = joinTagKeysWithValues(tags, tagKUIDs, tagVUIDs)
-
     val tsdb = read_tsdb_table(metricsUID, tagKV, startdate, enddate, sc)
     val timeSeriesRDD: RDD[(Long, Float)] = decode_tsdb_table(tsdb)
-
     timeSeriesRDD
   }
-
   def getDataFrameForMetric(metricName: String, tagKeyValueMap: String, startdate: String, enddate: String, sc: SparkContext, sqlContext: SQLContext): DataFrame = {
     val rdd = generateRDD(metricName, tagKeyValueMap, startdate, enddate,sc)
     val df  = longFloatRDDToDF(rdd, sqlContext)
     return df
   }
-
   private def longFloatRDDToDF(rdd: RDD[(Long, Float)], sqlContext: SQLContext): DataFrame = {
     val dataRDDRows = rdd.map { case (x, y) => Row(new Timestamp(x * 1000), y) }
     val fields = Seq(
@@ -98,10 +82,8 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
     val df = sqlContext.createDataFrame(dataRDDRows, schema)
     return df
   }
-
   private def decode_tsdb_table(tsdb: RDD[(ImmutableBytesWritable, Result)]): RDD[(Long, Float)] = {
     //Decoding retrieved data into RDD
-
     tsdb
       // columns from 3-7 (the base time)
       .map(kv => (Arrays.copyOfRange(kv._1.copyBytes(), 3, 7), kv._2.getFamilyMap("t".getBytes())))
@@ -113,19 +95,15 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
           LOG.debug("New Row, basetime: "+ basetime)
           while (iterator.hasNext()) {
             val next = iterator.next()
-
             val qualifierBytes: Array[Byte] = next.getKey()
             val valueBytes = next.getValue()
-
             // Column Quantifiers are stored as follows:
             // if num of bytes=2: 12 bits (delta timestamp value in sec) + 4 bits flag
             // if num of bytes=4: 4 bits flag(must be 1111) + 22 bits (delta timestamp value in ms) +
             //                       2 bits reserved + 4 bits flag
             // last 4 bits flag = (1 bit (int 0 | float 1) + 3 bits (length of value bytes - 1))
-
             // if num of bytes>4 & even: columns with compacted for the hour, with each qualifier having 2 bytes
             // TODO make sure that (qualifier only has 2 bytes)
-
             // if num of bytes is odd: Annotations or Other Objects
             LOG.debug("New Column:")
             LOG.debug("qualifierBytes:" + bytes2hex(qualifierBytes))
@@ -133,25 +111,20 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
             if (qualifierBytes.length == 2) {
               // 2 bytes qualifier
               parseValues(qualifierBytes, valueBytes, basetime, 2, (x => x >> 4), arrayBufferOfRows)
-
             } else if (qualifierBytes.length == 4 && is4BytesQualifier(qualifierBytes)) {
               // 4 bytes qualifier
               parseValues(qualifierBytes, valueBytes, basetime, 4, (x => (x << 4) >> 10), arrayBufferOfRows)
-
             } else if (qualifierBytes.length >= 4 && qualifierBytes.length % 2 == 0) {
               LOG.debug("qualifierBytes length: " + qualifierBytes.length)
               LOG.debug("valueBytes length: " + valueBytes.length)
               var positionInByteArray = 0
               for(i <- qualifierBytes.indices by 2){
                 val singleQualifierBytes = Arrays.copyOfRange(qualifierBytes,i,i+2)
-
                 LOG.debug("singleQualifierBytes:" + bytes2hex(singleQualifierBytes))
                 val qualifierAsInt = parseQualifier(singleQualifierBytes,0,2)
-
                 val lastBitBool = ((qualifierAsInt) & 1) == 1
                 val secondLastBitBool = ((qualifierAsInt >> 1) & 1) == 1
                 val thirdLastBitBool = ((qualifierAsInt >> 2) & 1) == 1
-
                 //val s1 = String.format("%8s", Integer.toBinaryString(singleQualifierBytes(0) & 0xFF)).replace(' ', '0');
                 //val binaryRepresentation = String.format("%8s", Integer.toBinaryString(singleQualifierBytes(1) & 0xFF)).replace(' ', '0');
                 // LOG.debug("Binary: " + s1 + " " + binaryRepresentation);
@@ -165,29 +138,26 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
                 var timeOffsetInSeconds = 0
                 if(timeOffsetInSecondsNewFloatOption != None)
                   timeOffsetInSeconds = timeOffsetInSecondsNewFloatOption.get.toInt
-
                 LOG.debug("time offset: " + timeOffsetInSeconds + " seconds.")
-
                 //val last3Bits = binaryRepresentation.substring(binaryRepresentation.length-3,binaryRepresentation.length)
                 //LOG.debug(last3Bits)
                 var byteOffset = 0
-
                 // last3Bits.equals("000")
                 if (!thirdLastBitBool && !secondLastBitBool && !lastBitBool) {
                   byteOffset = 1
-                // last3Bits.equals("001")
+                  // last3Bits.equals("001")
                 } else if (lastBitBool && !thirdLastBitBool && !secondLastBitBool) {
                   byteOffset = 2
-                // last3Bits.equals("010")
+                  // last3Bits.equals("010")
                 } else if (secondLastBitBool && !thirdLastBitBool && !lastBitBool ) {
                   byteOffset = 2
-                // last3Bits.equals("011")
+                  // last3Bits.equals("011")
                 } else if (!thirdLastBitBool && secondLastBitBool && lastBitBool) {
                   byteOffset = 4
-                // last3Bits.equals("100")
+                  // last3Bits.equals("100")
                 } else if (thirdLastBitBool && !secondLastBitBool && !lastBitBool) {
                   byteOffset = 8
-                // last3Bits.equals("111")
+                  // last3Bits.equals("111")
                 } else if (thirdLastBitBool && secondLastBitBool && lastBitBool) {
                   byteOffset = 8
                 } else {
@@ -202,62 +172,47 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
               throw new RuntimeException("Annotations or Other Objects not supported yet")
             }
           }
-
           arrayBufferOfRows
       })
   }
-
   private def parseTags(tagKeyValueMap: String) =
     if (tagKeyValueMap.trim != "*") tagKeyValueMap.split(",").map(_.split("->")).map(l => (l(0).trim, l(1).trim)).toMap
     else Map[String, String]()
-
   private def getMetricUID(tsdbUID: RDD[(ImmutableBytesWritable, Result)]): Array[Array[Byte]] = {
     val metricUIDs: Array[Array[Byte]] = tsdbUID
       .map(l => l._2.getValue("id".getBytes(), "metrics".getBytes()))
       .filter(_ != null).collect //Since we will have only one metric uid
-
     metricUIDs
   }
-
   private def getTagUIDs(tsdbUID: RDD[(ImmutableBytesWritable, Result)], qualifier: String): Map[String, Array[Byte]] = {
     val tagkUIDs: Map[String, Array[Byte]] = tsdbUID
       .map(l => (new String(l._1.copyBytes()), l._2.getValue("id".getBytes(), qualifier.getBytes())))
       .filter(_._2 != null).collect.toMap
-
     tagkUIDs
   }
-
   private def joinTagKeysWithValues(tags: Map[String, String], tagKUIDs: Map[String, Array[Byte]],
                                     tagVUIDs: Map[String, Array[Byte]]): List[Array[Byte]] = {
-
     val tagkv: List[Array[Byte]] = tagKUIDs
       .map(k => (k._2, tagVUIDs(tags(k._1)))) // key(byte Array), value(byte Array)
       .map(l => (l._1 ++ l._2)) // key + value
       .toList
       .sorted(Ordering.by((_: Array[Byte]).toIterable))
-
     tagkv
   }
-
   private def parseValues(qualifierBytes: Array[Byte], valueBytes: Array[Byte], basetime: Int, step: Int,
                           getOffset: Int => Int, result: ArrayBuffer[(Long, Float)]) = {
-
     var index = 0
     for (i <- 0 until qualifierBytes.length by step) {
       val qualifier = parseQualifier(qualifierBytes, i, step)
-
       val timeOffset = getOffset(qualifier)
       val isFloat = (((qualifier >> 3) & 1) == 1)
       val valueByteLength = (qualifier & 7) + 1
-
       val value = parseValue(valueBytes, index, isFloat, valueByteLength)
       LOG.debug("value: " + value)
       result += ((basetime + timeOffset, value))
-
       index = index + valueByteLength
     }
   }
-
   private def parseValue(valueBytes: Array[Byte], index: Int, isFloat: Boolean, valueByteLength: Int): Float = {
     val bufferArr = ByteBuffer.wrap(Arrays.copyOfRange(valueBytes, index, index + valueByteLength))
     if (isFloat) {
@@ -272,7 +227,6 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
       else throw new IllegalArgumentException(s"Can't parse Value (isFloat:$isFloat, valueByteLength:$valueByteLength")
     }
   }
-
   private def parseQualifier(arr: Array[Byte], startIdx: Int, endIdx: Int) = {
     val length = endIdx - startIdx
     var value = 0
@@ -280,15 +234,12 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
       value = value | (arr(i).toInt << ((length - 1 - i) * 8))
     value
   }
-
   private def is4BytesQualifier(qualifierBytes: Array[Byte]): Boolean = {
     val firstByte = qualifierBytes(0)
     ((firstByte >> 4) & 15) == 15 // first 4 bytes = 1111
   }
-
   private def read_tsdbUID_table(metricName: String, tags: Map[String, String], sc: SparkContext):
   RDD[(ImmutableBytesWritable, Result)] = {
-
     val tsdbUID = sc.newAPIHadoopRDD(
       tsdbuidConfig(
         zookeeperQuorum,
@@ -298,13 +249,10 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
       classOf[org.kit.energy.TSDBInputFormat],
       classOf[ImmutableBytesWritable],
       classOf[Result])
-
     tsdbUID
   }
-
   private def read_tsdb_table(metricsUID: Array[Array[Byte]], tagKV: List[Array[Byte]], startdate: String,
                               enddate: String, sc: SparkContext): RDD[(ImmutableBytesWritable, Result)] = {
-
     val tsdb = sc.newAPIHadoopRDD(
       tsdbConfig(
         zookeeperQuorum,
@@ -317,41 +265,31 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
       classOf[org.kit.energy.TSDBInputFormat],
       classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable],
       classOf[org.apache.hadoop.hbase.client.Result])
-
     tsdb
   }
-
   //Prepares the configuration for querying the TSDB-UID table and extracting UIDs for metrics and tags
   private def tsdbuidConfig(zookeeperQuorum: String, zookeeperClientPort: String, columnQ: Array[String]) = {
     val config = generalConfig(zookeeperQuorum, zookeeperClientPort)
-
     config.set(TableInputFormat.INPUT_TABLE, TSDB_UID_TABLE)
     config.set(TSDBInputFormat.TSDB_UIDS, columnQ.mkString("|"))
     config
   }
-
   //Prepares the configuration for querying the TSDB table
   private def tsdbConfig(zookeeperQuorum: String, zookeeperClientPort: String,
                          metricUID: Array[Byte], tagkv: Option[Array[Byte]] = None,
                          startdate: Option[String] = None, enddate: Option[String] = None): Configuration = {
-
     val config = generalConfig(zookeeperQuorum, zookeeperClientPort)
     config.set(TableInputFormat.INPUT_TABLE, TSDB_TABLE)
-
     config.set(TSDBInputFormat.METRICS, bytes2hex(metricUID))
     if (tagkv != None) {
       config.set(TSDBInputFormat.TAGKV, bytes2hex(tagkv.get))
     }
-
     if (startdate != None)
       config.set(TSDBInputFormat.SCAN_TIMERANGE_START, getTime(startdate.get))
-
     if (enddate != None)
       config.set(TSDBInputFormat.SCAN_TIMERANGE_END, getTime(enddate.get))
-
     config
   }
-
   private def generalConfig(zookeeperQuorum: String, zookeeperClientPort: String): Configuration = {
     //Create configuration
     val config = HBaseConfiguration.create()
@@ -364,7 +302,6 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
     }
     config
   }
-
   private def getTime(date: String): String = {
     val MAX_TIMESPAN = 3600
     def getBaseTime(date: String): Int = {
@@ -372,21 +309,18 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
       val base_time = ((timestamp / 1000) - ((timestamp / 1000) % MAX_TIMESPAN)).toInt
       base_time
     }
-
     val baseTime = getBaseTime(date)
     //Integer.BYTES from Java 8:
     val integerBytes = 4
     val intByteArray: Array[Byte] = ByteBuffer.allocate(integerBytes).putInt(baseTime).array()
     bytes2hex(intByteArray)
   }
-
   //Converts Bytes to Hex (see: https://gist.github.com/tmyymmt/3727124)
   private def bytes2hex(bytes: Array[Byte]): String = {
     val sep = "\\x"
     val regex = sep + bytes.map("%02x".format(_).toUpperCase()).mkString(sep)
     regex
   }
-
   def getBitSetFromByteArray(bytes: Array[Byte]): util.BitSet = {
     val bits = new util.BitSet()
     for (i <- 0 until bytes.length*8) {
@@ -396,5 +330,4 @@ class OpenTSDBConnector(zkQuorum: String, zkClientPort: String, tsdbTableName: S
     }
     bits
   }
-
 }

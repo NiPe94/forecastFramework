@@ -132,7 +132,7 @@
         <div class="form-group" id="horizon" style="display: none">
             <label class="col-md-4 control-label" for="textinput4">Past Values for modeling:</label>
             <div class="col-md-4">
-                <input id="textinput4" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
+                <input id="textinput4" th:field="${csvfile.forecastPastHorizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
             </div>
         </div>
 

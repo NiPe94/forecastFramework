@@ -39,6 +39,12 @@ public class Validator{
             test = false;
         }
 
+        // forecast past horizon test
+        if(!this.checkLabelInput(this.file.getForecastPastHorizon())){
+            this.message += "Wrong forecast horizon input: Please type in a number! ";
+            test = false;
+        }
+
         this.isValid = test;
     }
 

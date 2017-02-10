@@ -50,7 +50,7 @@ public class FormularController {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
-        telIt();
+        //telIt();
         return "testForm";
     }
 
@@ -75,7 +75,7 @@ public class FormularController {
             return "testForm";
         }
 
-
+        /*
         // start selected algorithm. -> Algorithm-Starter-Manager-Class?
         if (modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {
             boolean startModeling = true, startApplication = true;
@@ -93,6 +93,7 @@ public class FormularController {
             modeling.setModelParameters(modelParametersArray);
             forecast.setResult(writeJSON(forecast));
         }
+        */
 
         modellingDone = true;
 
@@ -124,7 +125,7 @@ public class FormularController {
         // POST via telnet, but not so important as getting the data
         System.out.println("Bin schon hier!");
         String[] strArray = new String[0];
-        Example.main(strArray);
+        //Example.main(strArray);
         System.out.println("Fertig");
         /*try(Socket sock = new Socket("localhost", 4242)){
             String point = "put testmetrik 1486538632 155 bla=blub\n";

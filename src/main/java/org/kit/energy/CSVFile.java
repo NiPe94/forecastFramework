@@ -12,6 +12,7 @@ public class CSVFile {
     private String delimeter;
     private String labelColumnIndex;
     private String featureColumnsIndexes;
+    private String forecastPastHorizon;
 
     public String getDataPath() {
         return dataPath;
@@ -58,5 +59,13 @@ public class CSVFile {
     public void setFeatureColumnsIndexes(String featureColumnsIndexes) {
 
         this.featureColumnsIndexes = featureColumnsIndexes;
+    }
+
+    public String getForecastPastHorizon() {
+        return forecastPastHorizon;
+    }
+
+    public void setForecastPastHorizon(String forecastPastHorizon) {
+        this.forecastPastHorizon = forecastPastHorizon;
     }
 }
