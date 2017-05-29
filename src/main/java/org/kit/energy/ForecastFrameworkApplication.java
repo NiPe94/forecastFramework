@@ -24,7 +24,6 @@ import java.net.UnknownHostException;
  * @version 1.0
  */
 @SpringBootApplication
-@Controller
 public class ForecastFrameworkApplication{
 
     /**
@@ -34,33 +33,6 @@ public class ForecastFrameworkApplication{
      */
 	public static void main(String[] args) {
 		SpringApplication.run(ForecastFrameworkApplication.class, args);
-	}
-
-	@RequestMapping("/page1")
-	public String home(Model model) {
-		return "page1";
-	}
-
-	/*
-	@RequestMapping({"/test", "/test/**"})
-	public String home(HttpServletRequest request, Model model) {
-		model.addAttribute("path", request.getServletPath());
-		return "test";
-	}
-	*/
-
-
-	/**
-	* logout Methode
-	*/
-	@RequestMapping(value = "/logout")
-	public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null) {
-			new SecurityContextLogoutHandler().logout(request, response, auth);
-		}
-		return "redirect:/";
-
 	}
 
 }

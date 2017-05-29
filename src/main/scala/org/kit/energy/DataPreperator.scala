@@ -12,18 +12,10 @@ import org.springframework.stereotype.Component
 @Component
 class DataPreperator {
 
-  def prepareDataset(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String): sql.DataFrame = {
+  def prepareDataset(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession): sql.DataFrame = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
-
-    // initialize spark context vars
-    val spark = SparkSession
-      .builder()
-      .master("local")
-      .appName("New Name")
-      .config("spark.some.config.option", "some-value")
-      .getOrCreate()
 
     println("print var inputs (head, del, label, features):")
     println(hasHead)

@@ -23,14 +23,11 @@ class LinearRegressionLibsvmFormat extends Serializable{
     // Initialze context vars and settings
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
 
-    val conf = new SparkConf().setAppName("Simple Application")
-      .setMaster("local")
-    val sc = new SparkContext(conf)
 
     // Initialize Spark context
     val spark = SparkSession
       .builder()
-      .master("local")
+      .master("169.254.51.23:7077")
       .appName("New Name")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
@@ -58,7 +55,6 @@ class LinearRegressionLibsvmFormat extends Serializable{
     println(s"RMSE: ${trainingSummary.rootMeanSquaredError}")
     println(s"r2: ${trainingSummary.r2}")
 
-    sc.stop()
 
 
   }

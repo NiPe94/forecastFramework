@@ -43,7 +43,7 @@
     <h1 align="center">Forecast Service</h1>
     <p align="center">Made by Nico Peter.</p>
 </div>
-<form class="form-horizontal" action="#" th:action="@{/test}" th:object="${forecast}" method="post">
+<form class="form-horizontal" action="#" th:action="@{/}" th:object="${forecast}" method="post">
     <fieldset>
 
         <!-- Form Name -->
@@ -132,7 +132,7 @@
         <div class="form-group" id="horizon" style="display: none">
             <label class="col-md-4 control-label" for="textinput4">Past Values for modeling:</label>
             <div class="col-md-4">
-                <input id="textinput4" th:field="${csvfile.forecastPastHorizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
+                <input id="textinput4" th:field="${modeling.horizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
             </div>
         </div>
 
@@ -156,7 +156,7 @@
 
         <!-- Result -->
         <div class="form-group" th:if="${modellingDone} == true">
-            <label class="col-md-4 control-label" for="textarea">Result model:</label>
+            <label class="col-md-4 control-label" for="textarea">Forecast result:</label>
             <div class="col-md-4">
                 <textarea class="form-control" id="textarea" name="textarea" th:text="*{result}"></textarea>
             </div>

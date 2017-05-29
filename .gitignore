@@ -26,3 +26,6 @@ nbdist/
 src/main/resources/templates/page1.html
 src/main/resources/templates/test.html
 src/test/
+/src/main/java/OpenTSDBConnector/OpenTSDBConnector.scala
+/src/main/java/OpenTSDBConnector/TSDBInputFormat.java
+/src/main/java/OpenTSDBConnector/Example.scala

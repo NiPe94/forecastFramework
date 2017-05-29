@@ -7,11 +7,11 @@ import java.io.File;
  */
 public class Validator{
 
-    CSVFile file;
-    String message;
-    boolean isValid;
+    private InputFile file;
+    private String message;
+    private boolean isValid;
 
-    public Validator(CSVFile file){
+    public Validator(InputFile file){
         this.file = file;
         this.message = "";
         this.validate();
@@ -40,10 +40,10 @@ public class Validator{
         }
 
         // forecast past horizon test
-        if(!this.checkLabelInput(this.file.getForecastPastHorizon())){
+        /*if(!this.checkLabelInput(this.file.getForecastPastHorizon())){
             this.message += "Wrong forecast horizon input: Please type in a number! ";
             test = false;
-        }
+        }*/
 
         this.isValid = test;
     }
