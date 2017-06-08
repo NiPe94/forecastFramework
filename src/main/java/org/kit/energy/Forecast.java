@@ -13,6 +13,7 @@ public class Forecast {
     private PerformType performType;
     private String result;
     private CSVFile fileCSV;
+    private CSVFile labelCSV;
     private Modeling modeling;
 
     public String getSavePathCSV() {
@@ -45,6 +46,14 @@ public class Forecast {
 
     public void setFileCSV(CSVFile fileCSV) {
         this.fileCSV = fileCSV;
+    }
+
+    public CSVFile getLabelCSV() {
+        return labelCSV;
+    }
+
+    public void setLabelCSV(CSVFile labelCSV) {
+        this.labelCSV = labelCSV;
     }
 
     public Modeling getModeling() {

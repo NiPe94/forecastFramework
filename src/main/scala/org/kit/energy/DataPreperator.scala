@@ -25,6 +25,10 @@ class DataPreperator {
 
     var finalData = spark.emptyDataFrame
 
+    val pastIndex = 3
+
+    val horizont = 1
+
     try {
 
       // read the dataset
@@ -34,6 +38,8 @@ class DataPreperator {
         .option("sep", delimeter)
         .option("mode", "DROPMALFORMED")
         .load(dataPath)
+
+      val shift = 2
 
       println("input schema:")
       nilCSV.printSchema()
@@ -46,33 +52,67 @@ class DataPreperator {
       println("columns:")
       dataColumns.foreach(println)
 
-      // split feature index string into ints => Array[String]
+      // split feature index string into array => Array[String] ("2,3" => ["2","3"])
       val featuresSplit = featuresIndex.split(",")
-      println("splitted feature vector:")
+      println("splitted feature vector positions:")
       featuresSplit.foreach(println)
 
       // get column array with only the features in it
       val testArray = new Array[String](featuresSplit.length)
       var counter = 0
 
+      // for each feature, fill the testArray with the names of the feature columns
       for (featureString <- featuresSplit) {
-        testArray(counter) = dataColumns.apply(featureString.toInt - 1)
+        testArray(counter) = dataColumns.apply(featureString.toInt)
         counter += 1
       }
 
-      println("test array:")
+      nilCSV.
+
+      /*
+      // was wenn testArray aus PV|PV|Solar
+      println("This is the part which will be thrown away:")
+      var partSet = nilCSV.select("Solar Irradiation").limit(3)
+      partSet.show()
+
+      println("This is the data without the thrown part:")
+      var newDF = spark.emptyDataFrame
+      for(a <- 1 to 2){
+        if(a == 1){
+          newDF = nilCSV.select("Solar Irradiation").except(partSet)
+        }
+        else {
+          newDF = newDF.except(partSet)
+        }
+        println(a)
+        println("----------------------")
+        newDF.show()
+        println("----------------------")
+        partSet = newDF.limit(3)
+      }*/
+
+
+      println("features array:")
       testArray.foreach(println)
 
+      // user defined functions
       val toDouble = udf[Double, String](_.toDouble)
       val toVector = udf((i: String) => (Vectors.dense(i.split(",").map(str => str.toDouble)): org.apache.spark.ml.linalg.Vector))
 
+      // create a coloumn in which all features are inside, divided by ","
       val preData = nilCSV
         .withColumn("test", concat_ws(",", testArray.map(str => col(str)): _*))
 
+      println("preData:")
+      preData.show()
+
       finalData = preData
         .withColumn("features", toVector(preData("test")))
-        .withColumn("label", toDouble(preData(dataColumns.apply(labelIndex.toInt - 1))))
+        .withColumn("label", toDouble(preData(dataColumns.apply(labelIndex.toInt))))
         .select("features", "label")
+
+      println("final Data: ")
+      finalData.show()
 
     }
 

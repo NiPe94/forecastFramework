@@ -21,12 +21,18 @@ public class FormularController {
     @Autowired
     private ForecastPipeline modelingPipe;
 
+    @Autowired
+    private TelnetPostToTSDB poster = new TelnetPostToTSDB();
+
+    @Autowired
+    private JSONWriter jsonWriter;
+
     @GetMapping("/")
     public String indexForm(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
-        //telIt();
+        //poster.telIt();
         return "ForecastFormular";
     }
 
@@ -67,7 +73,7 @@ public class FormularController {
             // save the parameters
             modelParametersArray = modelParameters.split(" ");
             modeling.setModelParameters(modelParametersArray);
-            forecast.setResult(writeJSON(forecast));
+            forecast.setResult(jsonWriter.writeJSON(forecast));
         }
 
 
@@ -77,79 +83,5 @@ public class FormularController {
 
         return "ForecastFormular";
     }
-
-    // write a json out of an object
-    private String writeJSON(Forecast forecast) {
-        Gson gson = new Gson();
-        String resultString = gson.toJson(forecast);
-
-        //2. Convert object to JSON string and save into a file directly
-        String completePath = forecast.getModeling().getSavePathModel() + forecast.getModeling().getAlgoType() + ".JSON";
-        try (FileWriter writer = new FileWriter(completePath)) {
-
-            gson.toJson(forecast, writer);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        return resultString;
-    }
-
-
-    /*
-    public void telIt(){
-        // POST via telnet, but not so important as getting the data
-        System.out.println("Bin schon hier!");
-        String[] strArray = new String[0];
-        //Example.main(strArray);
-        System.out.println("Fertig");
-        try(Socket sock = new Socket("localhost", 4242)){
-            String point = "put testmetrik 1486538632 155 bla=blub\n";
-            sock.getOutputStream().write(point.getBytes());
-        }
-        catch(IOException ex){
-            System.out.println("Böser Fehler!");
-        }
-
-
-        // GET
-        try{
-            String url = "http://localhost:4242/api/query?start=1486425600&m=sum:testmetrik";
-            URL urlObj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
-
-            con.setRequestMethod("GET");
-
-            con.setRequestProperty("User-Agent", USER_AGENT);
-
-            int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
-
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            //print result
-            System.out.println("This is what you get man!:");
-            System.out.println(response.toString());
-
-        }
-        catch(Exception e){
-
-        }
-
-    }
-    */
-
-
 
 }

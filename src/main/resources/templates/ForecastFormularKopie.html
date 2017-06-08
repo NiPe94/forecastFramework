@@ -65,23 +65,9 @@
 
         <!-- Take file from -->
         <div class="form-group">
-            <label class="col-md-4 control-label" for="textinput1">Input Data and Feature Index:</label>
-            <div class="col-md-3">
+            <label class="col-md-4 control-label" for="textinput1">Input Data:</label>
+            <div class="col-md-4">
                 <input data-toggle="tooltip" title="file path to a csv file" id="textinput1" name="textinput1" type="text" th:field="${csvfile.dataPath}" placeholder="path" class="form-control input-md" />
-            </div>
-            <div class="col-md-1">
-                <input data-toggle="tooltip" title="columns with feature values" id="textinputFeatures" name="textinputFeatures" type="text" th:field="${csvfile.featureColumnsIndexes}" placeholder="2,3,4 or 2 3 4" class="form-control input-md" />
-            </div>
-        </div>
-
-        <!-- Take ausgangsfile from -->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="textinput1">Output Data and Label Index:</label>
-            <div class="col-md-3">
-                <input data-toggle="tooltip" title="file path to a csv file" id="textinput1" name="textinput1" type="text" placeholder="path" class="form-control input-md" />
-            </div>
-            <div class="col-md-1">
-                <input data-toggle="tooltip" title="1 means first column" id="textinputLabel" name="textinputLabel" type="text" th:field="${csvfile.labelColumnIndex}" placeholder="1" class="form-control input-md" />
             </div>
         </div>
 
@@ -102,6 +88,18 @@
                     <option value="1" th:value="1" ><b>,</b></option>
                     <option value="2" th:value="2" ><b>;</b></option>
                 </select>
+            </div>
+        </div>
+
+        <!-- Modeling Label/Features options -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinputLabel">Label at:</label>
+            <div class="col-md-1">
+                <input data-toggle="tooltip" title="1 means first column" id="textinputLabel" name="textinputLabel" type="text" th:field="${csvfile.labelColumnIndex}" placeholder="1" class="form-control input-md" />
+            </div>
+            <label class="col-md-1 control-label" for="textinputFeatures">Features at:</label>
+            <div class="col-md-1">
+                <input data-toggle="tooltip" title="columns with feature values" id="textinputFeatures" name="textinputFeatures" type="text" th:field="${csvfile.featureColumnsIndexes}" placeholder="2,3,4 or 2 3 4" class="form-control input-md" />
             </div>
         </div>
 
