@@ -1,7 +1,7 @@
 package org.kit.energy
 
 import org.apache.spark.ml.linalg.Vectors
-import org.apache.spark.sql
+import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.{col, concat_ws, udf}
 import org.springframework.stereotype.Component
@@ -25,7 +25,7 @@ class DataPreperator {
 
     var finalData = spark.emptyDataFrame
 
-    val pastIndex = 3
+    val pastIndex = 2
 
     val horizont = 1
 
@@ -67,30 +67,41 @@ class DataPreperator {
         counter += 1
       }
 
-      nilCSV.
+      val selectedDF = nilCSV.select("Solar Irradiation")
+      val selectedDFSchema = selectedDF.schema
+      var filteredRDD = spark.emptyDataFrame.rdd
+      var dadFrame = spark.emptyDataFrame
+      var frameWithin = spark.emptyDataFrame
+      var theLength = 0
 
-      /*
-      // was wenn testArray aus PV|PV|Solar
-      println("This is the part which will be thrown away:")
-      var partSet = nilCSV.select("Solar Irradiation").limit(3)
-      partSet.show()
+      println("Let's get ready to ruuuuumble!:")
 
-      println("This is the data without the thrown part:")
-      var newDF = spark.emptyDataFrame
-      for(a <- 1 to 2){
-        if(a == 1){
-          newDF = nilCSV.select("Solar Irradiation").except(partSet)
-        }
-        else {
-          newDF = newDF.except(partSet)
-        }
-        println(a)
-        println("----------------------")
-        newDF.show()
-        println("----------------------")
-        partSet = newDF.limit(3)
-      }*/
+      for (bla <- 0 to pastIndex){
+        println("This is run number " + bla)
+        println("--------------------------")
+        // starte bei past Index - bla
+        filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-bla) ) => r}
+        // gehe bis count - horizont - bla
+        theLength = filteredRDD.count().toInt
+        frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-bla)
 
+        // problem here
+        if(bla == 0) {
+            dadFrame = frameWithin
+          }
+
+        var myString = frameWithin.columns.apply(0)
+
+        println("Now it burns:")
+        println("first show the current dadFrame:")
+        dadFrame.show()
+        println("Then show the frame within which will be added")
+        frameWithin.show()
+        dadFrame = dadFrame.withColumn(bla.toString,frameWithin("Solar Irradiation"))
+        dadFrame.show()
+      }
+      println("I'm so excited:")
+      dadFrame.show()
 
       println("features array:")
       testArray.foreach(println)
