@@ -34,6 +34,13 @@
 
 	<dependencies>
 
+		<!-- Reflections to scan class path -->
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.11</version>
+		</dependency>
+
 		<!-- *** SPRING FRAMEWORK *** -->
 		<!-- Spring Security -->
 		<dependency>

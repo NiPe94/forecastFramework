@@ -1,15 +1,24 @@
 package org.kit.energy;
 
 import com.google.gson.Gson;
+import org.apache.catalina.webresources.ClasspathURLStreamHandler;
+import org.reflections.Reflections;
+import static org.reflections.ReflectionUtils.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import sun.reflect.Reflection;
 
 import java.io.*;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by qa5147 on 23.01.2017.
@@ -27,13 +36,46 @@ public class FormularController {
     @Autowired
     private JSONWriter jsonWriter;
 
+    @Autowired
+    private AlgorithmFactory algorithmFactory = new AlgorithmFactory();
+
     @GetMapping("/")
     public String indexForm(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
-        //poster.telIt();
+        //model.addAttribute("algoList", new AlgoList <= hat List[Algo]);
+        //poster.getIt();
+        searchClasses();
         return "ForecastFormular";
+    }
+
+    public void searchClasses(){
+        Reflections reflections = new Reflections("org.kit.energy");
+        Set<Class<? extends IAIAlgorithm>> subtypes = reflections.getSubTypesOf(IAIAlgorithm.class);
+        System.out.println();
+        System.out.println("jetzt wird's lustig:");
+        System.out.println();
+        for( Class<? extends IAIAlgorithm> thing : subtypes){
+            System.out.println(thing.getSimpleName());
+            System.out.println();
+            algorithmFactory.registerAlgo(thing.getSimpleName(),thing);
+            System.out.println("Method names:");
+            System.out.println();
+            Set<Method> getters = getAllMethods(thing);
+
+            for(Method m : getters){
+                System.out.println(m.toString());
+            }
+            System.out.println();
+        }
+
+        System.out.println("The filled Map from factory");
+        System.out.println();
+        System.out.println(algorithmFactory.getRegisteredAlgos().toString());
+
+        int bla = 98;
+
     }
 
     @PostMapping("/")
@@ -56,7 +98,6 @@ public class FormularController {
             model.addAttribute("modellingDone", modellingDone);
             return "ForecastFormular";
         }
-
 
         // start selected algorithm. -> Algorithm-Starter-Manager-Class?
         if (modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {

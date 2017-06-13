@@ -6,7 +6,6 @@ package org.kit.energy;
 public abstract class InputFile {
 
     private String dataPath;
-    private String delimeter;
     private String labelColumnIndex;
     private String featureColumnsIndexes;
 
@@ -16,14 +15,6 @@ public abstract class InputFile {
 
     public void setDataPath(String dataPath) {
         this.dataPath = dataPath;
-    }
-
-    public String getDelimeter() {
-        return delimeter;
-    }
-
-    public void setDelimeter(String delimeter) {
-        this.delimeter = delimeter;
     }
 
     public String getLabelColumnIndex() {

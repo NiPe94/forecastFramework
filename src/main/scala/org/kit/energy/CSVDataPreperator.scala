@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
   * Created by qa5147 on 02.02.2017.
   */
 @Component
-class DataPreperator {
+class CSVDataPreperator {
 
   def prepareDataset(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession): sql.DataFrame = {
 
@@ -73,8 +73,6 @@ class DataPreperator {
       var dadFrame = spark.emptyDataFrame
       var frameWithin = spark.emptyDataFrame
       var theLength = 0
-
-      println("Let's get ready to ruuuuumble!:")
 
       for (bla <- 0 to pastIndex){
         println("This is run number " + bla)

@@ -30,7 +30,7 @@ class ForecastPipeline {
     try {
 
       // prepare dataset for using
-      val preperator = new DataPreperator()
+      val preperator = new CSVDataPreperator()
       val preparedData = preperator.prepareDataset(dataPath, hasHead, delimeter, labelIndex, featuresIndex, spark)
 
       // start a new modeling job

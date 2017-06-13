@@ -22,24 +22,22 @@ public class TelnetPostToTSDB {
         // POST via telnet, but not so important as getting the data
         long unixTimestamp = Instant.now().getEpochSecond();
         int randomNum = ThreadLocalRandom.current().nextInt(100, 200 + 1);
-        System.out.println("Bin schon hier!");
+        System.out.println("new datapoint via tellnet will be added!");
         String[] strArray = new String[0];
         //Example.main(strArray);
         try(Socket sock = new Socket("localhost", 4242)){
             String point = "put NewMetrik "+ unixTimestamp + " " + randomNum  + " tag=key\n";
             sock.getOutputStream().write(point.getBytes());
-            System.out.println("geschafft");
         }
         catch(IOException ex){
-            System.out.println("Böser Fehler!");
             ex.printStackTrace();
         }
     }
 
     public void getIt(){
         try{
-            System.out.println("start getting bro ;)");
-            String url = "http://localhost:4242/api/query?start=1496736000&m=sum:testmetrik";
+            System.out.println("new data via http GET will be loaded!");
+            String url = "http://localhost:4242/api/query?start=1497225600&m=sum:NewMetrik";
             URL urlObj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
 
@@ -62,12 +60,15 @@ public class TelnetPostToTSDB {
             in.close();
 
             //print result
-            System.out.println("This is what you get man!:");
+            System.out.println("The resulting String:");
             System.out.println(response.toString());
+
+            JSONDataPreperator jsonDataPreperator = new JSONDataPreperator();
+            jsonDataPreperator.prepareDataSet(response.toString());
 
         }
         catch(Exception e){
-
+            e.printStackTrace();
         }
     }
 }

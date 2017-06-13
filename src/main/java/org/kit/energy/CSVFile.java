@@ -8,6 +8,7 @@ import java.io.File;
 public class CSVFile extends InputFile{
 
     private boolean hasHeader;
+    private String delimeter;
 
     public boolean isHasHeader() {
         return hasHeader;
@@ -24,7 +25,11 @@ public class CSVFile extends InputFile{
         else {
             delimeter = ",";
         }
-        super.setDelimeter(delimeter);
+        this.delimeter = delimeter;
+    }
+
+    public String getDelimeter(){
+        return this.delimeter;
     }
 
 
