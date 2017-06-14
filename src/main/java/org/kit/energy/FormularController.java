@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import sun.reflect.Reflection;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
 
@@ -44,9 +47,13 @@ public class FormularController {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
+        searchClasses();
+        model.addAttribute("map",algorithmFactory);
         //model.addAttribute("algoList", new AlgoList <= hat List[Algo]);
         //poster.getIt();
-        searchClasses();
+
+
+
         return "ForecastFormular";
     }
 
@@ -54,27 +61,66 @@ public class FormularController {
         Reflections reflections = new Reflections("org.kit.energy");
         Set<Class<? extends IAIAlgorithm>> subtypes = reflections.getSubTypesOf(IAIAlgorithm.class);
         System.out.println();
-        System.out.println("jetzt wird's lustig:");
-        System.out.println();
         for( Class<? extends IAIAlgorithm> thing : subtypes){
+
+            // register class names in map
+            System.out.println("********************");
             System.out.println(thing.getSimpleName());
+            System.out.println("********************");
             System.out.println();
             algorithmFactory.registerAlgo(thing.getSimpleName(),thing);
-            System.out.println("Method names:");
-            System.out.println();
-            Set<Method> getters = getAllMethods(thing);
 
-            for(Method m : getters){
-                System.out.println(m.toString());
+            // paramNames
+            System.out.println("fields:");
+            System.out.println();
+            Set<Field> myFields = getAllFields(thing,withType(IAIParameter.class));
+            for(Field f:myFields){
+                System.out.println(f.toString());
+                f.setAccessible(true);
+                System.out.println("hot:");
+                try {
+                    System.out.println(f.get(null).toString());
+                } catch (Exception e) {
+                    System.out.println("Can't get the field");
+                    System.out.println("Exception type:");
+                    System.out.println(e.getClass().toString());
+                    System.out.println();
+                }
+               
             }
             System.out.println();
-        }
 
+        }
         System.out.println("The filled Map from factory");
         System.out.println();
         System.out.println(algorithmFactory.getRegisteredAlgos().toString());
 
+
         int bla = 98;
+
+        /*
+            System.out.println("lets find the static example:");
+            Set<Method> ms = getAllMethods(thing,withModifier(Modifier.STATIC));
+            for(Method oneMethod : ms){
+                System.out.println(oneMethod.toString());
+            }
+            System.out.println("Now it burns with field type:");
+
+            Field[] f = thing.getDeclaredFields();
+            Field myF = f[0];
+            myF.setAccessible(true);
+            Class<?> t = myF.getType();
+            System.out.println(t);
+
+            if(t == String.class){
+                System.out.println("Tell me:");
+                System.out.println((String)myF.get(null));
+            }
+
+            System.out.println("end statics");
+            System.out.println();
+
+            */
 
     }
 
