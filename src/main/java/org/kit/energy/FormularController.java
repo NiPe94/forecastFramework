@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import org.apache.catalina.webresources.ClasspathURLStreamHandler;
 import org.reflections.Reflections;
 import static org.reflections.ReflectionUtils.*;
+
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -58,10 +61,11 @@ public class FormularController {
     }
 
     public void searchClasses(){
-        Reflections reflections = new Reflections("org.kit.energy");
-        Set<Class<? extends IAIAlgorithm>> subtypes = reflections.getSubTypesOf(IAIAlgorithm.class);
+        Reflections reflections = new Reflections("org.kit.energy", new FieldAnnotationsScanner(), new SubTypesScanner());
+        Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
         System.out.println();
-        for( Class<? extends IAIAlgorithm> thing : subtypes){
+
+        for( Class<? extends AlgoPlugin> thing : subtypes){
 
             // register class names in map
             System.out.println("********************");
@@ -70,6 +74,19 @@ public class FormularController {
             System.out.println();
             algorithmFactory.registerAlgo(thing.getSimpleName(),thing);
 
+            // with annotations:
+            System.out.println("fields:");
+            System.out.println();
+
+            Set<Field> fields = reflections.getFieldsAnnotatedWith(AlgoParam.class);
+
+            for(Field f:fields){
+                AlgoParam algoParam = f.getAnnotation(AlgoParam.class);
+                System.out.println("name: "+ f.getName()+" value: "+algoParam.name());
+                System.out.println();
+            }
+
+            /*
             // paramNames
             System.out.println("fields:");
             System.out.println();
@@ -89,8 +106,10 @@ public class FormularController {
                
             }
             System.out.println();
+            */
 
         }
+
         System.out.println("The filled Map from factory");
         System.out.println();
         System.out.println(algorithmFactory.getRegisteredAlgos().toString());
