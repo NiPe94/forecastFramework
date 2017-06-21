@@ -18,28 +18,81 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-    <script src="webjars/jquery/2.0.3/jquery.min.js"></script>
+    <!-- <script src="webjars/jquery/2.0.3/jquery.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 </head>
 <body>
-<script th:inline="javascript">
+<script type="text/javascript" th:inline="javascript">
+
     /*<![CDATA[*/
+
+
+
     $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
+
+        console.log("start");
+
+        //$('[data-toggle="tooltip"]').tooltip();
+
+        console.log("tooltip dings fertig");
+
+        var selectedAlgo = $('#selectnew').val();
+        console.log("hab den Wert der selection: "+selectedAlgo);
+
+        var parasForAlgo = /*[[${map['AlgoWithAnno']}]]*/ 'oha';
+
+        console.log("das sind die paras:"+parasForAlgo);
+
+        for(i=0;i<parasForAlgo.length;i++) {
+            console.log(parasForAlgo[i].toString());
+        }
+
+        // build the parameter list for the automtically and initially selected algorithm
+        var txt1 = $('<label></label>',{
+            'class':'col-md-4 control-label',
+            'for':'myNewInput',
+            'text':'bla',
+        });
+        var txt3 = $('<div></div>',{
+            'class':'col-md-3'
+        });
+        var txt2 = $('<input />',{
+            'data-toggle':'tooltip',
+            'title':'blu',
+            'id':'bluInput',
+            'name':'bluInput',
+            'type':'text',
+            'th:field':'',
+            'placeholder':'value',
+            'class':'form-control input-md'
+        }).appendTo(txt3);
+        $("#dynamic").append(txt1,txt3);
+
+        // empty the parameter elements inside the div, when a new algorithm is selected
+        $('#selectnew').change(function(){
+            $('#dynamic').empty();
+        })
     });
+
     function myFunction() {
         document.getElementById("progress").style.display="block";
     }
-    /*
-    function myChangeFunction() {
-        var x = document.getElementById("selectaction").value;
-        if (x == "Application" || x == "Both") {
-            document.getElementById("horizon").style.display="block";
-        } else {
-            document.getElementById("horizon").style.display="none";
-        }
-    }
-    */
+
     /*]]>*/
+
+    /*
+    <label class="col-md-4 control-label" for="textinput1">Input Data and Feature Index:</label>
+    <div class="col-md-3">
+        <input data-toggle="tooltip"
+        title="file path to a csv file"
+        id="textinput1" name="textinput1"
+        type="text"
+        th:field="${csvfile.dataPath}"
+        placeholder="path"
+        class="form-control input-md" />
+    </div>
+    */
 </script>
 <div class="jumbotron">
     <h1 align="center">Forecast Service</h1>
@@ -137,14 +190,13 @@
             <label class="col-md-4 control-label" for="selectnew">Select Map Algorithm:</label>
             <div class="col-md-4">
                 <select id="selectnew" name="selectnew" class="form-control" th:field="${map}">
-                    <option th:each="algorithmType : ${T(org.kit.energy.AlgorithmType).values()}" th:value="${algorithmType}" th:text="${algorithmType}"></option>
+                    <option th:each="algorithm : ${map}" th:value="${algorithm.key}" th:text="${algorithm.key}"></option>
                 </select>
             </div>
         </div>
 
         <!-- Dynamic Paras -->
-        <div class="form-group">
-
+        <div class="form-group" id="dynamic">
         </div>
 
         <!-- Forecast Past Horizon -->

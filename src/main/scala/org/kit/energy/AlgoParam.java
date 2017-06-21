@@ -12,4 +12,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @interface AlgoParam {
     String name();
+    String value();
 }

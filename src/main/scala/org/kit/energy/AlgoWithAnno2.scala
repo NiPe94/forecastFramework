@@ -6,16 +6,16 @@ import org.apache.spark.sql.DataFrame
 /**
   * Created by qa5147 on 19.06.2017.
   */
-class AlgoWithAnno extends AlgoPlugin{
+class AlgoWithAnno2 extends AlgoPlugin{
 
-  @AlgoParam(name="Regularization", value="0.0")
-  private var regParam:String = _
+  @AlgoParam(name="Regularization2", value="0.0")
+  private var regParam2:String = _
 
-  @AlgoParam(name="Elastic Net", value="1.3")
-  private var elasticNet:String = _
+  @AlgoParam(name="Elastic Net2", value="1.3")
+  private var elasticNet2:String = _
 
-  @AlgoParam(name="With Intercept", value="1")
-  private var fitIntercept:String = _
+  @AlgoParam(name="With Intercept2", value="1")
+  private var fitIntercept2:String = _
 
 
   //@AlgoParam("no matchi1") param1:String, @AlgoParam("no matchi2") param2:String
@@ -24,7 +24,7 @@ class AlgoWithAnno extends AlgoPlugin{
   def compute(inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String): String = {
 
     // set regression parameter and start the regression
-    val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble).setFitIntercept(fitIntercept.toBoolean)
+    val lrModelStart = new LinearRegression().setRegParam(regParam2.toDouble).setElasticNetParam(elasticNet2.toDouble).setFitIntercept(fitIntercept2.toBoolean)
     var lrModel = lrModelStart.fit(inputData)
 
     // print parameter

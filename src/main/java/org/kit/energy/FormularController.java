@@ -23,8 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by qa5147 on 23.01.2017.
@@ -45,13 +44,15 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory = new AlgorithmFactory();
 
+    private Map<String,List<AlgoParam>> algoNameToParalistMapper = new HashMap<String,List<AlgoParam>>();
+
     @GetMapping("/")
     public String indexForm(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
         searchClasses();
-        model.addAttribute("map",algorithmFactory);
+        model.addAttribute("map",algoNameToParalistMapper);
         //model.addAttribute("algoList", new AlgoList <= hat List[Algo]);
         //poster.getIt();
 
@@ -80,33 +81,16 @@ public class FormularController {
 
             Set<Field> fields = reflections.getFieldsAnnotatedWith(AlgoParam.class);
 
+            List<AlgoParam> paraList = new ArrayList<>();
+
             for(Field f:fields){
                 AlgoParam algoParam = f.getAnnotation(AlgoParam.class);
+                paraList.add(algoParam);
                 System.out.println("name: "+ f.getName()+" value: "+algoParam.name());
                 System.out.println();
             }
 
-            /*
-            // paramNames
-            System.out.println("fields:");
-            System.out.println();
-            Set<Field> myFields = getAllFields(thing,withType(IAIParameter.class));
-            for(Field f:myFields){
-                System.out.println(f.toString());
-                f.setAccessible(true);
-                System.out.println("hot:");
-                try {
-                    System.out.println(f.get(null).toString());
-                } catch (Exception e) {
-                    System.out.println("Can't get the field");
-                    System.out.println("Exception type:");
-                    System.out.println(e.getClass().toString());
-                    System.out.println();
-                }
-               
-            }
-            System.out.println();
-            */
+            algoNameToParalistMapper.put(thing.getSimpleName(),paraList);
 
         }
 
@@ -114,32 +98,13 @@ public class FormularController {
         System.out.println();
         System.out.println(algorithmFactory.getRegisteredAlgos().toString());
 
+        System.out.println("The filled ParaMap");
+        System.out.println();
+        System.out.println(algoNameToParalistMapper.toString());
+
 
         int bla = 98;
 
-        /*
-            System.out.println("lets find the static example:");
-            Set<Method> ms = getAllMethods(thing,withModifier(Modifier.STATIC));
-            for(Method oneMethod : ms){
-                System.out.println(oneMethod.toString());
-            }
-            System.out.println("Now it burns with field type:");
-
-            Field[] f = thing.getDeclaredFields();
-            Field myF = f[0];
-            myF.setAccessible(true);
-            Class<?> t = myF.getType();
-            System.out.println(t);
-
-            if(t == String.class){
-                System.out.println("Tell me:");
-                System.out.println((String)myF.get(null));
-            }
-
-            System.out.println("end statics");
-            System.out.println();
-
-            */
 
     }
 
