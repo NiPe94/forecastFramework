@@ -44,7 +44,7 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory = new AlgorithmFactory();
 
-    private Map<String,List<AlgoParam>> algoNameToParalistMapper = new HashMap<String,List<AlgoParam>>();
+    private HashMap<String,List<AlgoParam>> algoNameToParalistMapper = new HashMap<String,List<AlgoParam>>();
 
     @GetMapping("/")
     public String indexForm(Model model) {
@@ -53,6 +53,7 @@ public class FormularController {
         model.addAttribute("modeling", new Modeling());
         searchClasses();
         model.addAttribute("map",algoNameToParalistMapper);
+        model.addAttribute("firstMapAlgo",algoNameToParalistMapper.keySet().iterator().next());
         //model.addAttribute("algoList", new AlgoList <= hat List[Algo]);
         //poster.getIt();
 
@@ -79,10 +80,12 @@ public class FormularController {
             System.out.println("fields:");
             System.out.println();
 
-            Set<Field> fields = reflections.getFieldsAnnotatedWith(AlgoParam.class);
+
+            Set<Field> fields = getAllFields(thing, withAnnotation(AlgoParam.class));
 
             List<AlgoParam> paraList = new ArrayList<>();
 
+            System.out.println("First fields as usual: ");
             for(Field f:fields){
                 AlgoParam algoParam = f.getAnnotation(AlgoParam.class);
                 paraList.add(algoParam);
@@ -109,7 +112,17 @@ public class FormularController {
     }
 
     @PostMapping("/")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("csvfile") CSVFile fileCSV, @ModelAttribute("modeling") Modeling modeling, Model model, BindingResult bindResult) {
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("csvfile") CSVFile fileCSV, @ModelAttribute("modeling") Modeling modeling, @ModelAttribute("map") HashMap<String,List<AlgoParam>> myMap, Model model, BindingResult bindResult) {
+
+        // test whether the paras got set
+        if(myMap.isEmpty()){
+            System.out.println("what?");
+        }
+        System.out.println("Start iteration");
+        for(Map.Entry<String,List<AlgoParam>> entry : myMap.entrySet()){
+            System.out.println(entry.getKey()+" : "+entry.getValue().toString());
+        }
+        System.out.println("End iteration");
 
         // some vars
         boolean modellingDone = false;
