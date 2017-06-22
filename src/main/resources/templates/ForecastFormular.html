@@ -39,20 +39,6 @@
         console.log(blubi);
 
         generateParameterPairs();
-        /*
-        <div class="form-group" th:each="para: *{map[__${AlgoName}__]}">
-            <label class="col-md-4 control-label" for="textinput1">Input Data and Feature Index:</label>
-            <div class="col-md-3">
-                 <input data-toggle="tooltip"
-                 title="file path to a csv file"
-                 id="textinput1" name="textinput1"
-                 type="text"
-                 th:field="${para.value}"
-                 placeholder="path"
-                 class="form-control input-md" />
-            </div>
-        </div>
-        * */
 
         //$('[data-toggle="tooltip"]').tooltip();
 
@@ -71,36 +57,69 @@
     }
 
     function generateParameterPairs() {
-        console.log("bin dirn");
 
-        var parasForAlgo = /*[[${map[__${firstMapAlgo}__].toString()}]]*/ null;
-        console.log("complete String:");
-        console.log(parasForAlgo);
+        var element1 = $('<div></div>',{
+            'class':'form-group',
+            'th:each':'para:' + /*[[ *{map[__${firstMapAlgo}__]} ]]*/ null
+        });
 
-        var currentIndex = 0;
+        var element2 = $('<label></label>',{
+            'class':'col-md-4 control-label',
+            'text':''+ '${para.key}',
+        }).appendTo(element1);
 
-        var myCounter = 0;
+        var element3 = $('<div></div>',{
+            'class':'col-md-3'
+        });
 
-        var myList = [];
+        var element4 = $('<input />',{
+            'data-toggle':'tooltip',
+            'title':'Type in a number to set this parameter',
+            'type':'text',
+            'th:field':'*{para.value}',
+            'placeholder':'value',
+            'class':'form-control input-md'
+        }).appendTo(element3);
 
-        console.log("start while");
-        while (parasForAlgo.indexOf('name=',currentIndex) != -1){
-            var currentNumber = parasForAlgo.indexOf('name=',currentIndex);
-            var currentEndNumber = parasForAlgo.indexOf(',',currentNumber);
-            var currentSub = parasForAlgo.slice(currentNumber+5,currentEndNumber);
-            console.log(currentSub);
-            myList.push(currentSub);
-            currentIndex = currentEndNumber;
-            myCounter = myCounter + 1;
-            if(myCounter==20){
-                console.log("something went wrong");
-                break;
-            }
-        }
-        console.log("end while");
-        console.log("list:");
-        console.log(myList);
+        element3.appendTo(element1);
 
+        $("#dynamic").append(element1);
+
+
+
+
+
+        // ************************************ //
+
+
+        //var parasForAlgo = /*[[${map[__${firstMapAlgo}__].toString()}]]*/ null;
+        //console.log("complete String:");
+        //console.log(parasForAlgo);
+        //var currentIndex = 0;
+
+        //var myCounter = 0;
+
+        //var myList = [];
+
+        //console.log("start while");
+        //while (parasForAlgo.indexOf('name=',currentIndex) != -1){
+            //var currentNumber = parasForAlgo.indexOf('name=',currentIndex);
+            //var currentEndNumber = parasForAlgo.indexOf(',',currentNumber);
+            //var currentSub = parasForAlgo.slice(currentNumber+5,currentEndNumber);
+            //console.log(currentSub);
+            //myList.push(currentSub);
+            //currentIndex = currentEndNumber;
+            //myCounter = myCounter + 1;
+            //if(myCounter==20){
+                //console.log("something went wrong");
+                //break;
+            //}
+        //}
+        //console.log("end while");
+        //console.log("list:");
+        //console.log(myList);
+
+        /*
         for(i = 0; i < myList.length; i++){
             var txt1 = $('<label></label>',{
                 'class':'col-md-4 control-label',
@@ -125,6 +144,8 @@
             }).append(txt1,txt3);
             $("#dynamic").append(txt4);
         }
+        */
+
 
     }
 
