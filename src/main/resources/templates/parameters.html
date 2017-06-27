@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+
+<body>
+    <div th:fragment="parameterList">
+        <div class="form-group" th:each="parameter: ${algoParaList}">
+            <label class="col-md-4 control-label"  th:text="${parameter.name()}">Input Data and Feature Index:</label>
+            <div class="col-md-3">
+                <input data-toggle="tooltip"
+                       title="file path to a csv file"
+                       type="text"
+                       placeholder="value"
+                       th:field = "*{__${parameter.value}__}"
+                       class="form-control input-md" />
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

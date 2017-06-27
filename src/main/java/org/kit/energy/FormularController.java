@@ -10,12 +10,11 @@ import org.reflections.scanners.SubTypesScanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import sun.reflect.Reflection;
 
 import java.io.*;
@@ -44,7 +43,7 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory = new AlgorithmFactory();
 
-    private HashMap<String,List<AlgoParam>> algoNameToParalistMapper = new HashMap<String,List<AlgoParam>>();
+    private MapWrapper wrapper = new MapWrapper();
 
     @GetMapping("/")
     public String indexForm(Model model) {
@@ -52,12 +51,12 @@ public class FormularController {
         model.addAttribute("csvfile", new CSVFile());
         model.addAttribute("modeling", new Modeling());
         searchClasses();
-        model.addAttribute("map",algoNameToParalistMapper);
-        model.addAttribute("firstMapAlgo",algoNameToParalistMapper.keySet().iterator().next());
-        //model.addAttribute("algoList", new AlgoList <= hat List[Algo]);
+
+        model.addAttribute("map",wrapper.getMap());
+        model.addAttribute("selectedAlgoResult", new SelectedAlgo());
+
         //poster.getIt();
-
-
+        model.addAttribute("algoParaList",new ArrayList<AlgoParam>());
 
         return "ForecastFormular";
     }
@@ -93,7 +92,7 @@ public class FormularController {
                 System.out.println();
             }
 
-            algoNameToParalistMapper.put(thing.getSimpleName(),paraList);
+            wrapper.getMap().put(thing.getSimpleName(),paraList);
 
         }
 
@@ -103,7 +102,7 @@ public class FormularController {
 
         System.out.println("The filled ParaMap");
         System.out.println();
-        System.out.println(algoNameToParalistMapper.toString());
+        System.out.println(wrapper.getMap().toString());
 
 
         int bla = 98;
@@ -112,14 +111,22 @@ public class FormularController {
     }
 
     @PostMapping("/")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("csvfile") CSVFile fileCSV, @ModelAttribute("modeling") Modeling modeling, @ModelAttribute("map") HashMap<String,List<AlgoParam>> myMap, Model model, BindingResult bindResult) {
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("algoParaList") ArrayList<AlgoParam> myParas, @ModelAttribute("csvfile") CSVFile fileCSV, @ModelAttribute("modeling") Modeling modeling, @ModelAttribute("wrapper") MapWrapper wrapper, @ModelAttribute("selectedAlgoResult") SelectedAlgo selectedAlgo, Model model, BindingResult bindResult) {
+
+        System.out.println("Start POSTing");
+        System.out.println();
+
+        System.out.println("selected Algo: " + selectedAlgo.getSelectedAlgoName());
+
+        System.out.println("die paras: ");
+        System.out.println(myParas.toString());
 
         // test whether the paras got set
-        if(myMap.isEmpty()){
+        if(wrapper.getMap().isEmpty()){
             System.out.println("what?");
         }
         System.out.println("Start iteration");
-        for(Map.Entry<String,List<AlgoParam>> entry : myMap.entrySet()){
+        for(Map.Entry<String,List<AlgoParam>> entry : wrapper.getMap().entrySet()){
             System.out.println(entry.getKey()+" : "+entry.getValue().toString());
         }
         System.out.println("End iteration");
@@ -166,6 +173,18 @@ public class FormularController {
         model.addAttribute("modellingDone", modellingDone);
 
         return "ForecastFormular";
+    }
+
+    @GetMapping("/parameters/{algoName}")
+    public String getParametersForAlgorithm(Model model, @PathVariable("algoName") String algoName){
+
+        boolean parasRequested = true;
+
+        model.addAttribute("parasRequested", parasRequested);
+
+        model.addAttribute("algoParaList", wrapper.getMap().get(algoName)); //model.addAttribute("algoParaList", wrapper.getMap().get(algoName));
+
+        return "parameters :: parameterList";
     }
 
 }

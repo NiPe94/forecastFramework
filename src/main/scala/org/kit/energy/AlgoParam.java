@@ -1,5 +1,7 @@
 package org.kit.energy;
 
+import org.apache.commons.digester.annotations.rules.BeanPropertySetter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,7 +12,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@interface AlgoParam {
+public @interface AlgoParam {
     String name();
     String value();
 }

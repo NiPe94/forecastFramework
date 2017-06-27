@@ -27,142 +27,32 @@
 
     /*<![CDATA[*/
 
-
-
     $(document).ready(function(){
 
         console.log("start");
 
-        var blubi = /*[[${map[__${firstMapAlgo}__][0].value()}]]*/ null;
-
-        console.log("blubi:");
-        console.log(blubi);
-
-        generateParameterPairs();
-
         //$('[data-toggle="tooltip"]').tooltip();
-
-        /*var selectedAlgo = $('#selectnew').val();
-        console.log("hab den Wert der selection: "+selectedAlgo);*/
 
         // empty the parameter elements inside the div, when a new algorithm is selected
         $('#selectnew').change(function(){
             $('#dynamic').empty();
-            //generateParameterPairs();
+            getParametersForAlgorithm();
+
         })
     });
+
+    function getParametersForAlgorithm() {
+        var selectedAlgo = $('#selectnew').val();
+        var url = "/parameters/"+selectedAlgo;
+        $("#dynamic").load(url);
+    }
 
     function myFunction() {
         document.getElementById("progress").style.display="block";
     }
 
-    function generateParameterPairs() {
-
-        var element1 = $('<div></div>',{
-            'class':'form-group',
-            'th:each':'para:' + /*[[ *{map[__${firstMapAlgo}__]} ]]*/ null
-        });
-
-        var element2 = $('<label></label>',{
-            'class':'col-md-4 control-label',
-            'text':''+ '${para.key}',
-        }).appendTo(element1);
-
-        var element3 = $('<div></div>',{
-            'class':'col-md-3'
-        });
-
-        var element4 = $('<input />',{
-            'data-toggle':'tooltip',
-            'title':'Type in a number to set this parameter',
-            'type':'text',
-            'th:field':'*{para.value}',
-            'placeholder':'value',
-            'class':'form-control input-md'
-        }).appendTo(element3);
-
-        element3.appendTo(element1);
-
-        $("#dynamic").append(element1);
-
-
-
-
-
-        // ************************************ //
-
-
-        //var parasForAlgo = /*[[${map[__${firstMapAlgo}__].toString()}]]*/ null;
-        //console.log("complete String:");
-        //console.log(parasForAlgo);
-        //var currentIndex = 0;
-
-        //var myCounter = 0;
-
-        //var myList = [];
-
-        //console.log("start while");
-        //while (parasForAlgo.indexOf('name=',currentIndex) != -1){
-            //var currentNumber = parasForAlgo.indexOf('name=',currentIndex);
-            //var currentEndNumber = parasForAlgo.indexOf(',',currentNumber);
-            //var currentSub = parasForAlgo.slice(currentNumber+5,currentEndNumber);
-            //console.log(currentSub);
-            //myList.push(currentSub);
-            //currentIndex = currentEndNumber;
-            //myCounter = myCounter + 1;
-            //if(myCounter==20){
-                //console.log("something went wrong");
-                //break;
-            //}
-        //}
-        //console.log("end while");
-        //console.log("list:");
-        //console.log(myList);
-
-        /*
-        for(i = 0; i < myList.length; i++){
-            var txt1 = $('<label></label>',{
-                'class':'col-md-4 control-label',
-                'for':'myNewInput'+i,
-                'text':myList[i]+':',
-            });
-            var txt3 = $('<div></div>',{
-                'class':'col-md-3'
-            });
-            var txt2 = $('<input />',{
-                'data-toggle':'tooltip',
-                'title':'Type in a number to set this parameter',
-                'id':'myNewInput'+i,
-                'name':'myNewInput'+i,
-                'type':'text',
-                'th:field':'*{map[__${firstMapAlgo}__]['+i+'].value()}',
-                'placeholder':'value',
-                'class':'form-control input-md'
-            }).appendTo(txt3);
-            var txt4 = $('<div></div>',{
-                'class':'form-group'
-            }).append(txt1,txt3);
-            $("#dynamic").append(txt4);
-        }
-        */
-
-
-    }
-
     /*]]>*/
 
-    /*
-    <label class="col-md-4 control-label" for="textinput1">Input Data and Feature Index:</label>
-    <div class="col-md-3">
-        <input data-toggle="tooltip"
-        title="file path to a csv file"
-        id="textinput1" name="textinput1"
-        type="text"
-        th:field="${csvfile.dataPath}"
-        placeholder="path"
-        class="form-control input-md" />
-    </div>
-    */
 </script>
 <div class="jumbotron">
     <h1 align="center">Forecast Service</h1>
@@ -259,7 +149,8 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="selectnew">Select Map Algorithm:</label>
             <div class="col-md-4">
-                <select id="selectnew" name="selectnew" class="form-control" th:field="${map}">
+                <select id="selectnew" name="selectnew" class="form-control" th:field="${selectedAlgoResult.selectedAlgoName}">
+                    <option th:value = "0">---Choose option---</option>
                     <option th:each="algorithm : ${map}" th:value="${algorithm.key}" th:text="${algorithm.key}"></option>
                 </select>
             </div>
@@ -307,10 +198,15 @@
     </fieldset>
 </form>
 
-<!-- Error Box for Exception -->
-<div class="alert alert-danger" th:if="${validatorError} == true" >
+<!-- Error Boxes for Exception -->
+<div class="alert alert-danger" id="dangerPath" th:if="${validatorError} == true" >
     <p align="center" th:text="${validatorMessage}"><strong>Error!</strong> Please provide a valid path to a file.</p>
 </div>
+<!--
+<div class="alert alert-danger" id="dangerAlgo" th:if="${nothingSelectedError} == true" >
+    <p align="center" th:text="${nothingSelectedMessage}"><strong>Error!</strong> Please select an algorithm to perform a forecast.</p>
+</div>
+-->
 
 </body>
 </html>

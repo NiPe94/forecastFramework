@@ -5,6 +5,4 @@ package org.kit.energy;
  */
 public interface AlgoPlugin {
 
-
-
 }
