@@ -11,8 +11,8 @@
                 <input data-toggle="tooltip"
                        title="file path to a csv file"
                        type="text"
+                       th:value="${parameter.value()}"
                        placeholder="value"
-                       th:field = "*{__${parameter.value}__}"
                        class="form-control input-md" />
             </div>
         </div>

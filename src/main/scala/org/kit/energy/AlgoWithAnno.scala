@@ -8,6 +8,7 @@ import org.apache.spark.sql.DataFrame
   */
 class AlgoWithAnno extends AlgoPlugin{
 
+  /*
   @AlgoParam(name="Regularization", value="0.0")
   private var regParam:String = _
 
@@ -16,6 +17,11 @@ class AlgoWithAnno extends AlgoPlugin{
 
   @AlgoParam(name="With Intercept", value="1")
   private var fitIntercept:String = _
+  */
+
+  private var regParam:AlgoParameter = new AlgoParameter("Regularization","0.0")
+  private var elasticNet:AlgoParameter = new AlgoParameter("Elastic Net","1.3")
+  private var fitIntercept:AlgoParameter = new AlgoParameter("With Intercept","1")
 
 
   //@AlgoParam("no matchi1") param1:String, @AlgoParam("no matchi2") param2:String
