@@ -32,7 +32,7 @@ public class FormularController {
         model.addAttribute("modeling", new Modeling());
         algorithmSearcher = new AlgorithmSearcher();
         algorithmSearcher.beginSearch();
-        model.addAttribute("algoNameList",algorithmSearcher.getAlgorithmNameList());
+        model.addAttribute("algoNameList", algorithmSearcher.getAlgorithmNameList());
         model.addAttribute("selectedAlgoResult", new SelectedAlgo());
 
         //poster.getIt();

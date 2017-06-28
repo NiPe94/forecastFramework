@@ -20,7 +20,7 @@ public class AlgorithmSearcher {
 
     private ArrayList<String> algorithmNameList = new ArrayList<>();
 
-    private Map<String,ArrayList<AlgoParameter>> algorithmToParameterListMap = new HashMap<>();
+    private Map<String, ArrayList<AlgoParameter>> algorithmToParameterListMap = new HashMap<>();
 
     private AlgorithmFactory algorithmFactory = new AlgorithmFactory();
 
@@ -36,12 +36,11 @@ public class AlgorithmSearcher {
         return algorithmFactory;
     }
 
-    public void beginSearch(){
+    public void beginSearch() {
         Reflections reflections = new Reflections("org.kit.energy", new FieldAnnotationsScanner(), new SubTypesScanner());
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
         System.out.println();
-
-        for( Class<? extends AlgoPlugin> thing : subtypes){
+        for (Class<? extends AlgoPlugin> thing : subtypes) {
 
             // register class names in map
             System.out.println("********************");
@@ -49,7 +48,7 @@ public class AlgorithmSearcher {
             System.out.println("********************");
             System.out.println();
 
-            algorithmFactory.registerAlgo(thing.getSimpleName(),thing);
+            algorithmFactory.registerAlgo(thing.getSimpleName(), thing);
             algorithmNameList.add(thing.getSimpleName());
 
             // with annotations:
@@ -61,9 +60,13 @@ public class AlgorithmSearcher {
 
             Set<Field> fields = getAllFields(thing, withAnnotation(AlgoParam.class));
 
-            if(!fields.isEmpty()){
+            if (fields.isEmpty()) {
+                return;
+            }
+
+            if (!fields.isEmpty()) {
                 System.out.println("First fields as usual: ");
-                for(Field f:fields){
+                for (Field f : fields) {
                     // get current Annotation
                     AlgoParam algoParam = f.getAnnotation(AlgoParam.class);
 
@@ -79,10 +82,10 @@ public class AlgorithmSearcher {
                     parameterList.add(algoParameter);
                     paraList.add(algoParam);
 
-                    System.out.println("name: "+ f.getName()+" value: "+algoParam.name());
+                    System.out.println("name: " + f.getName() + " value: " + algoParam.name());
                     System.out.println();
                 }
-                algorithmToParameterListMap.put(thing.getSimpleName(),parameterList);
+                algorithmToParameterListMap.put(thing.getSimpleName(), parameterList);
             }
 
         }
