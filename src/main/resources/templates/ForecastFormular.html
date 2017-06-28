@@ -151,7 +151,7 @@
             <div class="col-md-4">
                 <select id="selectnew" name="selectnew" class="form-control" th:field="${selectedAlgoResult.selectedAlgoName}">
                     <option th:value = "0">---Choose option---</option>
-                    <option th:each="algorithm : ${map}" th:value="${algorithm.key}" th:text="${algorithm.key}"></option>
+                    <option th:each="algorithm : ${algoNameList}" th:value="${algorithm}" th:text="${algorithm}"></option>
                 </select>
             </div>
         </div>
