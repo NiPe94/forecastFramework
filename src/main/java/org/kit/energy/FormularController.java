@@ -6,6 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 /**
  * Created by qa5147 on 23.01.2017.
  */
@@ -70,18 +72,26 @@ public class FormularController {
             return "ForecastFormular";
         }
 
-        // start selected algorithm. -> Algorithm-Starter-Manager-Class?
-        if (modeling.getAlgoType() == AlgorithmType.LinearRegressionType) {
-            boolean startModeling = true, startApplication = true;
-            // what action will be performed?
-            if (forecast.getPerformType() == PerformType.Modeling) {
-                startApplication = false;
-            }
-            if (forecast.getPerformType() == PerformType.Application) {
-                startModeling = false;
-            }
+        String algoName = selectedAlgo.getSelectedAlgoName();
+        ArrayList<AlgoParameter> algoParameters = myWrapper.getDadList();
+        AlgoPlugin algoPlugin = algorithmSearcher.getAlgorithmFactory().createAlgo(algoName);
+        ForecastAlgorithm forecastAlgorithm = new ForecastAlgorithm();
+        forecastAlgorithm.setAlgoName(algoName);
+        forecastAlgorithm.setAlgoParameters(algoParameters);
+        forecastAlgorithm.setAlgoPlugin(algoPlugin);
+
+        boolean startModeling = true, startApplication = true;
+
+        // what action will be performed?
+        if (forecast.getPerformType() == PerformType.Modeling) {
+            startApplication = false;
+        }
+        if (forecast.getPerformType() == PerformType.Application) {
+            startModeling = false;
+
             // start the algorithm
-            modelParameters = modelingPipe.startForecasting(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication, fileCSV.isHasHeader(), fileCSV.getDelimeter(), fileCSV.getLabelColumnIndex(), fileCSV.getFeatureColumnsIndexes());
+            //modelParameters = modelingPipe.startForecasting(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication, fileCSV.isHasHeader(), fileCSV.getDelimeter(), fileCSV.getLabelColumnIndex(), fileCSV.getFeatureColumnsIndexes());
+            modelParameters = modelingPipe.startForecasting(forecast, forecastAlgorithm, startModeling, startApplication);
             // save the parameters
             modelParametersArray = modelParameters.split(" ");
             modeling.setModelParameters(modelParametersArray);

@@ -10,19 +10,18 @@ class AlgoWithAnno extends AlgoPlugin{
 
 
   @AlgoParam(name="Regularization", value="10")
-  private var regParam:String = _
+  var regParam:String = _
 
   @AlgoParam(name="Elastic Net", value="20")
-  private var elasticNet:String = _
+  var elasticNet:String = _
 
   @AlgoParam(name="With Intercept", value="30")
-  private var fitIntercept:String = _
+  var fitIntercept:String = _
 
 
 
   //@AlgoParam("no matchi1") param1:String, @AlgoParam("no matchi2") param2:String
   //inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String
-  @AlgoDef
   def compute(inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String): String = {
 
     // set regression parameter and start the regression

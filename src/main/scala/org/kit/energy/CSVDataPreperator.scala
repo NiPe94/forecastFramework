@@ -12,10 +12,18 @@ import org.springframework.stereotype.Component
 @Component
 class CSVDataPreperator {
 
-  def prepareDataset(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession): sql.DataFrame = {
+  //(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession)
+  def prepareDataset(csvFile:CSVFile, spark: SparkSession): sql.DataFrame = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
+
+    // read the csv properties
+    val hasHead = csvFile.isHasHeader
+    val delimeter = csvFile.getDelimeter
+    val labelIndex = csvFile.getLabelColumnIndex
+    val featuresIndex = csvFile.getFeatureColumnsIndexes
+    val dataPath = csvFile.getDataPath
 
     println("print var inputs (head, del, label, features):")
     println(hasHead)
