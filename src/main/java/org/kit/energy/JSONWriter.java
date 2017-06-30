@@ -16,7 +16,8 @@ public class JSONWriter {
         String resultString = gson.toJson(forecast);
 
         //2. Convert object to JSON string and save into a file directly
-        String completePath = forecast.getModeling().getSavePathModel() + forecast.getModeling().getAlgoType() + ".JSON";
+        //String completePath = forecast.getModeling().getSavePathModel() + forecast.getModeling().getAlgoType() + ".JSON";
+        String completePath = forecast.getModeling().getSavePathModel() +".JSON";
         try (FileWriter writer = new FileWriter(completePath)) {
 
             gson.toJson(forecast, writer);

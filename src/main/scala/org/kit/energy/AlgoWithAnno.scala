@@ -1,7 +1,7 @@
 package org.kit.energy
 
 import org.apache.spark.ml.regression.LinearRegression
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 /**
   * Created by qa5147 on 19.06.2017.
@@ -22,7 +22,8 @@ class AlgoWithAnno extends AlgoPlugin{
 
   //@AlgoParam("no matchi1") param1:String, @AlgoParam("no matchi2") param2:String
   //inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String
-  def compute(inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String): String = {
+  //def compute(inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String): String = {
+  def compute(inputData: DataFrame): String = {
 
     // set regression parameter and start the regression
     val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble).setFitIntercept(fitIntercept.toBoolean)

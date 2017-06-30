@@ -16,6 +16,16 @@ public class WrapperForListOfParameters {
         this.dadList = dadList;
     }
 
+    public AlgoParameter getParameterWithName(String name){
+        AlgoParameter paraToReturn = new AlgoParameter();
+        for(AlgoParameter algoParameter : dadList){
+            if(algoParameter.getName().equals(name)){
+                paraToReturn = algoParameter;
+            }
+        }
+        return paraToReturn;
+    }
+
     @Override
     public String toString() {
         return "WrapperForListOfParameters{" +

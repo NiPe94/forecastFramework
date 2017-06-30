@@ -15,6 +15,10 @@ class ForecastPipeline {
   //(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean, hasHead:Boolean, delimeter:String, labelIndex:String, featuresIndex:String)
   def startForecasting(forecast:Forecast, forecastAlgorithm:ForecastAlgorithm, performModeling:Boolean, performModelApplication:Boolean) : String = {
 
+    println()
+    println("start of pipeline!")
+    println()
+
     var forecastResult = "";
     val savePathModel = forecast.getModeling.getSavePathModel
     val savePathCSV = forecast.getSavePathCSV
@@ -34,13 +38,17 @@ class ForecastPipeline {
 
       // prepare dataset for using
       val preperator = new CSVDataPreperator()
+      println("Start preparing the data")
       val preparedData = preperator.prepareDataset(forecast.getFileCSV(), spark)
+      println("Ended preparing the data")
 
       // start a new modeling job
       if(performModeling){
 
-        // evaluate the new model
+        // new model evaluation
+        val resultingModel = forecastAlgorithm.getAlgoPlugin().compute(preparedData)
 
+        // evaluate the new model
         val algorithm = new LinearRegressionWithCSV()
         val resultModel = algorithm.start(preparedData)
 

@@ -6,7 +6,6 @@ package org.kit.energy;
 public class Modeling {
 
     private String savePathModel;
-    private AlgorithmType algoType;
     private String[] modelParameters;
     private Integer horizon;
 
@@ -16,14 +15,6 @@ public class Modeling {
 
     public void setSavePathModel(String savePathModel) {
         this.savePathModel = savePathModel;
-    }
-
-    public AlgorithmType getAlgoType() {
-        return algoType;
-    }
-
-    public void setAlgoType(AlgorithmType algoType) {
-        this.algoType = algoType;
     }
 
     public String[] getModelParameters() {

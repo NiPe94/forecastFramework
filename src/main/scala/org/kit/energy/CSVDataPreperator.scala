@@ -32,13 +32,10 @@ class CSVDataPreperator {
     println(featuresIndex)
 
     var finalData = spark.emptyDataFrame
-
     val pastIndex = 2
-
     val horizont = 1
 
     try {
-
       // read the dataset
       val nilCSV = spark.read
         .format("com.databricks.spark.csv")
@@ -74,7 +71,7 @@ class CSVDataPreperator {
         testArray(counter) = dataColumns.apply(featureString.toInt)
         counter += 1
       }
-
+      /*
       val selectedDF = nilCSV.select("Solar Irradiation")
       val selectedDFSchema = selectedDF.schema
       var filteredRDD = spark.emptyDataFrame.rdd
@@ -91,7 +88,6 @@ class CSVDataPreperator {
         theLength = filteredRDD.count().toInt
         frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-bla)
 
-        // problem here
         if(bla == 0) {
             dadFrame = frameWithin
           }
@@ -108,6 +104,7 @@ class CSVDataPreperator {
       }
       println("I'm so excited:")
       dadFrame.show()
+      */
 
       println("features array:")
       testArray.foreach(println)
