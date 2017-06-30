@@ -1,6 +1,7 @@
 package org.kit.energy;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,6 +10,7 @@ import static org.reflections.ReflectionUtils.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,15 +29,14 @@ public class FormularController {
     @Autowired
     private JSONWriter jsonWriter;
 
+    @Autowired
     private AlgorithmSearcher algorithmSearcher;
 
 
     @GetMapping("/")
     public String indexForm(Model model) {
+
         model.addAttribute("forecast", new Forecast());
-        model.addAttribute("csvfile", new CSVFile());
-        model.addAttribute("modeling", new Modeling());
-        algorithmSearcher = new AlgorithmSearcher();
         algorithmSearcher.beginSearch();
         model.addAttribute("algoNameList",algorithmSearcher.getAlgorithmNameList());
         model.addAttribute("selectedAlgoResult", new SelectedAlgo());
@@ -46,21 +47,15 @@ public class FormularController {
     }
 
     @PostMapping("/")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") WrapperForListOfParameters myWrapper, @ModelAttribute("csvfile") CSVFile fileCSV, @ModelAttribute("modeling") Modeling modeling, @ModelAttribute("selectedAlgoResult") SelectedAlgo selectedAlgo, Model model, BindingResult bindResult) {
-
-        System.out.println();
-        System.out.println("Start submitting!");
-        System.out.println();
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") WrapperForListOfParameters myWrapper, @ModelAttribute("selectedAlgoResult") SelectedAlgo selectedAlgo, Model model, BindingResult bindResult) {
 
         // some vars
         boolean modellingDone = false;
         String modelParameters = "";
         String[] modelParametersArray;
-        forecast.setFileCSV(fileCSV);
-        forecast.setModeling(modeling);
 
         // validate input data
-        Validator validator = new Validator(fileCSV);
+        Validator validator = new Validator(forecast.getFileCSV());
         model.addAttribute("validatorError", !validator.isValid());
         model.addAttribute("validatorMessage", validator.getMessage());
 
@@ -71,7 +66,6 @@ public class FormularController {
         }
 
         String algoName = selectedAlgo.getSelectedAlgoName();
-        ArrayList<AlgoParameter> algoParameters = myWrapper.getDadList();
         AlgoPlugin algoPlugin = algorithmSearcher.getAlgorithmFactory().createAlgo(algoName);
         Set<Field> fields = getAllFields(algoPlugin.getClass(),withAnnotation(AlgoParam.class));
 
@@ -91,12 +85,6 @@ public class FormularController {
             }
         }
 
-        ForecastAlgorithm forecastAlgorithm = new ForecastAlgorithm();
-        forecastAlgorithm.setAlgoName(algoName);
-        forecastAlgorithm.setAlgoParameters(algoParameters);
-        forecastAlgorithm.setAlgoPlugin(algoPlugin);
-
-
         boolean startModeling = true, startApplication = true;
 
         // what action will be performed?
@@ -108,17 +96,12 @@ public class FormularController {
         }
 
         // start the algorithm
-        //modelParameters = modelingPipe.startForecasting(fileCSV.getDataPath(), modeling.getSavePathModel(), forecast.getSavePathCSV(), startModeling, startApplication, fileCSV.isHasHeader(), fileCSV.getDelimeter(), fileCSV.getLabelColumnIndex(), fileCSV.getFeatureColumnsIndexes());
-        System.out.println();
-        System.out.println("Start calling the pipeline!");
-        System.out.println();
-        modelParameters = modelingPipe.startForecasting(forecast, forecastAlgorithm, startModeling, startApplication);
+        modelParameters = modelingPipe.startForecasting(forecast, algoPlugin, startModeling, startApplication);
+
         // save the parameters
         modelParametersArray = modelParameters.split(" ");
-        modeling.setModelParameters(modelParametersArray);
+        forecast.getModeling().setModelParameters(modelParametersArray);
         forecast.setResult(jsonWriter.writeJSON(forecast));
-
-
 
         modellingDone = true;
 
@@ -137,6 +120,27 @@ public class FormularController {
         model.addAttribute("wrapper",newMapper);
 
         return "parameters :: parameterList";
+    }
+
+    @GetMapping(value = "/plugins", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
+    public @ResponseBody List<ForecastAlgorithm> getAllPlugins(){
+        algorithmSearcher.beginSearch();
+        List<ForecastAlgorithm> forecastAlgorithms = algorithmSearcher.getForecastAlgorithms();
+        return forecastAlgorithms;
+    }
+
+    @GetMapping(value = "/plugins/{pluginName}", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
+    public @ResponseBody ForecastAlgorithm getPluginWithName(@PathVariable(value="pluginName") String pluginName){
+        algorithmSearcher.beginSearch();
+        List<ForecastAlgorithm> forecastAlgorithms = algorithmSearcher.getForecastAlgorithms();
+        ForecastAlgorithm forecastAlgorithmToReturn = new ForecastAlgorithm();
+
+        for(ForecastAlgorithm forecastAlgorithm:forecastAlgorithms){
+            if(forecastAlgorithm.getAlgoName().equals(pluginName)){
+                forecastAlgorithmToReturn = forecastAlgorithm;
+            }
+        }
+        return forecastAlgorithmToReturn;
     }
 
 }

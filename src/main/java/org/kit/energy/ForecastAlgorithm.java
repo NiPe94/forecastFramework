@@ -8,7 +8,6 @@ import java.util.ArrayList;
 public class ForecastAlgorithm {
     String algoName;
     ArrayList<AlgoParameter> algoParameters;
-    AlgoPlugin algoPlugin;
 
     public String getAlgoName() {
         return algoName;
@@ -26,11 +25,11 @@ public class ForecastAlgorithm {
         this.algoParameters = algoParameters;
     }
 
-    public AlgoPlugin getAlgoPlugin() {
-        return algoPlugin;
-    }
-
-    public void setAlgoPlugin(AlgoPlugin algoPlugin) {
-        this.algoPlugin = algoPlugin;
+    @Override
+    public String toString() {
+        return "ForecastAlgorithm{" +
+                "algoName='" + algoName + '\'' +
+                ", algoParameters=" + algoParameters.toString() +
+                '}';
     }
 }

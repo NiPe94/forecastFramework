@@ -3,12 +3,10 @@ package org.kit.energy;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.reflections.ReflectionUtils.getAllFields;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -16,7 +14,10 @@ import static org.reflections.ReflectionUtils.withAnnotation;
 /**
  * Created by qa5147 on 28.06.2017.
  */
+@Component
 public class AlgorithmSearcher {
+
+    private List<ForecastAlgorithm> forecastAlgorithms;
 
     private ArrayList<String> algorithmNameList = new ArrayList<>();
 
@@ -36,30 +37,35 @@ public class AlgorithmSearcher {
         return algorithmFactory;
     }
 
+    public List<ForecastAlgorithm> getForecastAlgorithms() {
+        return forecastAlgorithms;
+    }
+
     public void beginSearch(){
+
+        List<ForecastAlgorithm> forecastAlgorithms = new ArrayList<>();
+
+
         Reflections reflections = new Reflections("org.kit.energy", new FieldAnnotationsScanner(), new SubTypesScanner());
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
-        for( Class<? extends AlgoPlugin> thing : subtypes){
+        for( Class<? extends AlgoPlugin> plugin : subtypes){
 
-            // register class names in map
-            /*
-            System.out.println("********************");
-            System.out.println(thing.getSimpleName());
-            System.out.println("********************");
-            System.out.println();
-            */
-
-            algorithmFactory.registerAlgo(thing.getSimpleName(),thing);
-            algorithmNameList.add(thing.getSimpleName());
-
-            // with annotations:
+            // initialize values
             ArrayList<AlgoParam> paraList = new ArrayList<>();
             ArrayList<AlgoParameter> parameterList = new ArrayList<>();
+            ForecastAlgorithm forecastAlgorithm = new ForecastAlgorithm();
 
-            Set<Field> fields = getAllFields(thing, withAnnotation(AlgoParam.class));
+            // register plugin in factory
+            algorithmFactory.registerAlgo(plugin.getSimpleName(),plugin);
+            algorithmNameList.add(plugin.getSimpleName());
+            forecastAlgorithm.setAlgoName(plugin.getSimpleName());
+
+            // get fields with the annotaion AlgoParam
+            Set<Field> fields = getAllFields(plugin, withAnnotation(AlgoParam.class));
 
             if(!fields.isEmpty()){
+
                 for(Field f:fields){
                     // get current Annotation
                     AlgoParam algoParam = f.getAnnotation(AlgoParam.class);
@@ -73,9 +79,13 @@ public class AlgorithmSearcher {
                     parameterList.add(algoParameter);
                     paraList.add(algoParam);
                 }
-                algorithmToParameterListMap.put(thing.getSimpleName(),parameterList);
+                forecastAlgorithm.setAlgoParameters(parameterList);
+                algorithmToParameterListMap.put(plugin.getSimpleName(),parameterList);
+
+                forecastAlgorithms.add(forecastAlgorithm);
             }
 
         }
+        this.forecastAlgorithms = forecastAlgorithms;
     }
 }

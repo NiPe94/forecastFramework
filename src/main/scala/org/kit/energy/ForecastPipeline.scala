@@ -13,7 +13,7 @@ class ForecastPipeline {
 
 
   //(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean, hasHead:Boolean, delimeter:String, labelIndex:String, featuresIndex:String)
-  def startForecasting(forecast:Forecast, forecastAlgorithm:ForecastAlgorithm, performModeling:Boolean, performModelApplication:Boolean) : String = {
+  def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean) : String = {
 
     println()
     println("start of pipeline!")
@@ -46,7 +46,7 @@ class ForecastPipeline {
       if(performModeling){
 
         // new model evaluation
-        val resultingModel = forecastAlgorithm.getAlgoPlugin().compute(preparedData)
+        val resultingModel = algoPlugin.compute(preparedData)
 
         // evaluate the new model
         val algorithm = new LinearRegressionWithCSV()

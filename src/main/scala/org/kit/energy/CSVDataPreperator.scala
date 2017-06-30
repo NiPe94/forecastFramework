@@ -71,7 +71,8 @@ class CSVDataPreperator {
         testArray(counter) = dataColumns.apply(featureString.toInt)
         counter += 1
       }
-      /*
+
+      // **************** DOESN'T WORK ******************
       val selectedDF = nilCSV.select("Solar Irradiation")
       val selectedDFSchema = selectedDF.schema
       var filteredRDD = spark.emptyDataFrame.rdd
@@ -79,16 +80,16 @@ class CSVDataPreperator {
       var frameWithin = spark.emptyDataFrame
       var theLength = 0
 
-      for (bla <- 0 to pastIndex){
-        println("This is run number " + bla)
+      for (currentIndex <- 0 to pastIndex){
+        println("This is run number " + currentIndex)
         println("--------------------------")
         // starte bei past Index - bla
-        filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-bla) ) => r}
+        filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-currentIndex) ) => r}
         // gehe bis count - horizont - bla
         theLength = filteredRDD.count().toInt
-        frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-bla)
+        frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-currentIndex)
 
-        if(bla == 0) {
+        if(currentIndex == 0) {
             dadFrame = frameWithin
           }
 
@@ -99,12 +100,12 @@ class CSVDataPreperator {
         dadFrame.show()
         println("Then show the frame within which will be added")
         frameWithin.show()
-        dadFrame = dadFrame.withColumn(bla.toString,frameWithin("Solar Irradiation"))
+        dadFrame = dadFrame.withColumn(currentIndex.toString,frameWithin("Solar Irradiation"))
         dadFrame.show()
       }
       println("I'm so excited:")
       dadFrame.show()
-      */
+      // **************** DOESN'T WORK ******************
 
       println("features array:")
       testArray.foreach(println)
