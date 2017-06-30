@@ -1,5 +1,7 @@
 package org.kit.energy
 
+import java.io.FileNotFoundException
+
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.SparkSession
@@ -72,6 +74,7 @@ class CSVDataPreperator {
         counter += 1
       }
 
+
       // **************** DOESN'T WORK ******************
       val selectedDF = nilCSV.select("Solar Irradiation")
       val selectedDFSchema = selectedDF.schema
@@ -83,9 +86,9 @@ class CSVDataPreperator {
       for (currentIndex <- 0 to pastIndex){
         println("This is run number " + currentIndex)
         println("--------------------------")
-        // starte bei past Index - bla
+        // starte bei past Index - current index
         filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-currentIndex) ) => r}
-        // gehe bis count - horizont - bla
+        // gehe bis length - horizont - current index
         theLength = filteredRDD.count().toInt
         frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-currentIndex)
 
@@ -102,10 +105,12 @@ class CSVDataPreperator {
         frameWithin.show()
         dadFrame = dadFrame.withColumn(currentIndex.toString,frameWithin("Solar Irradiation"))
         dadFrame.show()
+        val bla = 356
       }
       println("I'm so excited:")
       dadFrame.show()
       // **************** DOESN'T WORK ******************
+
 
       println("features array:")
       testArray.foreach(println)
@@ -129,6 +134,9 @@ class CSVDataPreperator {
       println("final Data: ")
       finalData.show()
 
+    }
+    catch{
+      case e: FileNotFoundException => println("File not found")
     }
 
     return finalData
