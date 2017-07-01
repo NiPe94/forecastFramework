@@ -1,5 +1,7 @@
 package org.kit.energy
 
+import java.io.FileNotFoundException
+
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.SparkSession
@@ -12,10 +14,18 @@ import org.springframework.stereotype.Component
 @Component
 class CSVDataPreperator {
 
-  def prepareDataset(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession): sql.DataFrame = {
+  //(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession)
+  def prepareDataset(csvFile:CSVFile, spark: SparkSession): sql.DataFrame = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
+
+    // read the csv properties
+    val hasHead = csvFile.isHasHeader
+    val delimeter = csvFile.getDelimeter
+    val labelIndex = csvFile.getLabelColumnIndex
+    val featuresIndex = csvFile.getFeatureColumnsIndexes
+    val dataPath = csvFile.getDataPath
 
     println("print var inputs (head, del, label, features):")
     println(hasHead)
@@ -24,13 +34,10 @@ class CSVDataPreperator {
     println(featuresIndex)
 
     var finalData = spark.emptyDataFrame
-
     val pastIndex = 2
-
     val horizont = 1
 
     try {
-
       // read the dataset
       val nilCSV = spark.read
         .format("com.databricks.spark.csv")
@@ -67,6 +74,8 @@ class CSVDataPreperator {
         counter += 1
       }
 
+
+      // **************** DOESN'T WORK ******************
       val selectedDF = nilCSV.select("Solar Irradiation")
       val selectedDFSchema = selectedDF.schema
       var filteredRDD = spark.emptyDataFrame.rdd
@@ -74,17 +83,16 @@ class CSVDataPreperator {
       var frameWithin = spark.emptyDataFrame
       var theLength = 0
 
-      for (bla <- 0 to pastIndex){
-        println("This is run number " + bla)
+      for (currentIndex <- 0 to pastIndex){
+        println("This is run number " + currentIndex)
         println("--------------------------")
-        // starte bei past Index - bla
-        filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-bla) ) => r}
-        // gehe bis count - horizont - bla
+        // starte bei past Index - current index
+        filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-currentIndex) ) => r}
+        // gehe bis length - horizont - current index
         theLength = filteredRDD.count().toInt
-        frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-bla)
+        frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-currentIndex)
 
-        // problem here
-        if(bla == 0) {
+        if(currentIndex == 0) {
             dadFrame = frameWithin
           }
 
@@ -95,11 +103,14 @@ class CSVDataPreperator {
         dadFrame.show()
         println("Then show the frame within which will be added")
         frameWithin.show()
-        dadFrame = dadFrame.withColumn(bla.toString,frameWithin("Solar Irradiation"))
+        dadFrame = dadFrame.withColumn(currentIndex.toString,frameWithin("Solar Irradiation"))
         dadFrame.show()
+        val bla = 356
       }
       println("I'm so excited:")
       dadFrame.show()
+      // **************** DOESN'T WORK ******************
+
 
       println("features array:")
       testArray.foreach(println)
@@ -123,6 +134,9 @@ class CSVDataPreperator {
       println("final Data: ")
       finalData.show()
 
+    }
+    catch{
+      case e: FileNotFoundException => println("File not found")
     }
 
     return finalData

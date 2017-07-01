@@ -20,8 +20,7 @@ class AlgoWithAnno2 extends AlgoPlugin{
 
   //@AlgoParam("no matchi1") param1:String, @AlgoParam("no matchi2") param2:String
   //inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String
-  @AlgoDef
-  def compute(inputData: DataFrame, regParam: String, elasticNet: String, fitIntercept: String): String = {
+  def compute(inputData: DataFrame): String = {
 
     // set regression parameter and start the regression
     val lrModelStart = new LinearRegression().setRegParam(regParam2.toDouble).setElasticNetParam(elasticNet2.toDouble).setFitIntercept(fitIntercept2.toBoolean)

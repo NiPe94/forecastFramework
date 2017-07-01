@@ -12,9 +12,16 @@ import org.springframework.stereotype.Component
 class ForecastPipeline {
 
 
-  def startForecasting(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean, hasHead:Boolean, delimeter:String, labelIndex:String, featuresIndex:String) : String = {
+  //(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean, hasHead:Boolean, delimeter:String, labelIndex:String, featuresIndex:String)
+  def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean) : String = {
+
+    println()
+    println("start of pipeline!")
+    println()
 
     var forecastResult = "";
+    val savePathModel = forecast.getModeling.getSavePathModel
+    val savePathCSV = forecast.getSavePathCSV
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\Spark\\winutils-master\\hadoop-2.7.1");
@@ -31,10 +38,15 @@ class ForecastPipeline {
 
       // prepare dataset for using
       val preperator = new CSVDataPreperator()
-      val preparedData = preperator.prepareDataset(dataPath, hasHead, delimeter, labelIndex, featuresIndex, spark)
+      println("Start preparing the data")
+      val preparedData = preperator.prepareDataset(forecast.getFileCSV(), spark)
+      println("Ended preparing the data")
 
       // start a new modeling job
       if(performModeling){
+
+        // new model evaluation
+        val resultingModel = algoPlugin.compute(preparedData)
 
         // evaluate the new model
         val algorithm = new LinearRegressionWithCSV()
