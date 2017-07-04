@@ -74,7 +74,7 @@ class CSVDataPreperator {
         counter += 1
       }
 
-
+      /*
       // **************** DOESN'T WORK ******************
       val selectedDF = nilCSV.select("Solar Irradiation")
       val selectedDFSchema = selectedDF.schema
@@ -83,33 +83,44 @@ class CSVDataPreperator {
       var frameWithin = spark.emptyDataFrame
       var theLength = 0
 
+      // generate multiple data series via the past-shift-value and the horizon
+      // from 0 to pastShiftValue, generate a new data series which reaches from the value at (pastShiftValue - currentIndex) to (length - horizon - currentIndex) from the original data
       for (currentIndex <- 0 to pastIndex){
         println("This is run number " + currentIndex)
         println("--------------------------")
-        // starte bei past Index - current index
+        // generate a new series, starting with the value at (pastIndex-current) from the original data
         filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-currentIndex) ) => r}
-        // gehe bis length - horizont - current index
+        println("Start at pastindex-current:")
+        filteredRDD.foreach(r=>println(r.toString()))
+        println()
+        // then take all values from the gernerated series but leave all values after the index at (length-horizont-current) away
         theLength = filteredRDD.count().toInt
         frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-currentIndex)
 
+        // because of the schema for adding new dfs to it?
         if(currentIndex == 0) {
             dadFrame = frameWithin
           }
 
+        // what?
         var myString = frameWithin.columns.apply(0)
 
-        println("Now it burns:")
         println("first show the current dadFrame:")
         dadFrame.show()
-        println("Then show the frame within which will be added")
-        frameWithin.show()
-        dadFrame = dadFrame.withColumn(currentIndex.toString,frameWithin("Solar Irradiation"))
+        println("Then show the frame cutted which will be added to it")
+        var frameWithinDadSecond = frameWithin.withColumnRenamed("Solar Irradiation",currentIndex.toString)
+        frameWithinDadSecond.show()
+        if(currentIndex==1){
+          val blubi = 898
+        }
+        dadFrame = dadFrame.withColumn("blubi"+currentIndex.toString,frameWithinDadSecond(currentIndex.toString))
         dadFrame.show()
         val bla = 356
       }
       println("I'm so excited:")
       dadFrame.show()
       // **************** DOESN'T WORK ******************
+      */
 
 
       println("features array:")

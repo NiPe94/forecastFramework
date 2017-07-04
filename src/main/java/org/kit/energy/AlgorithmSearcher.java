@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
@@ -17,36 +18,13 @@ import static org.reflections.ReflectionUtils.withAnnotation;
 @Component
 public class AlgorithmSearcher {
 
-    private List<ForecastAlgorithm> forecastAlgorithms;
+    public Map<ForecastAlgorithm, Class<?>> beginSearch(String path){
 
-    private ArrayList<String> algorithmNameList = new ArrayList<>();
+        path = "org.kit.energy";
 
-    private Map<String,ArrayList<AlgoParameter>> algorithmToParameterListMap = new HashMap<>();
+        Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-    private AlgorithmFactory algorithmFactory = new AlgorithmFactory();
-
-    public ArrayList<String> getAlgorithmNameList() {
-        return algorithmNameList;
-    }
-
-    public Map<String, ArrayList<AlgoParameter>> getAlgorithmToParameterListMap() {
-        return algorithmToParameterListMap;
-    }
-
-    public AlgorithmFactory getAlgorithmFactory() {
-        return algorithmFactory;
-    }
-
-    public List<ForecastAlgorithm> getForecastAlgorithms() {
-        return forecastAlgorithms;
-    }
-
-    public void beginSearch(){
-
-        List<ForecastAlgorithm> forecastAlgorithms = new ArrayList<>();
-
-
-        Reflections reflections = new Reflections("org.kit.energy", new FieldAnnotationsScanner(), new SubTypesScanner());
+        Reflections reflections = new Reflections(path, new FieldAnnotationsScanner(), new SubTypesScanner());
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
@@ -57,8 +35,6 @@ public class AlgorithmSearcher {
             ForecastAlgorithm forecastAlgorithm = new ForecastAlgorithm();
 
             // register plugin in factory
-            algorithmFactory.registerAlgo(plugin.getSimpleName(),plugin);
-            algorithmNameList.add(plugin.getSimpleName());
             forecastAlgorithm.setAlgoName(plugin.getSimpleName());
 
             // get fields with the annotaion AlgoParam
@@ -80,12 +56,10 @@ public class AlgorithmSearcher {
                     paraList.add(algoParam);
                 }
                 forecastAlgorithm.setAlgoParameters(parameterList);
-                algorithmToParameterListMap.put(plugin.getSimpleName(),parameterList);
-
-                forecastAlgorithms.add(forecastAlgorithm);
+                forecastAlgorithmsWithPlugins.put(forecastAlgorithm,plugin);
             }
 
         }
-        this.forecastAlgorithms = forecastAlgorithms;
+        return forecastAlgorithmsWithPlugins;
     }
 }

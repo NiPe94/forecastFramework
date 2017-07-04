@@ -7,11 +7,18 @@ import org.apache.spark.sql.SparkSession
   */
 sealed class SparkEnvironment protected (val masterAdress:String){
 
-  val spark = SparkSession
-    .builder()
-    .master(masterAdress)
-    .appName("Forecast Service")
-    .getOrCreate()
+  private var spark:SparkSession = null
 
+  def getInstance() : SparkSession = {
+    if(this.spark != null){
+      return this.spark
+    }
+    this.spark = SparkSession
+      .builder()
+      .master(masterAdress)
+      .appName("Forecast Service")
+      .getOrCreate()
+    return spark
+  }
 
 }

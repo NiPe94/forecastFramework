@@ -46,7 +46,7 @@ class ForecastPipeline {
       if(performModeling){
 
         // new model evaluation
-        val resultingModel = algoPlugin.compute(preparedData)
+        val resultingModel = algoPlugin.train(preparedData)
 
         // evaluate the new model
         val algorithm = new LinearRegressionWithCSV()

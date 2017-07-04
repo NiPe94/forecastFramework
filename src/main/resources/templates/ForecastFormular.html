@@ -139,9 +139,9 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="selectnew">Select Map Algorithm:</label>
             <div class="col-md-4">
-                <select id="selectnew" name="selectnew" class="form-control" th:field="${selectedAlgoResult.selectedAlgoName}">
+                <select id="selectnew" name="selectnew" class="form-control">
                     <option th:value = "0">---Choose option---</option>
-                    <option th:each="algorithm : ${algoNameList}" th:value="${algorithm}" th:text="${algorithm}"></option>
+                    <option th:each="algorithm : ${algoList}" th:value="${algorithm.algoName}" th:text="${algorithm.algoName}"></option>
                 </select>
             </div>
         </div>

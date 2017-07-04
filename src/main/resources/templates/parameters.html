@@ -22,18 +22,19 @@
 -->
 <body>
 <div th:fragment="parameterList">
-    <div class="form-group" th:each="parameter,iterstatus: ${wrapper.dadList}">
+    <div class="form-group" th:each="parameter,iterstatus: ${wrapper.algoParameters}">
         <label class="col-md-4 control-label"  th:text="${parameter.name}">Input Data and Feature Index:</label>
         <div class="col-md-3">
             <input data-toggle="tooltip"
                    title="file path to a csv file"
                    type="text"
-                   th:field="${wrapper.dadList[__${iterstatus.index}__].value}"
+                   th:field="${wrapper.algoParameters[__${iterstatus.index}__].value}"
                    placeholder="value"
                    class="form-control input-md" />
         </div>
-        <input type="hidden" th:field="${wrapper.dadList[__${iterstatus.index}__].name}" />
+        <input type="hidden" th:field="${wrapper.algoParameters[__${iterstatus.index}__].name}" />
     </div>
+    <input type="hidden" th:field="${wrapper.algoName}" />
 </div>
 </body>
 
