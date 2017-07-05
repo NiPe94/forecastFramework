@@ -1,7 +1,8 @@
 package org.kit.energy
 
+import java.lang.reflect.Field
+
 import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
-import org.apache.spark.ml.regression.LinearRegressionModel
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.springframework.stereotype.Component
 
@@ -12,15 +13,9 @@ import org.springframework.stereotype.Component
 @Component
 class ForecastPipeline {
 
-
-  //(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean, hasHead:Boolean, delimeter:String, labelIndex:String, featuresIndex:String)
   def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean) : String = {
 
-    println()
-    println("start of pipeline!")
-    println()
-
-    var forecastResult = "";
+    var forecastResult = ""
     val savePathModel = forecast.getModeling.getSavePathModel
     val savePathCSV = forecast.getSavePathCSV
 
@@ -51,21 +46,11 @@ class ForecastPipeline {
         // new model evaluation
         val resultingModel = algoPlugin.train(preparedData)
 
-        println("params.printForEach: ")
-        resultingModel.params.foreach(x => println(x.toString()))
-        println()
-        println("explain params: ")
-        println(resultingModel.explainParams())
-        println()
-        println("to String: ")
-        println(resultingModel.toString())
-
-        // model parameters to return
-        //forecastResult = resultingModel.coefficients.toString + " " + resultingModel.intercept.toString
-        forecastResult = "noch nicht"
+        // string with model parameters for the web-ui
+        forecastResult = this.getResultString(resultingModel)
 
         // save the evaluated new model
-        var myPipeline:Pipeline = new Pipeline()
+        val myPipeline:Pipeline = new Pipeline()
         myPipeline.setStages(Array(resultingModel))
         myPipeline.write.overwrite().save(savePathModel)
 
@@ -78,12 +63,11 @@ class ForecastPipeline {
       // perform a model application via a loaded model (without model evaluation right before this)
       if(!performModeling && performModelApplication){
         val loadedModel = PipelineModel.load(savePathModel)
-        forecastResult = "noch ned app"
+        forecastResult = this.getResultString(loadedModel)
         predictedData = algoPlugin.applyModel(preparedData,loadedModel)
-        println("done :)")
       }
 
-      // save existing predicted dataframe
+      // save existing predicted dataFrame
       if(predictedData!=null){
         predictedData
           .write
@@ -102,8 +86,18 @@ class ForecastPipeline {
     finally {
       spark.stop()
     }
+  }
 
-
+  private def getResultString(transformer:Transformer) : String = {
+    // model parameters to return
+    val coefficients = transformer.getClass.getDeclaredField("coefficients")
+    coefficients.setAccessible(true)
+    val coefficientsValue = coefficients.get(transformer).toString()
+    val intercept = transformer.getClass.getDeclaredField("intercept")
+    intercept.setAccessible(true)
+    val interceptValue = intercept.get(transformer).toString()
+    val result = "Coefficients: "+coefficientsValue+" Intercept: "+interceptValue
+    return result
   }
 
 }

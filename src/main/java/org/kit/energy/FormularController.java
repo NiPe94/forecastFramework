@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -32,6 +33,31 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory;
 
+    @GetMapping("/test")
+    public String testPreperator(Model model) {
+        CSVDataPreperator csvDataPreperator = new CSVDataPreperator();
+
+        CSVFile csvFile = new CSVFile();
+        csvFile.setDelimeter("2");
+        csvFile.setHasHeader(true);
+        csvFile.setFeatureColumnsIndexes("0");
+        csvFile.setLabelColumnIndex("1");
+        csvFile.setDataPath("test_data.csv");
+
+        SparkSession sparkSession = SparkSession
+                .builder()
+                .master("local")
+                .appName("New Name")
+                .config("spark.some.config.option", "some-value")
+                .getOrCreate();
+
+        csvDataPreperator.prepareDataset(csvFile,sparkSession);
+
+        model.addAttribute("forecast", new Forecast());
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+
+        return "ForecastFormular";
+    }
 
     @GetMapping("/")
     public String indexForm(Model model) {
@@ -86,6 +112,7 @@ public class FormularController {
 
         modellingDone = true;
 
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
         model.addAttribute("modellingDone", modellingDone);
 
         return "ForecastFormular";

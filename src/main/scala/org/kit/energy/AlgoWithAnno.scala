@@ -22,9 +22,7 @@ class AlgoWithAnno extends AlgoPlugin{
   */
 
   def train(inputData: DataFrame): Transformer = {
-
     // set regression parameter and start the regression
-    //val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble).setFitIntercept(fitIntercept.toBoolean)
     val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble)
     var lrModel = lrModelStart.fit(inputData)
     return lrModel
