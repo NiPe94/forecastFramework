@@ -1,7 +1,8 @@
 package org.kit.energy
 
+import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
 import org.apache.spark.ml.regression.LinearRegressionModel
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.springframework.stereotype.Component
 
 
@@ -36,6 +37,8 @@ class ForecastPipeline {
 
     try {
 
+      var predictedData:DataFrame = null
+
       // prepare dataset for using
       val preperator = new CSVDataPreperator()
       println("Start preparing the data")
@@ -48,30 +51,47 @@ class ForecastPipeline {
         // new model evaluation
         val resultingModel = algoPlugin.train(preparedData)
 
-        // evaluate the new model
-        val algorithm = new LinearRegressionWithCSV()
-        val resultModel = algorithm.start(preparedData)
+        println("params.printForEach: ")
+        resultingModel.params.foreach(x => println(x.toString()))
+        println()
+        println("explain params: ")
+        println(resultingModel.explainParams())
+        println()
+        println("to String: ")
+        println(resultingModel.toString())
 
         // model parameters to return
-        forecastResult = resultModel.coefficients.toString + " " + resultModel.intercept.toString
+        //forecastResult = resultingModel.coefficients.toString + " " + resultingModel.intercept.toString
+        forecastResult = "noch nicht"
 
         // save the evaluated new model
-        resultModel.write.overwrite().save(savePathModel)
+        var myPipeline:Pipeline = new Pipeline()
+        myPipeline.setStages(Array(resultingModel))
+        myPipeline.write.overwrite().save(savePathModel)
 
         // perform a model application directly afterwards
         if(performModelApplication){
-          val modelApplication = new ModelApplication()
-          modelApplication.applicateModel(resultModel,preparedData,savePathCSV)
+          predictedData = algoPlugin.applyModel(preparedData,resultingModel)
         }
       }
 
       // perform a model application via a loaded model (without model evaluation right before this)
       if(!performModeling && performModelApplication){
-        val loadedModel = LinearRegressionModel.load(savePathModel)
-        forecastResult = loadedModel.coefficients.toString + " " + loadedModel.intercept.toString
-        val modelApplication = new ModelApplication()
-        modelApplication.applicateModel(loadedModel,preparedData,savePathCSV)
+        val loadedModel = PipelineModel.load(savePathModel)
+        forecastResult = "noch ned app"
+        predictedData = algoPlugin.applyModel(preparedData,loadedModel)
         println("done :)")
+      }
+
+      // save existing predicted dataframe
+      if(predictedData!=null){
+        predictedData
+          .write
+          .format("com.databricks.spark.csv")
+          .option("header","false")
+          .option("sep",";")
+          .mode("overwrite")
+          .save(savePathCSV)
       }
 
       return forecastResult

@@ -10,19 +10,22 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row}
 class AlgoWithAnno extends AlgoPlugin{
 
 
-  @AlgoParam(name="Regularization", value="10")
+  @AlgoParam(name="Regularization", value="0")
   var regParam:String = _
 
-  @AlgoParam(name="Elastic Net", value="20")
+  @AlgoParam(name="Elastic Net", value="0")
   var elasticNet:String = _
 
-  @AlgoParam(name="With Intercept", value="30")
+  /*
+  @AlgoParam(name="With Intercept", value="1")
   var fitIntercept:String = _
+  */
 
   def train(inputData: DataFrame): Transformer = {
 
     // set regression parameter and start the regression
-    val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble).setFitIntercept(fitIntercept.toBoolean)
+    //val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble).setFitIntercept(fitIntercept.toBoolean)
+    val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble)
     var lrModel = lrModelStart.fit(inputData)
     return lrModel
   }

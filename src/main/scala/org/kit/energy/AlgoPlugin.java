@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.spark.ml.PipelineModel;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.ml.Transformer;
