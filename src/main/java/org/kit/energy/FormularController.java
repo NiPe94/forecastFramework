@@ -1,5 +1,7 @@
 package org.kit.energy;
 
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -35,6 +37,7 @@ public class FormularController {
 
     @GetMapping("/test")
     public String testPreperator(Model model) {
+        /*
         CSVDataPreperator csvDataPreperator = new CSVDataPreperator();
 
         CSVFile csvFile = new CSVFile();
@@ -52,6 +55,19 @@ public class FormularController {
                 .getOrCreate();
 
         csvDataPreperator.prepareDataset(csvFile,sparkSession);
+        */
+        SparkSession sparkSession = SparkSession
+                .builder()
+                .master("local")
+                .appName("New Name")
+                .config("spark.some.config.option", "some-value")
+                .getOrCreate();
+
+        Dataset<Row> myRow = sparkSession.read().format("libsvm").load("sparkExample.txt");
+
+        LinearRegressionSparkExample myExample = new LinearRegressionSparkExample();
+
+        myExample.train(myRow);
 
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
@@ -117,6 +133,7 @@ public class FormularController {
 
         return "ForecastFormular";
     }
+
 
     @GetMapping("/parameters/{algoName}")
     public String getParametersForAlgorithm(Model model, @PathVariable("algoName") String algoName){
