@@ -8,6 +8,7 @@ public class Modeling {
     private String savePathModel;
     private String[] modelParameters;
     private Integer horizon;
+    private Integer pastHorizon;
 
     public String getSavePathModel() {
         return savePathModel;
@@ -31,5 +32,13 @@ public class Modeling {
 
     public void setHorizon(Integer horizon) {
         this.horizon = horizon;
+    }
+
+    public Integer getPastHorizon() {
+        return pastHorizon;
+    }
+
+    public void setPastHorizon(Integer pastHorizon) {
+        this.pastHorizon = pastHorizon;
     }
 }

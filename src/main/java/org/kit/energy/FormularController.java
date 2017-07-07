@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -30,16 +31,39 @@ public class FormularController {
     private JSONWriter jsonWriter;
 
     @Autowired
-    private AlgorithmSearcher algorithmSearcher;
+    private AlgorithmFactory algorithmFactory;
 
+    @GetMapping("/test")
+    public String testPreperator(Model model) {
+        CSVDataPreperator csvDataPreperator = new CSVDataPreperator();
+
+        CSVFile csvFile = new CSVFile();
+        csvFile.setDelimeter("2");
+        csvFile.setHasHeader(true);
+        csvFile.setFeatureColumnsIndexes("0");
+        csvFile.setLabelColumnIndex("1");
+        csvFile.setDataPath("test_data.csv");
+
+        SparkSession sparkSession = SparkSession
+                .builder()
+                .master("local")
+                .appName("New Name")
+                .config("spark.some.config.option", "some-value")
+                .getOrCreate();
+
+        csvDataPreperator.prepareDataset(csvFile,sparkSession);
+
+        model.addAttribute("forecast", new Forecast());
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+
+        return "ForecastFormular";
+    }
 
     @GetMapping("/")
     public String indexForm(Model model) {
 
         model.addAttribute("forecast", new Forecast());
-        algorithmSearcher.beginSearch();
-        model.addAttribute("algoNameList", algorithmSearcher.getAlgorithmNameList());
-        model.addAttribute("selectedAlgoResult", new SelectedAlgo());
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
 
         //poster.getIt();
 
@@ -47,7 +71,7 @@ public class FormularController {
     }
 
     @PostMapping("/")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") WrapperForListOfParameters myWrapper, @ModelAttribute("selectedAlgoResult") SelectedAlgo selectedAlgo, Model model, BindingResult bindResult) {
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
 
         // some vars
         boolean modellingDone = false;
@@ -65,25 +89,8 @@ public class FormularController {
             return "ForecastFormular";
         }
 
-        String algoName = selectedAlgo.getSelectedAlgoName();
-        AlgoPlugin algoPlugin = algorithmSearcher.getAlgorithmFactory().createAlgo(algoName);
-        Set<Field> fields = getAllFields(algoPlugin.getClass(),withAnnotation(AlgoParam.class));
-
-        String fieldAnnotationName = "";
-        String parameterValue = "";
-        for(Field field: fields){
-            Class<?> type = field.getType();
-            if(type.isAssignableFrom(String.class)){
-                field.setAccessible(true);
-                fieldAnnotationName = field.getAnnotation(AlgoParam.class).name();
-                parameterValue = myWrapper.getParameterWithName(fieldAnnotationName).getValue();
-                try {
-                    field.set(algoPlugin,parameterValue);
-                } catch (IllegalAccessException e) {
-                    System.out.println("Fehler bei Setting!");
-                }
-            }
-        }
+        // create a forecastAlgorithm and copy its values to the plugin-object, which will be used for the forecast
+        AlgoPlugin algoPlugin = algorithmFactory.createAlgo(myWrapper);
 
         boolean startModeling = true, startApplication = true;
 
@@ -105,6 +112,7 @@ public class FormularController {
 
         modellingDone = true;
 
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
         model.addAttribute("modellingDone", modellingDone);
 
         return "ForecastFormular";
@@ -113,26 +121,24 @@ public class FormularController {
     @GetMapping("/parameters/{algoName}")
     public String getParametersForAlgorithm(Model model, @PathVariable("algoName") String algoName){
 
-        WrapperForListOfParameters newMapper = new WrapperForListOfParameters();
+        ForecastAlgorithm forecastAlgorithm = new ForecastAlgorithm();
+        forecastAlgorithm.setAlgoName(algoName);
+        forecastAlgorithm.setAlgoParameters(algorithmFactory.getParametersForName(algoName));
 
-        newMapper.setDadList(algorithmSearcher.getAlgorithmToParameterListMap().get(algoName));
-
-        model.addAttribute("wrapper",newMapper);
+        model.addAttribute("wrapper",forecastAlgorithm);
 
         return "parameters :: parameterList";
     }
 
     @GetMapping(value = "/plugins", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
     public @ResponseBody List<ForecastAlgorithm> getAllPlugins(){
-        algorithmSearcher.beginSearch();
-        List<ForecastAlgorithm> forecastAlgorithms = algorithmSearcher.getForecastAlgorithms();
+        List<ForecastAlgorithm> forecastAlgorithms = algorithmFactory.getForecastAlgorithms();
         return forecastAlgorithms;
     }
 
     @GetMapping(value = "/plugins/{pluginName}", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
     public @ResponseBody ForecastAlgorithm getPluginWithName(@PathVariable(value="pluginName") String pluginName){
-        algorithmSearcher.beginSearch();
-        List<ForecastAlgorithm> forecastAlgorithms = algorithmSearcher.getForecastAlgorithms();
+        List<ForecastAlgorithm> forecastAlgorithms = algorithmFactory.getForecastAlgorithms();
         ForecastAlgorithm forecastAlgorithmToReturn = new ForecastAlgorithm();
 
         for(ForecastAlgorithm forecastAlgorithm:forecastAlgorithms){
@@ -141,6 +147,18 @@ public class FormularController {
             }
         }
         return forecastAlgorithmToReturn;
+    }
+
+    @PostMapping(value= "/execute")
+    public @ResponseBody String executeWithAlgorithm(@RequestBody ForecastAlgorithm forecastAlgorithm){
+        String message = "Did not work!";
+        if(forecastAlgorithm != null){
+            System.out.println("The Algorithm from the JSON: ");
+            System.out.println(forecastAlgorithm);
+            message = "It works!";
+            // load the current algorithm plugins and search for the name, then start the forecasting
+        }
+        return message;
     }
 
 }

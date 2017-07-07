@@ -120,16 +120,6 @@
             </div>
         </div>
 
-        <!-- Select Algorithm -->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="selectbasic">Select Algorithm:</label>
-            <div class="col-md-4">
-                <select id="selectbasic" name="selectbasic" class="form-control" th:field="${modeling.algoType}">
-                    <option th:each="algorithmType : ${T(org.kit.energy.AlgorithmType).values()}" th:value="${algorithmType}" th:text="${algorithmType}"></option>
-                </select>
-            </div>
-        </div>
-
         <!-- Forecast Past Horizon -->
         <div class="form-group" id="horizon" style="display: none">
             <label class="col-md-4 control-label" for="textinput4">Past Values for modeling:</label>

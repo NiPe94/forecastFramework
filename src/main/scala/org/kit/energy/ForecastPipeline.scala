@@ -1,7 +1,9 @@
 package org.kit.energy
 
-import org.apache.spark.ml.regression.LinearRegressionModel
-import org.apache.spark.sql.SparkSession
+import java.lang.reflect.Field
+
+import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.springframework.stereotype.Component
 
 
@@ -11,15 +13,9 @@ import org.springframework.stereotype.Component
 @Component
 class ForecastPipeline {
 
-
-  //(dataPath:String, savePathModel:String, savePathCSV:String, performModeling:Boolean, performModelApplication:Boolean, hasHead:Boolean, delimeter:String, labelIndex:String, featuresIndex:String)
   def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean) : String = {
 
-    println()
-    println("start of pipeline!")
-    println()
-
-    var forecastResult = "";
+    var forecastResult = ""
     val savePathModel = forecast.getModeling.getSavePathModel
     val savePathCSV = forecast.getSavePathCSV
 
@@ -36,6 +32,8 @@ class ForecastPipeline {
 
     try {
 
+      var predictedData:DataFrame = null
+
       // prepare dataset for using
       val preperator = new CSVDataPreperator()
       println("Start preparing the data")
@@ -46,32 +44,38 @@ class ForecastPipeline {
       if(performModeling){
 
         // new model evaluation
-        val resultingModel = algoPlugin.compute(preparedData)
+        val resultingModel = algoPlugin.train(preparedData)
 
-        // evaluate the new model
-        val algorithm = new LinearRegressionWithCSV()
-        val resultModel = algorithm.start(preparedData)
-
-        // model parameters to return
-        forecastResult = resultModel.coefficients.toString + " " + resultModel.intercept.toString
+        // string with model parameters for the web-ui
+        forecastResult = this.getResultString(resultingModel)
 
         // save the evaluated new model
-        resultModel.write.overwrite().save(savePathModel)
+        val myPipeline:Pipeline = new Pipeline()
+        myPipeline.setStages(Array(resultingModel))
+        myPipeline.write.overwrite().save(savePathModel)
 
         // perform a model application directly afterwards
         if(performModelApplication){
-          val modelApplication = new ModelApplication()
-          modelApplication.applicateModel(resultModel,preparedData,savePathCSV)
+          predictedData = algoPlugin.applyModel(preparedData,resultingModel)
         }
       }
 
       // perform a model application via a loaded model (without model evaluation right before this)
       if(!performModeling && performModelApplication){
-        val loadedModel = LinearRegressionModel.load(savePathModel)
-        forecastResult = loadedModel.coefficients.toString + " " + loadedModel.intercept.toString
-        val modelApplication = new ModelApplication()
-        modelApplication.applicateModel(loadedModel,preparedData,savePathCSV)
-        println("done :)")
+        val loadedModel = PipelineModel.load(savePathModel)
+        forecastResult = this.getResultString(loadedModel)
+        predictedData = algoPlugin.applyModel(preparedData,loadedModel)
+      }
+
+      // save existing predicted dataFrame
+      if(predictedData!=null){
+        predictedData
+          .write
+          .format("com.databricks.spark.csv")
+          .option("header","false")
+          .option("sep",";")
+          .mode("overwrite")
+          .save(savePathCSV)
       }
 
       return forecastResult
@@ -82,8 +86,18 @@ class ForecastPipeline {
     finally {
       spark.stop()
     }
+  }
 
-
+  private def getResultString(transformer:Transformer) : String = {
+    // model parameters to return
+    val coefficients = transformer.getClass.getDeclaredField("coefficients")
+    coefficients.setAccessible(true)
+    val coefficientsValue = coefficients.get(transformer).toString()
+    val intercept = transformer.getClass.getDeclaredField("intercept")
+    intercept.setAccessible(true)
+    val interceptValue = intercept.get(transformer).toString()
+    val result = "Coefficients: "+coefficientsValue+" Intercept: "+interceptValue
+    return result
   }
 
 }

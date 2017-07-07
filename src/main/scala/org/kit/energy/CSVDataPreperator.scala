@@ -27,19 +27,13 @@ class CSVDataPreperator {
     val featuresIndex = csvFile.getFeatureColumnsIndexes
     val dataPath = csvFile.getDataPath
 
-    println("print var inputs (head, del, label, features):")
-    println(hasHead)
-    println(delimeter)
-    println(labelIndex)
-    println(featuresIndex)
-
     var finalData = spark.emptyDataFrame
     val pastIndex = 2
     val horizont = 1
 
     try {
       // read the dataset
-      val nilCSV = spark.read
+      val inputData = spark.read
         .format("com.databricks.spark.csv")
         .option("header", hasHead)
         .option("sep", delimeter)
@@ -49,20 +43,18 @@ class CSVDataPreperator {
       val shift = 2
 
       println("input schema:")
-      nilCSV.printSchema()
+      inputData.printSchema()
 
       println("input data:")
-      nilCSV.show()
+      inputData.show()
 
       // get all columns of the dataset (Array[String])
-      val dataColumns = nilCSV.columns
+      val dataColumns = inputData.columns
       println("columns:")
       dataColumns.foreach(println)
 
       // split feature index string into array => Array[String] ("2,3" => ["2","3"])
       val featuresSplit = featuresIndex.split(",")
-      println("splitted feature vector positions:")
-      featuresSplit.foreach(println)
 
       // get column array with only the features in it
       val testArray = new Array[String](featuresSplit.length)
@@ -74,42 +66,64 @@ class CSVDataPreperator {
         counter += 1
       }
 
+      print("printing the testArray: ")
+      testArray.foreach(x => println(x))
+
+      val testColumn = dataColumns.apply(0)
 
       // **************** DOESN'T WORK ******************
-      val selectedDF = nilCSV.select("Solar Irradiation")
+      val selectedDF = inputData.select(testColumn) //"Solar Irradiation"
       val selectedDFSchema = selectedDF.schema
       var filteredRDD = spark.emptyDataFrame.rdd
       var dadFrame = spark.emptyDataFrame
       var frameWithin = spark.emptyDataFrame
       var theLength = 0
 
+      // generate multiple data series via the past-shift-value and the horizon
+      // from 0 to pastShiftValue, generate a new data series which reaches from the value at (pastShiftValue - currentIndex) to (length - horizon - currentIndex) from the original data
       for (currentIndex <- 0 to pastIndex){
-        println("This is run number " + currentIndex)
-        println("--------------------------")
-        // starte bei past Index - current index
+
+        // generate a new series, starting with the value at (pastIndex-current) from the original data
         filteredRDD = selectedDF.rdd.zipWithIndex().collect {case (r,i) if ( i >= (pastIndex-currentIndex) ) => r}
-        // gehe bis length - horizont - current index
+
+        // then take all values from the gernerated series but leave all values after the index at (length-horizont-current) away
         theLength = filteredRDD.count().toInt
         frameWithin = spark.createDataFrame(filteredRDD,selectedDFSchema).limit(theLength-horizont-currentIndex)
+        println("The current frame within: ")
+        frameWithin.show()
 
+        // because of the schema for adding new dfs to it?
         if(currentIndex == 0) {
             dadFrame = frameWithin
           }
 
-        var myString = frameWithin.columns.apply(0)
+        val what = frameWithin.apply("PV Power")
+        val nume = "PV Power"+currentIndex.toString()
 
-        println("Now it burns:")
-        println("first show the current dadFrame:")
+        println("before")
         dadFrame.show()
-        println("Then show the frame within which will be added")
-        frameWithin.show()
-        dadFrame = dadFrame.withColumn(currentIndex.toString,frameWithin("Solar Irradiation"))
+
+        if(currentIndex>0){
+          val blo = 355
+        }
+
+        if(currentIndex==0){
+          val fhu = 89
+        }
+
+        //dadFrame = dadFrame.withColumn(nume,col(nume))
+        dadFrame = (dadFrame
+          .join(frameWithin))
+
+        println("after")
         dadFrame.show()
-        val bla = 356
+
+        if(currentIndex>0){
+          val blo = 355
+        }
       }
-      println("I'm so excited:")
-      dadFrame.show()
       // **************** DOESN'T WORK ******************
+
 
 
       println("features array:")
@@ -120,7 +134,7 @@ class CSVDataPreperator {
       val toVector = udf((i: String) => (Vectors.dense(i.split(",").map(str => str.toDouble)): org.apache.spark.ml.linalg.Vector))
 
       // create a coloumn in which all features are inside, divided by ","
-      val preData = nilCSV
+      val preData = inputData
         .withColumn("test", concat_ws(",", testArray.map(str => col(str)): _*))
 
       println("preData:")
