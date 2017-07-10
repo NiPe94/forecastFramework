@@ -15,6 +15,7 @@ public class Forecast {
     private CSVFile fileCSV;
     private CSVFile labelCSV;
     private Modeling modeling;
+    private String sparkURL;
 
     public String getSavePathCSV() {
         return savePathCSV;
@@ -64,4 +65,11 @@ public class Forecast {
         this.modeling = modeling;
     }
 
+    public String getSparkURL() {
+        return sparkURL;
+    }
+
+    public void setSparkURL(String sparkURL) {
+        this.sparkURL = sparkURL;
+    }
 }

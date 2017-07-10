@@ -35,9 +35,31 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory;
 
+    private SparkEnvironment sparkEnvironment;
+
+    @PostMapping(value = "/", params = "action=spark")
+    public String loadSpark(Model model, @ModelAttribute("forecast") Forecast forecast) {
+        if(forecast.getSparkURL().equals("")){
+            forecast.setSparkURL("local");
+        }
+        if(sparkEnvironment != null){
+            sparkEnvironment.stopSpark();
+        }
+        sparkEnvironment = new SparkEnvironment(forecast.getSparkURL());
+        SparkSession sparkSession = sparkEnvironment.getInstance();
+        System.out.println("the current url: "+forecast.getSparkURL());
+        System.out.println("the current spark version: "+sparkSession.version());
+
+        model.addAttribute("forecast", new Forecast());
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+
+        return "ForecastFormularMenue";
+    }
+
     @GetMapping("/test")
     public String testPreperator(Model model) {
-        /*
+
+        /* load csv data
         CSVDataPreperator csvDataPreperator = new CSVDataPreperator();
 
         CSVFile csvFile = new CSVFile();
@@ -56,6 +78,7 @@ public class FormularController {
 
         csvDataPreperator.prepareDataset(csvFile,sparkSession);
         */
+        /* train model?
         SparkSession sparkSession = SparkSession
                 .builder()
                 .master("local")
@@ -68,11 +91,12 @@ public class FormularController {
         LinearRegressionSparkExample myExample = new LinearRegressionSparkExample();
 
         myExample.train(myRow);
+        */
 
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
 
-        return "ForecastFormular";
+        return "ForecastFormularMenue";
     }
 
     @GetMapping("/")
@@ -83,10 +107,10 @@ public class FormularController {
 
         //poster.getIt();
 
-        return "ForecastFormular";
+        return "ForecastFormularMenue";
     }
 
-    @PostMapping("/")
+    @PostMapping(value="/",params = "action=perform")
     public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
 
         // some vars
@@ -102,7 +126,7 @@ public class FormularController {
         // When file is a dir or does not exist, return to form and display a error bar
         if (!validator.isValid()) {
             model.addAttribute("modellingDone", modellingDone);
-            return "ForecastFormular";
+            return "ForecastFormularMenue";
         }
 
         // create a forecastAlgorithm and copy its values to the plugin-object, which will be used for the forecast
@@ -131,7 +155,7 @@ public class FormularController {
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
         model.addAttribute("modellingDone", modellingDone);
 
-        return "ForecastFormular";
+        return "ForecastFormularMenue";
     }
 
 

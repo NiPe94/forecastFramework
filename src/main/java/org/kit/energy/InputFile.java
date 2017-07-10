@@ -8,6 +8,7 @@ public abstract class InputFile {
     private String dataPath;
     private String labelColumnIndex;
     private String featureColumnsIndexes;
+    private String dataType;
 
     public String getDataPath() {
         return dataPath;
@@ -31,5 +32,13 @@ public abstract class InputFile {
 
     public void setFeatureColumnsIndexes(String featureColumnsIndexes) {
         this.featureColumnsIndexes = featureColumnsIndexes;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 }

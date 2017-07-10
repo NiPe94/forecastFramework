@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+<link />
     <title>Forecast Service</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
@@ -70,19 +71,25 @@
                 </ul>
                 </p>
             </div>
+
+            <!-- LOAD SPARK -->
+
             <div id="spark" class="tab-pane fade in active">
                 <h3>Spark</h3>
                 <!-- Load Spark From-->
                 <div class="form-group">
                     <label class="col-md-4 control-label" for="sparkInput">Load Spark from:</label>
                     <div class="col-md-3">
-                        <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" class="form-control input-md" />
+                        <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" th:field="*{sparkURL}" class="form-control input-md" />
                     </div>
                     <div class="col-md-1">
-                        <button id="sparkButton" style="width: 100%; font-size: large" align="right" name="sparkButton" class="btn btn-primary" onclick="">Load</button>
+                        <button type="submit" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary">Load</button>
                     </div>
                 </div>
             </div>
+
+
+            <!-- LOAD DATA -->
 
             <div id="data" class="tab-pane fade">
                 <h3>Data</h3>
@@ -128,6 +135,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- PERFORM FORECAST -->
 
             <div id="algorithms" class="tab-pane fade">
                 <h3>Algorithms</h3>
@@ -175,7 +184,7 @@
                 <div class="form-group">
                     <label class="col-md-5 control-label" for="singlebutton"></label>
                     <div class="col-md-2">
-                        <button id="singlebutton" style="width: 100%; font-size: large" align="right" name="singlebutton" class="btn btn-primary" onclick="myFunction()"><span class="glyphicon glyphicon-flash"></span> Start</button>
+                        <button id="singlebutton" style="width: 100%; font-size: large" align="right" name="action" class="btn btn-primary" value="perform" onclick="myFunction()"><span class="glyphicon glyphicon-flash"></span> Start</button>
                     </div>
                 </div>
 
