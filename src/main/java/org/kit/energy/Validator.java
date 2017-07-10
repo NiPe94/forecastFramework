@@ -27,6 +27,7 @@ public class Validator{
             test = false;
         }
 
+        /*
         // label input test
         if(!this.checkLabelInput(this.file.getLabelColumnIndex())){
             this.message += "Wrong label input: Please type in a number! ";
@@ -38,6 +39,7 @@ public class Validator{
             this.message += "Wrong features input: Please type in numbers like: 2,3,4 ";
             test = false;
         }
+        */
 
         // forecast past horizon test
         /*if(!this.checkLabelInput(this.file.getForecastPastHorizon())){

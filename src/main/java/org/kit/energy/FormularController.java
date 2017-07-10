@@ -171,6 +171,21 @@ public class FormularController {
         return "parameters :: parameterList";
     }
 
+    @GetMapping("/inputTypeOptions/{datatype}")
+    public String getDataTypeOptions(Model model, @PathVariable("datatype") String datatype){
+
+        String fragmentString = "inputOptions :: "+datatype;
+        return fragmentString;
+    }
+    //additionalInputs
+
+    @GetMapping("/additionalInputs/{datatype}")
+    public String getAdditionalInputs(Model model, @PathVariable("datatype") String datatype){
+        System.out.println("angekommen");
+        String fragmentString = "additionalInputs :: "+datatype;
+        return fragmentString;
+    }
+
     @GetMapping(value = "/plugins", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
     public @ResponseBody List<ForecastAlgorithm> getAllPlugins(){
         List<ForecastAlgorithm> forecastAlgorithms = algorithmFactory.getForecastAlgorithms();

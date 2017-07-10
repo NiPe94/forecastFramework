@@ -9,6 +9,8 @@ public class CSVFile extends InputFile{
 
     private boolean hasHeader;
     private String delimeter;
+    private String labelColumnIndex;
+    private String featureColumnsIndexes;
 
     public boolean isHasHeader() {
         return hasHeader;
@@ -30,6 +32,22 @@ public class CSVFile extends InputFile{
 
     public String getDelimeter(){
         return this.delimeter;
+    }
+
+    public String getLabelColumnIndex() {
+        return labelColumnIndex;
+    }
+
+    public void setLabelColumnIndex(String labelColumnIndex) {
+        this.labelColumnIndex = labelColumnIndex;
+    }
+
+    public String getFeatureColumnsIndexes() {
+        return featureColumnsIndexes;
+    }
+
+    public void setFeatureColumnsIndexes(String featureColumnsIndexes) {
+        this.featureColumnsIndexes = featureColumnsIndexes;
     }
 
 

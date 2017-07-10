@@ -2,6 +2,7 @@ package org.kit.energy;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -12,6 +13,8 @@ public class Forecast {
     private String savePathCSV;
     private PerformType performType;
     private String result;
+    private ArrayList<InputFile> featureFiles;
+    private InputFile labelFile;
     private CSVFile fileCSV;
     private CSVFile labelCSV;
     private Modeling modeling;

@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+
+<div th:fragment="csv">
+    <div class="form-group">
+        <label class="col-md-4 control-label" >Data Path:</label>
+        <div class="col-md-4">
+            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" placeholder="path" class="form-control input-md" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-md-4 control-label">CSV Options:</label>
+        <div class="col-md-1">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="checkboxes" value="1"  />
+                    Head
+                </label>
+            </div>
+        </div>
+        <label class="col-md-1 control-label" >Delimeter:</label>
+        <div class="col-md-1">
+            <select name="selectDel" class="form-control"  >
+                <option value="1" th:value="1" ><b>,</b></option>
+                <option value="2" th:value="2" ><b>;</b></option>
+            </select>
+        </div>
+        <label class="col-md-1 control-label" >Indices:</label>
+        <div class="col-md-2">
+            <input data-toggle="tooltip" title="columns with feature values" name="textinputLabel" type="text"  placeholder="2,3,4 or 2 3 4" class="form-control input-md" />
+        </div>
+    </div>
+</div>
+
+<div th:fragment="tsdb">
+    <div class="form-group">
+        <label class="col-md-4 control-label" >Data Path:</label>
+        <div class="col-md-4">
+            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" placeholder="path" class="form-control input-md" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-md-4 control-label">From:</label>
+        <div class="col-md-2">
+            <input data-toggle="tooltip" title="columns with feature values"  name="textinputFrom" type="text"  placeholder="date" class="form-control input-md" />
+        </div>
+        <label class="col-md-1 control-label" >To:</label>
+        <div class="col-md-2">
+            <input data-toggle="tooltip" title="columns with feature values"  name="textinputTo" type="text"  placeholder="date" class="form-control input-md" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-md-4 control-label" >Metric:</label>
+        <div class="col-md-2">
+            <input data-toggle="tooltip" title="columns with feature values"  name="textinputMetric" type="text"  placeholder="metric" class="form-control input-md" />
+        </div>
+        <label class="col-md-1 control-label" >Tags:</label>
+        <div class="col-md-2">
+            <input data-toggle="tooltip" title="columns with feature values"  name="textinputTags" type="text"  placeholder="key=value" class="form-control input-md" />
+        </div>
+    </div>
+</div>
+</body>
+
+</html>
