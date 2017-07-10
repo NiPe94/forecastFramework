@@ -6,8 +6,7 @@ package org.kit.energy;
 public abstract class InputFile {
 
     private String dataPath;
-    private String labelColumnIndex;
-    private String featureColumnsIndexes;
+    private String dataType;
 
     public String getDataPath() {
         return dataPath;
@@ -17,19 +16,11 @@ public abstract class InputFile {
         this.dataPath = dataPath;
     }
 
-    public String getLabelColumnIndex() {
-        return labelColumnIndex;
+    public String getDataType() {
+        return dataType;
     }
 
-    public void setLabelColumnIndex(String labelColumnIndex) {
-        this.labelColumnIndex = labelColumnIndex;
-    }
-
-    public String getFeatureColumnsIndexes() {
-        return featureColumnsIndexes;
-    }
-
-    public void setFeatureColumnsIndexes(String featureColumnsIndexes) {
-        this.featureColumnsIndexes = featureColumnsIndexes;
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 }

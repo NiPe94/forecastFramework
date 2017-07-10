@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<link />
+    <title>Forecast Service</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<script type="text/javascript" th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+
+        console.log("start");
+
+        //$('[data-toggle="tooltip"]').tooltip();
+
+        // empty the parameter elements inside the div, when a new algorithm is selected
+        $('#selectnew').change(function(){
+            $('#dynamic').empty();
+            getParametersForAlgorithm();
+        })
+        $('#selectInputType').change(function(){
+            $('#labelOptions').empty();
+            loadLabelTypeOptions();
+        })
+        $('#selectInputType2').change(function(){
+            $('#featureOptions').empty();
+            loadFeatureTypeOptions();
+        })
+    });
+
+    function getParametersForAlgorithm() {
+        var selectedAlgo = $('#selectnew').val();
+        var url = "/parameters/"+selectedAlgo;
+        $("#dynamic").load(url);
+    }
+
+    function loadLabelTypeOptions() {
+        var selectedType = $('#selectInputType').val();
+        if(selectedType != "0"){
+            var url = "/inputTypeOptions/"+selectedType;
+            $("#labelOptions").load(url)
+        }
+    }
+    function loadFeatureTypeOptions() {
+        var selectedType = $('#selectInputType2').val();
+        if(selectedType != "0"){
+            var url = "/inputTypeOptions/"+selectedType;
+            $("#featureOptions").load(url)
+        }
+    }
+    function loadAdditionalFeatures() {
+        println("pressed");
+        /*
+        var selectedType = $('#additionalSelection').val();
+        if(selectedType != "0"){
+            var url = "/additionalInputs/"+selectedType;
+            $("#featureAdditionalOptions").load(url)
+        }
+        */
+    }
+
+    function myFunction() {
+        document.getElementById("progress").style.display="block";
+    }
+
+    /*]]>*/
+
+</script>
+
+<div class="jumbotron">
+    <h1 align="center">Forecast Service</h1>
+    <p align="middle">Made by Nico Peter.</p>
+</div>
+
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#spark">Load Spark</a></li>
+        <li><a data-toggle="tab" href="#data">Load Data</a></li>
+        <li><a data-toggle="tab" href="#algorithms">Perform Forecast</a></li>
+        <li><a data-toggle="tab" href="#about">About</a></li>
+    </ul>
+
+    <form class="form-horizontal" action="#" th:action="@{/}" th:object="${forecast}" method="post">
+        <fieldset>
+        <div class="tab-content">
+
+            <!-- ABOUT -->
+
+            <div id="about" class="tab-pane fade">
+                <h3>Guide</h3>
+                <p>
+                    This is the web frontend for using the forecast service developed by Nico Peter.
+                    The service enables a user to perform forecasts using algorithms from the machine learning library provided by apache spark.
+                    The following lines will inform you on how to achieve that.
+                </p>
+                <p>
+                    First, select the menue element "Load Spark", type in the URL for connecting to a running spark master node and press the button "Load" on its right side.
+                    It's also possible to type in "local", so spark will be started locally and therefore use the cores from the users' pc.
+                </p>
+                <p>
+                    Then go to the "Load Data" element from the menue. There you have to choose, which kind of data will be loaded for the forecasting process.
+                    Here, you can select CSV-files for loading local files or TSDB for loading JSON-files from a openTSDB service.
+                    Additionally, type in a path to the data and some options connected with the data type selected.
+                    Moreover, for each data added to the formular, you have to choose whether the data represents label (y) values or feature (x) values for a forecasting function.
+                </p>
+                <p>
+                    Finally click on the "Perform Forecast" option from the menue. Then select the type to perform and the algorithm which will be used during the forecasting process.
+                    Depending on the selected perform type, it is required to give information about where to save the resulting model or/and the resulting predicted data.
+                    Once you're finished with that, press the button "Start" and the forecast service will start showing a blue bar.
+                </p>
+                <p>
+                    Right after the forecasting process has finished, the blue bar disappears and a result is generated under the "Start" button as JSON.
+                    The result contains the information provided by the user on this web frontend and the model parameters from the model training.
+                </p>
+                <h3>Contact</h3>
+                <p>
+                    If you are encountering trouble or having important questions related to the program, please try to contact:
+                    <ul>
+                    <li>Me: "nico.peter@kit.edu" or</li>
+                    <li>My supervisor Markus Reischl: "markus.reischl@kit.edu"</li>
+                    </ul>
+                </p>
+                <h3>Related Work</h3>
+                <p>
+                    The following list contains some references to related work:
+                <ul>
+                    <li>Forecasting principles and practise</li>
+                    <li>Angel,Andi Veröffentlichung</li>
+                    <li>Spring Boot</li>
+                    <li>The Apache Spark dokumentation:</li>
+                </ul>
+                </p>
+
+                <br />
+                <br />
+                <br />
+
+            </div>
+
+            <!-- LOAD SPARK -->
+
+            <div id="spark" class="tab-pane fade in active">
+                <h3>Spark</h3>
+                <!-- Load Spark From-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sparkInput">Load Spark from:</label>
+                    <div class="col-md-3">
+                        <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" th:field="*{sparkURL}" class="form-control input-md" />
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary">Load</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- LOAD DATA -->
+
+            <div id="data" class="tab-pane fade">
+                <h3>Data</h3>
+
+                <h4>Label Data:</h4>
+
+                <!-- Take file from NEW -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="dataInput">Data Path:</label>
+                    <div class="col-md-4">
+                        <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="selectInputType">Data Type:</label>
+                    <div class="col-md-2">
+                        <select id="selectInputType" name="selectInputType" class="form-control" th:field="*{fileCSV.delimeter}" >
+                            <option th:value = "0">---Choose option---</option>
+                            <option value="1" th:value="csv" ><b>CSV</b></option>
+                            <option value="2" th:value="tsdb" ><b>TSDB</b></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="labelOptions"></div>
+
+                <h4>Feature Data:</h4>
+
+                <!-- Take file from NEW -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" >Data Path:</label>
+                    <div class="col-md-4">
+                        <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="selectInputType2">Data Type:</label>
+                    <div class="col-md-2">
+                        <select id="selectInputType2" name="selectInputType2" class="form-control" th:field="*{fileCSV.delimeter}" >
+                            <option th:value = "0">---Choose option---</option>
+                            <option value="1" th:value="csv" ><b>CSV</b></option>
+                            <option value="2" th:value="tsdb" ><b>TSDB</b></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="featureOptions"></div>
+
+                <!-- Additional Data -->
+
+                <br />
+                <h4>Additional Feature Data:</h4>
+                <div class="from-group">
+                    <label class="col-md-4 control-label" for="additionalSelection">Data Type:</label>
+                    <div class="col-md-2">
+                        <select name="additionalSelection" id="additionalSelection" class="form-control" >
+                            <option th:value = "0">---Choose option---</option>
+                            <option value="1" th:value="csv" ><b>CSV</b></option>
+                            <option value="2" th:value="tsdb" ><b>TSDB</b></option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button style="width: 100%; font-size: large" id="buttonForAdding" name="actio" value="spar" class="btn btn-primary" onclick="loadAdditionalFeatures()">+</button>
+                    </div>
+                </div>
+
+                <div id="featureAdditionalOptions"></div>
+
+
+            </div>
+
+            <!-- PERFORM FORECAST -->
+
+            <div id="algorithms" class="tab-pane fade">
+                <h3>Algorithms</h3>
+
+                <!-- Select Action -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="selectaction">What to do:</label>
+                    <div class="col-md-4">
+                        <select id="selectaction" name="selectaction" class="form-control" onchange="myChangeFunction()" th:field="*{performType}">
+                            <option id="modeling" value="1" th:value="Modeling">Model Training</option>
+                            <option id="application" value="2" th:value="Application">Prediction</option>
+                            <option id="both" value="3" th:value="Both">Both together</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Save Model to -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="textinput2">Save model to:</label>
+                    <div class="col-md-4">
+                        <input data-toggle="tooltip" title="path to a directory where the model will be saved" id="textinput2" name="textinput2" type="text" th:field="*{modeling.savePathModel}" placeholder="path" class="form-control input-md" />
+                    </div>
+                </div>
+
+                <!-- Save CSV to -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="textinput3">Save resulting csv to:</label>
+                    <div class="col-md-4">
+                        <input data-toggle="tooltip" title="path to a directory where the predicted data will be saved" id="textinput3" name="textinput3" type="text" th:field="*{savePathCSV}" placeholder="path" class="form-control input-md" />
+
+                    </div>
+                </div>
+
+                <!-- Select new Map Algo -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="selectnew">Select Map Algorithm:</label>
+                    <div class="col-md-4">
+                        <select id="selectnew" name="selectnew" class="form-control">
+                            <option th:value = "0">---Choose option---</option>
+                            <option th:each="algorithm : ${algoList}" th:value="${algorithm.algoName}" th:text="${algorithm.algoName}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Paras -->
+                <div id="dynamic">
+                </div>
+
+                <!-- Forecast Past Horizon -->
+                <div class="form-group" id="horizon" style="display: none">
+                    <label class="col-md-4 control-label" for="textinput4">Past Values for modeling:</label>
+                    <div class="col-md-4">
+                        <input id="textinput4" th:field="*{modeling.horizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
+                    </div>
+                </div>
+
+                <!-- Start Button -->
+                <div class="form-group">
+                    <label class="col-md-5 control-label" for="singlebutton"></label>
+                    <div class="col-md-2">
+                        <button id="singlebutton" style="width: 100%; font-size: large" align="right" name="action" class="btn btn-primary" value="perform" onclick="myFunction()"><span class="glyphicon glyphicon-flash"></span> Start</button>
+                    </div>
+                </div>
+
+                <!-- Progressbar -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="singlebutton"></label>
+                    <div class="col-md-4 control-label" id="progress" style="display: none">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50" style="width:100%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="form-group" th:if="${modellingDone} == true">
+                    <label class="col-md-4 control-label" for="textarea">Forecast result:</label>
+                    <div class="col-md-4">
+                        <textarea class="form-control" id="textarea" name="textarea" th:text="*{result}"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+            </fieldset>
+    </form>
+</div>
+
+</body>
+</html>

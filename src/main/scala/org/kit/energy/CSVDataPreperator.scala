@@ -71,7 +71,8 @@ class CSVDataPreperator {
 
       val testColumn = dataColumns.apply(0)
 
-      // **************** DOESN'T WORK ******************
+      /*
+      // **************** DOESN'T WORK YET******************
       val selectedDF = inputData.select(testColumn) //"Solar Irradiation"
       val selectedDFSchema = selectedDF.schema
       var filteredRDD = spark.emptyDataFrame.rdd
@@ -122,7 +123,9 @@ class CSVDataPreperator {
           val blo = 355
         }
       }
-      // **************** DOESN'T WORK ******************
+
+      // **************** DOESN'T WORK YET******************
+      */
 
 
 

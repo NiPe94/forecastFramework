@@ -2,6 +2,7 @@ package org.kit.energy;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -12,9 +13,12 @@ public class Forecast {
     private String savePathCSV;
     private PerformType performType;
     private String result;
+    private ArrayList<InputFile> featureFiles;
+    private InputFile labelFile;
     private CSVFile fileCSV;
     private CSVFile labelCSV;
     private Modeling modeling;
+    private String sparkURL;
 
     public String getSavePathCSV() {
         return savePathCSV;
@@ -64,4 +68,11 @@ public class Forecast {
         this.modeling = modeling;
     }
 
+    public String getSparkURL() {
+        return sparkURL;
+    }
+
+    public void setSparkURL(String sparkURL) {
+        this.sparkURL = sparkURL;
+    }
 }

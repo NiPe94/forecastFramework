@@ -21,4 +21,9 @@ sealed class SparkEnvironment protected (val masterAdress:String){
     return spark
   }
 
+  def stopSpark() : Unit = {
+    this.spark.stop()
+    this.spark = null
+  }
+
 }
