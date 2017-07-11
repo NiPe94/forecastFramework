@@ -41,7 +41,6 @@
         var url = "/parameters/"+selectedAlgo;
         $("#dynamic").load(url);
     }
-
     function loadLabelTypeOptions() {
         var selectedType = $('#selectInputType').val();
         if(selectedType != "0"){
@@ -57,14 +56,88 @@
         }
     }
     function loadAdditionalFeatures() {
-        println("pressed");
-        /*
         var selectedType = $('#additionalSelection').val();
+        console.log("type "+selectedType+" selected!")
         if(selectedType != "0"){
             var url = "/additionalInputs/"+selectedType;
-            $("#featureAdditionalOptions").load(url)
+            $("#addendAdditional").append($("#featureAdditionalOptions").load(url).html())
         }
-        */
+    }
+    function deleteLastAddedFeature() {
+        if($('#addendAdditional').children().last().attr('id') == 'featureAdditionalOptions'){
+            $('#addendAdditional').children().last().fadeOut().empty();
+        }
+        else{
+            $('#addendAdditional').children().last().fadeOut().remove();
+        }
+    }
+    function addData() {
+
+        var contentDiv = $(document.activeElement).closest('.content');
+
+        var pathInput = $(contentDiv).find('input:first').val();
+
+        var TypeFound = $(contentDiv).find('[name="csvOptions"]').prop('tagName');
+        var tsdbSelected = (TypeFound==undefined);
+
+        //<h4>Label Data:</h4>
+
+        var dataDestiny = $(contentDiv).find('h4:first').text();
+        var dataDestinyBool = (dataDestiny=='Label Data:');
+        if(dataDestinyBool){
+            dataDestiny = "label";
+        }
+        else{
+            dataDestiny = "feature"
+        }
+
+        var url = "/addData";
+
+        var data = {};
+
+        if(!tsdbSelected){
+
+            var checkboxValue = $(contentDiv).find("input[type='checkbox']").is(':checked');
+
+            var delimeterValue = $(contentDiv).find('[name="selectDel"]').val();
+
+            var indicesValue = $(contentDiv).find('[name="textinputLabel"]').val();
+
+            data = {
+                path: pathInput,
+                as: dataDestiny,
+                type: 'csv',
+                head: checkboxValue,
+                delimeter: delimeterValue,
+                indices: indicesValue
+            };
+        }
+
+        if(tsdbSelected){
+
+            var inputFrom = $(contentDiv).find('[name="textinputFrom"]').val();
+
+            var inputTo = $(contentDiv).find('[name="textinputTo"]').val();
+
+            var metricInput = $(contentDiv).find('[name="textinputMetric"]').val();
+
+            var tagsInput = $(contentDiv).find('[name="textinputTags"]').val();
+
+            data = {
+                path: pathInput,
+                as: dataDestiny,
+                type: 'tsdb',
+                from: inputFrom,
+                to: inputTo,
+                metric: metricInput,
+                tags: tagsInput
+            };
+        }
+
+        $.post(url,data,function(data,status){
+            alert("Data: "+data+" Status: "+status);
+        });
+
     }
 
     function myFunction() {
@@ -167,57 +240,71 @@
             <div id="data" class="tab-pane fade">
                 <h3>Data</h3>
 
-                <h4>Label Data:</h4>
-
-                <!-- Take file from NEW -->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="dataInput">Data Path:</label>
-                    <div class="col-md-4">
-                        <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                <div class="content">
+                    <h4>Label Data:</h4>
+                    <!-- Take file from NEW -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="dataInput">Data Path:</label>
+                        <div class="col-md-4">
+                            <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                        </div>
+                    </div>
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="selectInputType">Data Type:</label>
+                        <div class="col-md-2">
+                            <select id="selectInputType" name="selectInputType" class="form-control" th:field="*{fileCSV.delimeter}" >
+                                <option th:value = "0">---Choose option---</option>
+                                <option value="1" th:value="csv" ><b>CSV</b></option>
+                                <option value="2" th:value="tsdb" ><b>TSDB</b></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="labelOptions"></div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-1">
+                        <button type="button" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary" th:onclick="|addData(this)|">Load</button>
                     </div>
                 </div>
-
-                <!-- Type -->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="selectInputType">Data Type:</label>
-                    <div class="col-md-2">
-                        <select id="selectInputType" name="selectInputType" class="form-control" th:field="*{fileCSV.delimeter}" >
-                            <option th:value = "0">---Choose option---</option>
-                            <option value="1" th:value="csv" ><b>CSV</b></option>
-                            <option value="2" th:value="tsdb" ><b>TSDB</b></option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="labelOptions"></div>
-
-                <h4>Feature Data:</h4>
-
-                <!-- Take file from NEW -->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" >Data Path:</label>
-                    <div class="col-md-4">
-                        <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
-                    </div>
-                </div>
-
-                <!-- Type -->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="selectInputType2">Data Type:</label>
-                    <div class="col-md-2">
-                        <select id="selectInputType2" name="selectInputType2" class="form-control" th:field="*{fileCSV.delimeter}" >
-                            <option th:value = "0">---Choose option---</option>
-                            <option value="1" th:value="csv" ><b>CSV</b></option>
-                            <option value="2" th:value="tsdb" ><b>TSDB</b></option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="featureOptions"></div>
-
-                <!-- Additional Data -->
 
                 <br />
+                <br />
+                <br />
+                <br />
+
+                <div class="content">
+                    <h4>Feature Data:</h4>
+                    <!-- Take file from NEW -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" >Data Path:</label>
+                        <div class="col-md-4">
+                            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                        </div>
+                    </div>
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="selectInputType2">Data Type:</label>
+                        <div class="col-md-2">
+                            <select id="selectInputType2" name="selectInputType2" class="form-control" th:field="*{fileCSV.delimeter}" >
+                                <option th:value = "0">---Choose option---</option>
+                                <option value="1" th:value="csv" ><b>CSV</b></option>
+                                <option value="2" th:value="tsdb" ><b>TSDB</b></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="featureOptions"></div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-1">
+                        <button type="button" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary" th:onclick="|addData()|">Load</button>
+                    </div>
+                </div>
+
+                <br />
+                <br />
+                <br />
+                <br />
+
+                <!-- Additional Data -->
                 <h4>Additional Feature Data:</h4>
                 <div class="from-group">
                     <label class="col-md-4 control-label" for="additionalSelection">Data Type:</label>
@@ -228,14 +315,23 @@
                             <option value="2" th:value="tsdb" ><b>TSDB</b></option>
                         </select>
                     </div>
-                    <div class="col-md-1">
-                        <button style="width: 100%; font-size: large" id="buttonForAdding" name="actio" value="spar" class="btn btn-primary" onclick="loadAdditionalFeatures()">+</button>
+                    <div class="col-md-1" style="background-color: blue; text-align: center" onclick="loadAdditionalFeatures()">
+                        <strong style="color: white; font-size: x-large">+</strong>
+                    </div>
+                    <div class="col-md-1" style="background-color: red; text-align: center" onclick="deleteLastAddedFeature()">
+                        <strong style="color: white; font-size: x-large">-</strong>
                     </div>
                 </div>
-
-                <div id="featureAdditionalOptions"></div>
-
-
+                <br />
+                <br />
+                <br />
+                <legend style="border-color: black"></legend>
+                <div id="addendAdditional">
+                    <div id="featureAdditionalOptions"></div>
+                </div>
+                <br />
+                <br />
+                <br />
             </div>
 
             <!-- PERFORM FORECAST -->

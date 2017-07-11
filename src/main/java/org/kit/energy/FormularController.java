@@ -5,10 +5,14 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
 import static org.reflections.ReflectionUtils.*;
 
 import java.lang.reflect.Field;
@@ -36,6 +40,15 @@ public class FormularController {
     private AlgorithmFactory algorithmFactory;
 
     private SparkEnvironment sparkEnvironment;
+
+    @PostMapping(value = "/addData")
+    public ResponseEntity<?> addData(@Valid @RequestBody String myString){
+        System.out.println("ohalla!");
+        myString = myString.replace("2C",",");
+        myString = myString.replace("%","");
+        System.out.println(myString);
+        return ResponseEntity.ok("message");
+    }
 
     @PostMapping(value = "/", params = "action=spark")
     public String loadSpark(Model model, @ModelAttribute("forecast") Forecast forecast) {
@@ -158,7 +171,6 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
-
     @GetMapping("/parameters/{algoName}")
     public String getParametersForAlgorithm(Model model, @PathVariable("algoName") String algoName){
 
@@ -177,11 +189,9 @@ public class FormularController {
         String fragmentString = "inputOptions :: "+datatype;
         return fragmentString;
     }
-    //additionalInputs
 
     @GetMapping("/additionalInputs/{datatype}")
     public String getAdditionalInputs(Model model, @PathVariable("datatype") String datatype){
-        System.out.println("angekommen");
         String fragmentString = "additionalInputs :: "+datatype;
         return fragmentString;
     }

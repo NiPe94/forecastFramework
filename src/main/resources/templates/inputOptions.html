@@ -5,7 +5,7 @@
 <body>
 
 <div th:fragment="csv">
-    <div class="form-group">
+    <div class="form-group" name="csvOptions">
         <label class="col-md-4 control-label">CSV Options:</label>
         <div class="col-md-1">
             <div class="checkbox">
@@ -30,24 +30,26 @@
 </div>
 
 <div th:fragment="tsdb">
-    <div class="form-group">
-        <label class="col-md-4 control-label">From:</label>
-        <div class="col-md-2">
-            <input data-toggle="tooltip" title="columns with feature values"  name="textinputFrom" type="text"  placeholder="date" class="form-control input-md" />
+    <div name="tsdbOptions">
+        <div class="form-group">
+            <label class="col-md-4 control-label">From:</label>
+            <div class="col-md-2">
+                <input data-toggle="tooltip" title="columns with feature values"  name="textinputFrom" type="text"  placeholder="date" class="form-control input-md" />
+            </div>
+            <label class="col-md-1 control-label" >To:</label>
+            <div class="col-md-2">
+                <input data-toggle="tooltip" title="columns with feature values"  name="textinputTo" type="text"  placeholder="date" class="form-control input-md" />
+            </div>
         </div>
-        <label class="col-md-1 control-label" >To:</label>
-        <div class="col-md-2">
-            <input data-toggle="tooltip" title="columns with feature values"  name="textinputTo" type="text"  placeholder="date" class="form-control input-md" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="col-md-4 control-label" >Metric:</label>
-        <div class="col-md-2">
-            <input data-toggle="tooltip" title="columns with feature values"  name="textinputMetric" type="text"  placeholder="metric" class="form-control input-md" />
-        </div>
-        <label class="col-md-1 control-label" >Tags:</label>
-        <div class="col-md-2">
-            <input data-toggle="tooltip" title="columns with feature values"  name="textinputTags" type="text"  placeholder="key=value" class="form-control input-md" />
+        <div class="form-group">
+            <label class="col-md-4 control-label" >Metric:</label>
+            <div class="col-md-2">
+                <input data-toggle="tooltip" title="columns with feature values"  name="textinputMetric" type="text"  placeholder="metric" class="form-control input-md" />
+            </div>
+            <label class="col-md-1 control-label" >Tags:</label>
+            <div class="col-md-2">
+                <input data-toggle="tooltip" title="columns with feature values"  name="textinputTags" type="text"  placeholder="key=value" class="form-control input-md" />
+            </div>
         </div>
     </div>
 </div>
