@@ -4,7 +4,7 @@ import java.io.FileNotFoundException
 
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.{SparkContext, sql}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import org.apache.spark.sql.functions.{col, concat_ws, udf}
 import org.springframework.stereotype.Component
 
@@ -12,13 +12,15 @@ import org.springframework.stereotype.Component
   * Created by qa5147 on 02.02.2017.
   */
 @Component
-class CSVDataPreperator {
+class CSVDataPreperator extends DataPreperator{
 
   //(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession)
-  def prepareDataset(csvFile:CSVFile, spark: SparkSession): sql.DataFrame = {
+  def prepareDataset(input: InputFile, spark: SparkSession): sql.DataFrame = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\winutils-master\\hadoop-2.7.1");
+
+    val csvFile =  input.asInstanceOf[CSVFile]
 
     // read the csv properties
     val hasHead = csvFile.isHasHeader
