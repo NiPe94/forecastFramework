@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import static org.reflections.ReflectionUtils.*;
@@ -18,6 +19,7 @@ import static org.reflections.ReflectionUtils.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,7 +33,7 @@ public class FormularController {
     private ForecastPipeline modelingPipe;
 
     @Autowired
-    private TelnetPostToTSDB poster = new TelnetPostToTSDB();
+    private TelnetPostToTSDB poster;
 
     @Autowired
     private JSONWriter jsonWriter;
@@ -39,15 +41,17 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory;
 
+    // Handling: 2 Users, first uses spark actually and second wants to stop spark
     private SparkEnvironment sparkEnvironment;
 
     @PostMapping(value = "/addData")
-    public ResponseEntity<?> addData(@Valid @RequestBody String myString){
-        System.out.println("ohalla!");
-        myString = myString.replace("2C",",");
-        myString = myString.replace("%","");
+    public ResponseEntity<?> addData(@Valid @RequestBody String myString, HttpSession mySession){
+        System.out.println("The session: "+mySession.getId());
+        Map<String,Class<?>> bla = algorithmFactory.getRegisteredAlgos();
+        
+        myString = myString.replace("%2C",",");
         System.out.println(myString);
-        return ResponseEntity.ok("message");
+        return ResponseEntity.ok(myString);
     }
 
     @PostMapping(value = "/", params = "action=spark")
@@ -63,6 +67,26 @@ public class FormularController {
         System.out.println("the current url: "+forecast.getSparkURL());
         System.out.println("the current spark version: "+sparkSession.version());
 
+        model.addAttribute("forecast", new Forecast());
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+
+        return "ForecastFormularMenue";
+    }
+
+    @PostMapping(value = "/", params = "action=deleteData")
+    public String deleteData(Model model, HttpSession mySession) {
+
+        String sessionId = mySession.getId();
+
+        //sparkSingleton.deleteDataWith(sessionId); :D
+
+        model.addAttribute("forecast", new Forecast());
+        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+        return "ForecastFormularMenue";
+    }
+
+    @PostMapping(value = "/", params = "action=reloadAlgorithms")
+    public String reloadAlgorithms(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
 

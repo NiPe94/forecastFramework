@@ -2,7 +2,7 @@ package org.kit.energy
 
 import org.apache.spark.sql
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import org.springframework.stereotype.Component
 
 import scala.collection.mutable
@@ -12,9 +12,9 @@ import scala.collection.mutable.ListBuffer
   * Created by qa5147 on 12.06.2017.
   */
 @Component
-class JSONDataPreperator {
+class JSONDataPreperator extends DataPreperator{
 
-  def prepareDataSet(data: String): Unit ={
+  def prepareDataset(input: InputFile, spark: SparkSession): DataFrame ={
 
     val spark = SparkSession
       .builder()
@@ -25,6 +25,8 @@ class JSONDataPreperator {
 
     // required for using .toDF()-function later
     import spark.implicits._
+
+    val data = input.asInstanceOf[TSDBFile].jsonData
 
     // find the boundary of the datapoints within the json-data ( ... "dps":{"time":value,"time":value,"time":value} ... )
     val indexOfDataBegin = data.indexOf("\"dps\":{")
@@ -72,10 +74,9 @@ class JSONDataPreperator {
 
     // At this point, we have a list for the time data and the amplitude data
 
-
+    return spark.emptyDataFrame
 
 
 
   }
-
 }

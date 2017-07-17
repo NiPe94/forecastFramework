@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.spark.sql.SparkSession;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -64,7 +65,9 @@ public class TelnetPostToTSDB {
             System.out.println(response.toString());
 
             JSONDataPreperator jsonDataPreperator = new JSONDataPreperator();
-            jsonDataPreperator.prepareDataSet(response.toString());
+            SparkSession spark = SparkSession.builder().master("local").getOrCreate();
+            InputFile myFile = new TSDBFile();
+            jsonDataPreperator.prepareDataset(myFile,spark);
 
         }
         catch(Exception e){
