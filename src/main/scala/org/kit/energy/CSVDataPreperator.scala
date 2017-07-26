@@ -25,8 +25,8 @@ class CSVDataPreperator extends DataPreperator{
     // read the csv properties
     val hasHead = csvFile.isHasHeader
     val delimeter = csvFile.getDelimeter
-    val labelIndex = csvFile.getLabelColumnIndex
-    val featuresIndex = csvFile.getFeatureColumnsIndexes
+    val labelIndex = csvFile.getIndices
+    val featuresIndex = csvFile.getIndices
     val dataPath = csvFile.getDataPath
 
     var finalData = spark.emptyDataFrame
@@ -145,13 +145,24 @@ class CSVDataPreperator extends DataPreperator{
       println("preData:")
       preData.show()
 
+      if(input.getDataPurpose.equals("label")){
+        finalData = preData.withColumn("data", toDouble(preData(dataColumns.apply(labelIndex.toInt)))).select("data")
+      }
+      else{
+        finalData = preData.withColumn("data", toVector(preData("test"))).select("data")
+      }
+
+      /*
       finalData = preData
         .withColumn("features", toVector(preData("test")))
         .withColumn("label", toDouble(preData(dataColumns.apply(labelIndex.toInt))))
         .select("features", "label")
+      */
 
       println("final Data: ")
       finalData.show()
+
+      val bla = 5
 
     }
     catch{

@@ -45,12 +45,33 @@ public class FormularController {
     private SparkEnvironment sparkEnvironment;
 
     @PostMapping(value = "/addData")
-    public ResponseEntity<?> addData(@Valid @RequestBody String myString, HttpSession mySession){
-        System.out.println("The session: "+mySession.getId());
+    public ResponseEntity<?> addData(@Valid @RequestBody String myString){
+
         Map<String,Class<?>> bla = algorithmFactory.getRegisteredAlgos();
-        
-        myString = myString.replace("%2C",",");
-        System.out.println(myString);
+
+        // parse input data => InputFile
+        System.out.println("begin parsing:");
+        DataInputParser dataInputParser = new DataInputParser();
+        InputFile fileToLoad = dataInputParser.parseInput(myString);
+        System.out.println("end parsing:");
+
+        // Put the InputFile into a data preperator => DF with relevant values
+        System.out.println("begin preperation");
+        DataPreperator dataPreperator = null;
+        if(fileToLoad.getClass() == CSVFile.class){
+            dataPreperator = new CSVDataPreperator();
+        }
+        if(fileToLoad.getClass() == TSDBFile.class){
+            dataPreperator = new JSONDataPreperator();
+        }
+        Dataset<Row> dataset = dataPreperator.prepareDataset(fileToLoad,sparkEnvironment.getInstance());
+        System.out.println("end preperation");
+
+        // Put the DF into the current spark Environment with info if it's a feature or label
+        System.out.println("begin adding");
+        sparkEnvironment.addData(dataset,fileToLoad.getDataPurpose());
+        System.out.println("end adding");
+
         return ResponseEntity.ok(myString);
     }
 
@@ -72,7 +93,6 @@ public class FormularController {
         SparkSession sparkSession = sparkEnvironment.getInstance();
         System.out.println("the current url: "+sparkURL);
         System.out.println("the current spark version: "+sparkSession.version());
-        sparkEnvironment.stopSpark();
 
         return ResponseEntity.ok(myString);
     }
