@@ -96,6 +96,17 @@
         }
 
     }
+    function startSpark() {
+        var sparkURL = $('#sparkInput').val();
+        if(sparkURL==''){
+            sparkURL = 'local';
+        }
+        var postURL = '/startSpark';
+        $.post(postURL,sparkURL,function(data,status){
+            console.log("Data: "+data+" Status: "+status);
+        });
+
+    }
     function addData() {
 
         var contentDiv = $(document.activeElement).closest('.content');
@@ -252,7 +263,7 @@
                         <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" th:field="*{sparkURL}" class="form-control input-md" />
                     </div>
                     <div class="col-md-1">
-                        <button type="submit" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary">Load</button>
+                        <button type="button" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary" th:onclick="|startSpark()|">Load</button>
                     </div>
                 </div>
             </div>
@@ -402,7 +413,7 @@
                 <div class="form-group" id="pastHorizon" style="display: none">
                     <label class="col-md-4 control-label" for="pastHorizonInput">Past Values for modeling:</label>
                     <div class="col-md-4">
-                        <input id="pastHorizonInput" th:field="*{modeling.horizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
+                        <input id="pastHorizonInput" th:field="*{modeling.pastHorizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
                     </div>
                 </div>
 

@@ -54,23 +54,27 @@ public class FormularController {
         return ResponseEntity.ok(myString);
     }
 
-    @PostMapping(value = "/", params = "action=spark")
-    public String loadSpark(Model model, @ModelAttribute("forecast") Forecast forecast) {
-        if(forecast.getSparkURL().equals("")){
-            forecast.setSparkURL("local");
+    @PostMapping(value = "/startSpark")
+    public ResponseEntity<?> loadSpark(@Valid @RequestBody String myString) {
+
+        String sparkURL = myString.replace("=","");
+
+        System.out.println(sparkURL);
+
+        sparkURL = "";
+        if(sparkURL.equals("")){
+            sparkURL = "local";
         }
         if(sparkEnvironment != null){
             sparkEnvironment.stopSpark();
         }
-        sparkEnvironment = new SparkEnvironment(forecast.getSparkURL());
+        sparkEnvironment = new SparkEnvironment(sparkURL);
         SparkSession sparkSession = sparkEnvironment.getInstance();
-        System.out.println("the current url: "+forecast.getSparkURL());
+        System.out.println("the current url: "+sparkURL);
         System.out.println("the current spark version: "+sparkSession.version());
+        sparkEnvironment.stopSpark();
 
-        model.addAttribute("forecast", new Forecast());
-        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-
-        return "ForecastFormularMenue";
+        return ResponseEntity.ok(myString);
     }
 
     @PostMapping(value = "/", params = "action=deleteData")

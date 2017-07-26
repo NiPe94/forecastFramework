@@ -9,6 +9,7 @@ sealed class SparkEnvironment protected (val masterAdress:String){
 
   private var spark:SparkSession = null
 
+
   def getInstance() : SparkSession = {
     if(this.spark != null){
       return this.spark
