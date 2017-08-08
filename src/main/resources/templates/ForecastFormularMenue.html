@@ -107,7 +107,27 @@
         });
 
     }
+    function deleteAllData() {
+
+        var buttons = $('button').filter(function(idx) {
+            return this.innerHTML == 'Load';
+        });
+        buttons.each(function(){
+            $(this).attr('class','btn btn-primary active')
+        });
+
+        $.post('/deleteData',function(data,status){
+            console.log("Data: "+data+" Status: "+status);
+        })
+    }
     function addData() {
+
+        var buttonState = $(document.activeElement).attr('class');
+        if(buttonState=='btn btn-primary disabled'){
+            return 0;
+        }
+
+        var button = $(document.activeElement).attr('class','btn btn-primary disabled');
 
         var contentDiv = $(document.activeElement).closest('.content');
 
@@ -167,10 +187,24 @@
                 tags: tagsInput
             };
         }
+        /*
+        $.post(url,data,function(data,status){
+            if(status != 'success'){
+                button.attr('class','btn btn-primary active');
+            }
+        });
+        */
 
         $.post(url,data,function(data,status){
             console.log("Data: "+data+" Status: "+status);
-        });
+        })
+            .done(function(){
+
+            })
+            .fail(function(xhr, textStatus, errorThrown){
+                button.attr('class','btn btn-primary active');
+                alert('Ä');
+            });
 
     }
 
@@ -274,11 +308,11 @@
             <div id="data" class="tab-pane fade">
                 <h3>Data</h3>
 
-                <!-- Delete loaded Data - Button -->
+                <!-- Delete loaded Data - Button  -->
                 <div class="form-group">
                     <div class="col-md-4"></div>
                     <div class="col-md-2">
-                        <button type="submit" title="Delete the Data loaded on the server" style="font-size: large" align="right" name="action" value="deleteData" class="btn btn-primary">Delete loaded Data</button>
+                        <button type="button" title="Delete the Data loaded on the server" style="font-size: large" align="right" name="action" value="deleteData" class="btn btn-primary" th:onclick="|deleteAllData()|">Delete loaded Data</button>
                     </div>
                 </div>
 
@@ -288,14 +322,14 @@
                     <div class="form-group">
                         <label class="col-md-4 control-label" for="dataInput">Data Path:</label>
                         <div class="col-md-4">
-                            <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                            <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" placeholder="path" class="form-control input-md" />
                         </div>
                     </div>
                     <!-- Type -->
                     <div class="form-group">
                         <label class="col-md-4 control-label" for="selectInputType">Data Type:</label>
                         <div class="col-md-2">
-                            <select id="selectInputType" name="selectInputType" class="form-control" th:field="*{fileCSV.delimeter}" >
+                            <select id="selectInputType" name="selectInputType" class="form-control" >
                                 <option th:value = "0">---Choose option---</option>
                                 <option value="1" th:value="csv" ><b>CSV</b></option>
                                 <option value="2" th:value="tsdb" ><b>TSDB</b></option>
@@ -320,14 +354,14 @@
                     <div class="form-group">
                         <label class="col-md-4 control-label" >Data Path:</label>
                         <div class="col-md-4">
-                            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" placeholder="path" class="form-control input-md" />
                         </div>
                     </div>
                     <!-- Type -->
                     <div class="form-group">
                         <label class="col-md-4 control-label" for="selectInputType2">Data Type:</label>
                         <div class="col-md-2">
-                            <select id="selectInputType2" name="selectInputType2" class="form-control" th:field="*{fileCSV.delimeter}" >
+                            <select id="selectInputType2" name="selectInputType2" class="form-control" >
                                 <option th:value = "0">---Choose option---</option>
                                 <option value="1" th:value="csv" ><b>CSV</b></option>
                                 <option value="2" th:value="tsdb" ><b>TSDB</b></option>

@@ -44,16 +44,16 @@ class CSVDataPreperator extends DataPreperator{
 
       val shift = 2
 
-      println("input schema:")
-      inputData.printSchema()
+      //println("input schema:")
+      //inputData.printSchema()
 
-      println("input data:")
-      inputData.show()
+      //println("input data:")
+      //inputData.show()
 
       // get all columns of the dataset (Array[String])
       val dataColumns = inputData.columns
-      println("columns:")
-      dataColumns.foreach(println)
+      //println("columns:")
+      //dataColumns.foreach(println)
 
       // split feature index string into array => Array[String] ("2,3" => ["2","3"])
       val featuresSplit = featuresIndex.split(",")
@@ -68,8 +68,8 @@ class CSVDataPreperator extends DataPreperator{
         counter += 1
       }
 
-      print("printing the testArray: ")
-      testArray.foreach(x => println(x))
+      //print("printing the testArray: ")
+      //testArray.foreach(x => println(x))
 
       val testColumn = dataColumns.apply(0)
 
@@ -131,8 +131,8 @@ class CSVDataPreperator extends DataPreperator{
 
 
 
-      println("features array:")
-      testArray.foreach(println)
+      //println("features array:")
+      //testArray.foreach(println)
 
       // user defined functions
       val toDouble = udf[Double, String](_.toDouble)
@@ -142,8 +142,8 @@ class CSVDataPreperator extends DataPreperator{
       val preData = inputData
         .withColumn("test", concat_ws(",", testArray.map(str => col(str)): _*))
 
-      println("preData:")
-      preData.show()
+      //println("preData:")
+      //preData.show()
 
       if(input.getDataPurpose.equals("label")){
         finalData = preData.withColumn("data", toDouble(preData(dataColumns.apply(labelIndex.toInt)))).select("data")
@@ -159,8 +159,8 @@ class CSVDataPreperator extends DataPreperator{
         .select("features", "label")
       */
 
-      println("final Data: ")
-      finalData.show()
+      //println("final Data: ")
+      //finalData.show()
 
       val bla = 5
 

@@ -11,7 +11,7 @@ public class DataInputParser {
         InputFile inputFile = null;
         int beginning, end;
 
-        // extract purpose
+        // extract purpose ()
         beginning = jsonString.indexOf("as=");
         end = jsonString.indexOf("&",beginning);
         String dataPurpose = jsonString.substring(beginning+3,end);

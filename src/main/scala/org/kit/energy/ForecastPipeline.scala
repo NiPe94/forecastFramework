@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 @Component
 class ForecastPipeline {
 
-  def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean) : String = {
+  def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean, sparkEnv:SparkEnvironment) : String = {
 
     var forecastResult = ""
     val savePathModel = forecast.getModeling.getSavePathModel
@@ -23,22 +23,22 @@ class ForecastPipeline {
     System.setProperty("hadoop.home.dir", "C:\\Spark\\winutils-master\\hadoop-2.7.1");
 
     // initialize spark context vars
-    val spark = SparkSession
-      .builder()
-      .master("local")
-      .appName("New Name")
-      .config("spark.some.config.option", "some-value")
-      .getOrCreate()
+    val spark = sparkEnv.getInstance()
 
     try {
 
       var predictedData:DataFrame = null
 
+      /*
       // prepare dataset for using
       val preperator = new CSVDataPreperator()
       println("Start preparing the data")
       val preparedData = preperator.prepareDataset(forecast.getFileCSV(), spark)
       println("Ended preparing the data")
+      */
+      val combiner:DataCombiner = new DataCombiner
+      val preparedData = combiner.combineLoadedData(sparkEnv.getLabel(), sparkEnv.getFeatures(), sparkEnv.getInstance())
+      val blubi = 90
 
       // start a new modeling job
       if(performModeling){

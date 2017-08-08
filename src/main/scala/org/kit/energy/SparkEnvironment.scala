@@ -9,7 +9,7 @@ sealed class SparkEnvironment protected (val masterAdress:String){
 
   private var spark:SparkSession = null
 
-  private var features:List[DataFrame] = null
+  private var features:List[DataFrame] = List.empty
 
   private var label:DataFrame = null
 
@@ -35,13 +35,26 @@ sealed class SparkEnvironment protected (val masterAdress:String){
       this.label = df
     }
     if(dataType.equals("feature")){
-      this.features = df :: this.features
+      if(this.features == null){
+        this.features = List(df);
+      }
+      else {
+        this.features = df :: this.features
+      }
     }
   }
 
   def deleteData() : Unit = {
     this.features = null
     this.label = null
+  }
+
+  def getFeatures() : List[DataFrame] = {
+    return this.features
+  }
+
+  def getLabel() : DataFrame = {
+    return this.label
   }
 
 }
