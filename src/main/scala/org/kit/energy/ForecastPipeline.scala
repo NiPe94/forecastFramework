@@ -29,16 +29,18 @@ class ForecastPipeline {
 
       var predictedData:DataFrame = null
 
-      /*
-      // prepare dataset for using
-      val preperator = new CSVDataPreperator()
-      println("Start preparing the data")
-      val preparedData = preperator.prepareDataset(forecast.getFileCSV(), spark)
-      println("Ended preparing the data")
-      */
+      // combine the loaded data to one dataframe with columns "features" with [double,double,double] and "label" with double
       val combiner:DataCombiner = new DataCombiner
-      val preparedData = combiner.combineLoadedData(sparkEnv.getLabel(), sparkEnv.getFeatures(), sparkEnv.getInstance())
-      val blubi = 90
+      val combinedData = combiner.combineLoadedData(sparkEnv.getLabel(), sparkEnv.getFeatures(), sparkEnv.getInstance())
+
+      // shift the dataframe values due to the past-shift parameter from the web ui to build a AR(Autoregressive)-model
+      val shifter:PastShifter = new PastShifter
+      val shiftedData = shifter.shiftData(combinedData, sparkEnv.getInstance(), forecast.getModeling.getPastHorizon)
+
+
+      val ghug = 898
+
+      val preparedData = shiftedData
 
       // start a new modeling job
       if(performModeling){

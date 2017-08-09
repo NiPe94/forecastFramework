@@ -34,6 +34,7 @@ class CSVDataPreperator extends DataPreperator{
     val horizont = 1
 
     try {
+
       // read the dataset
       val inputData = spark.read
         .format("com.databricks.spark.csv")
@@ -44,16 +45,8 @@ class CSVDataPreperator extends DataPreperator{
 
       val shift = 2
 
-      //println("input schema:")
-      //inputData.printSchema()
-
-      //println("input data:")
-      //inputData.show()
-
       // get all columns of the dataset (Array[String])
       val dataColumns = inputData.columns
-      //println("columns:")
-      //dataColumns.foreach(println)
 
       // split feature index string into array => Array[String] ("2,3" => ["2","3"])
       val featuresSplit = featuresIndex.split(",")
@@ -68,7 +61,6 @@ class CSVDataPreperator extends DataPreperator{
         counter += 1
       }
 
-      //print("printing the testArray: ")
       //testArray.foreach(x => println(x))
 
       val testColumn = dataColumns.apply(0)
@@ -129,11 +121,6 @@ class CSVDataPreperator extends DataPreperator{
       // **************** DOESN'T WORK YET******************
       */
 
-
-
-      //println("features array:")
-      //testArray.foreach(println)
-
       // user defined functions
       val toDouble = udf[Double, String](_.toDouble)
       val toVector = udf((i: String) => (Vectors.dense(i.split(",").map(str => str.toDouble)): org.apache.spark.ml.linalg.Vector))
@@ -141,9 +128,6 @@ class CSVDataPreperator extends DataPreperator{
       // create a coloumn in which all features are inside, divided by ","
       val preData = inputData
         .withColumn("test", concat_ws(",", testArray.map(str => col(str)): _*))
-
-      //println("preData:")
-      //preData.show()
 
       if(input.getDataPurpose.equals("label")){
         finalData = preData.withColumn("data", toDouble(preData(dataColumns.apply(labelIndex.toInt)))).select("data")
@@ -158,11 +142,6 @@ class CSVDataPreperator extends DataPreperator{
         .withColumn("label", toDouble(preData(dataColumns.apply(labelIndex.toInt))))
         .select("features", "label")
       */
-
-      //println("final Data: ")
-      //finalData.show()
-
-      val bla = 5
 
     }
     catch{
