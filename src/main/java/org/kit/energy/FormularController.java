@@ -136,40 +136,6 @@ public class FormularController {
     @GetMapping("/test")
     public String testPreperator(Model model) {
 
-        /* load csv data
-        CSVDataPreperator csvDataPreperator = new CSVDataPreperator();
-
-        CSVFile csvFile = new CSVFile();
-        csvFile.setDelimeter("2");
-        csvFile.setHasHeader(true);
-        csvFile.setFeatureColumnsIndexes("0");
-        csvFile.setLabelColumnIndex("1");
-        csvFile.setDataPath("test_data.csv");
-
-        SparkSession sparkSession = SparkSession
-                .builder()
-                .master("local")
-                .appName("New Name")
-                .config("spark.some.config.option", "some-value")
-                .getOrCreate();
-
-        csvDataPreperator.prepareDataset(csvFile,sparkSession);
-        */
-        /* train model?
-        SparkSession sparkSession = SparkSession
-                .builder()
-                .master("local")
-                .appName("New Name")
-                .config("spark.some.config.option", "some-value")
-                .getOrCreate();
-
-        Dataset<Row> myRow = sparkSession.read().format("libsvm").load("sparkExample.txt");
-
-        LinearRegressionSparkExample myExample = new LinearRegressionSparkExample();
-
-        myExample.train(myRow);
-        */
-
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
 
@@ -187,6 +153,9 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
+    //@PostMapping(value="/",params = "action=perform")
+    //public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
+
     @PostMapping(value="/",params = "action=perform")
     public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
 
@@ -196,20 +165,6 @@ public class FormularController {
         boolean modellingDone = false;
         String modelParameters = "";
         String[] modelParametersArray;
-
-        /* Validator is redundant due to the input parser
-        // validate input data
-        Validator validator = new Validator(forecast.getFileCSV());
-        model.addAttribute("validatorError", !validator.isValid());
-        model.addAttribute("validatorMessage", validator.getMessage());
-
-
-        // When file is a dir or does not exist, return to form and display a error bar
-        if (!validator.isValid()) {
-            model.addAttribute("modellingDone", modellingDone);
-            return "ForecastFormularMenue";
-        }
-        */
 
         // create a forecastAlgorithm and copy its values to the plugin-object, which will be used for the forecast
         AlgoPlugin algoPlugin = algorithmFactory.createAlgo(myWrapper);

@@ -25,14 +25,13 @@ class AlgoWithAnno extends AlgoPlugin{
     // set regression parameter and start the regression
     val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble)
     var lrModel = lrModelStart.fit(inputData)
-    println()
-    println(lrModel.coefficients.toString)
-    println()
     return lrModel
   }
 
   def applyModel(input: DataFrame, model: Transformer): DataFrame = {
-    val transformedData = model.transform(input)
+
+    val transformedData = model.transform(input).select("prediction")
+
     return transformedData
   }
 

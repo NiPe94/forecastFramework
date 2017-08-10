@@ -39,6 +39,8 @@ public class DataInputParser {
             // extract indices
             beginning = jsonString.indexOf("indices=");
             end = jsonString.indexOf("&",beginning);
+            boolean bla = checkFormat(jsonString.substring(beginning+8,end));
+            System.out.println(bla);
             if(dataPurpose.contains("label") && !checkFormat(jsonString.substring(beginning+8,end))){
                 return inputFile;
             }
@@ -101,6 +103,6 @@ public class DataInputParser {
             return false;
         }
 
-        return false;
+        return true;
     }
 }

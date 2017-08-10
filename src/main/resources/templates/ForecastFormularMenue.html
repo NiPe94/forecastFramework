@@ -203,7 +203,7 @@
             })
             .fail(function(xhr, textStatus, errorThrown){
                 button.attr('class','btn btn-primary active');
-                alert('Ä');
+                alert('could not send the data to the server');
             });
 
     }
@@ -229,7 +229,7 @@
         <li><a data-toggle="tab" href="#about">About</a></li>
     </ul>
 
-    <form class="form-horizontal" action="#" th:action="@{/}" th:object="${forecast}" method="post">
+    <form class="form-horizontal" action="" th:action="@{/}" th:object="${forecast}" method="post">
         <fieldset>
         <div class="tab-content">
 

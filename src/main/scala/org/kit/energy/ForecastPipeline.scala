@@ -30,17 +30,15 @@ class ForecastPipeline {
       val combiner:DataCombiner = new DataCombiner
       val combinedData = combiner.combineLoadedData(sparkEnv.getLabel(), sparkEnv.getFeatures(), sparkEnv.getInstance())
 
-      // shift the dataframe values due to the past-shift parameter from the web ui to build a AR(Autoregressive)-model
-      val shifter:PastShifter = new PastShifter
-      val shiftedData = shifter.shiftData(combinedData, sparkEnv.getInstance(), forecast.getModeling.getPastHorizon)
-
-      val preparedData = shiftedData
-
       // start a new modeling job
       if(performModeling){
 
+        // shift the dataframe values due to the past-shift parameter from the web ui to build a AR(Autoregressive)-model
+        val shifter:PastShifter = new PastShifter
+        val shiftedData = shifter.shiftData(combinedData, sparkEnv.getInstance(), forecast.getModeling.getPastHorizon)
+
         // new model evaluation
-        val resultingModel = algoPlugin.train(preparedData)
+        val resultingModel = algoPlugin.train(shiftedData)
 
         // string with model parameters for the web-ui
         forecastResult = this.getResultString(resultingModel)
@@ -52,16 +50,20 @@ class ForecastPipeline {
 
         // perform a model application directly afterwards
         if(performModelApplication){
-          predictedData = algoPlugin.applyModel(preparedData,resultingModel)
+          predictedData = algoPlugin.applyModel(combinedData,resultingModel)
         }
       }
 
       // perform a model application via a loaded model (without model evaluation right before this)
       if(!performModeling && performModelApplication){
-        val loadedModel = PipelineModel.load(savePathModel)
+        val loadedPipeline = Pipeline.load(savePathModel)
+        val loadedModel = loadedPipeline.getStages(0).asInstanceOf[Transformer]
+        // val loadedModel = PipelineModel.load(savePathModel)
         forecastResult = this.getResultString(loadedModel)
-        predictedData = algoPlugin.applyModel(preparedData,loadedModel)
+        predictedData = algoPlugin.applyModel(combinedData,loadedModel)
       }
+
+      println("start saving prediction data")
 
       // save existing predicted dataFrame
       if(predictedData!=null){
@@ -73,6 +75,8 @@ class ForecastPipeline {
           .mode("overwrite")
           .save(savePathCSV)
       }
+
+      println("end saving prediction data")
 
       return forecastResult
 
