@@ -39,6 +39,9 @@ public class DataInputParser {
             // extract indices
             beginning = jsonString.indexOf("indices=");
             end = jsonString.indexOf("&",beginning);
+            if(dataPurpose.contains("label") && !checkFormat(jsonString.substring(beginning+8,end))){
+                return inputFile;
+            }
             csvFile.setIndices(jsonString.substring(beginning+8,end));
 
             // extract dataPath
@@ -88,5 +91,16 @@ public class DataInputParser {
         }
 
         return  inputFile;
+    }
+
+    private boolean checkFormat(String in){
+
+        try {
+            Integer.parseInt(in);
+        } catch (Exception e) {
+            return false;
+        }
+
+        return false;
     }
 }

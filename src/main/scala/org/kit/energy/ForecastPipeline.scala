@@ -22,9 +22,6 @@ class ForecastPipeline {
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
     System.setProperty("hadoop.home.dir", "C:\\Spark\\winutils-master\\hadoop-2.7.1");
 
-    // initialize spark context vars
-    val spark = sparkEnv.getInstance()
-
     try {
 
       var predictedData:DataFrame = null
@@ -36,9 +33,6 @@ class ForecastPipeline {
       // shift the dataframe values due to the past-shift parameter from the web ui to build a AR(Autoregressive)-model
       val shifter:PastShifter = new PastShifter
       val shiftedData = shifter.shiftData(combinedData, sparkEnv.getInstance(), forecast.getModeling.getPastHorizon)
-
-
-      val ghug = 898
 
       val preparedData = shiftedData
 
@@ -84,9 +78,6 @@ class ForecastPipeline {
 
     } catch {
       case e: Exception => e.printStackTrace(); return "error while calculating the algorithm"
-    }
-    finally {
-      spark.stop()
     }
   }
 

@@ -42,7 +42,6 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory;
 
-    // Handling: 2 Users, first uses spark actually and second wants to stop spark
     private SparkEnvironment sparkEnvironment;
 
     @GetMapping(value="/stopSpark")
@@ -67,6 +66,10 @@ public class FormularController {
         // parse input data => InputFile
         DataInputParser dataInputParser = new DataInputParser();
         InputFile fileToLoad = dataInputParser.parseInput(myString);
+
+        if(fileToLoad == null){
+            return new ResponseEntity<String>("format error", HttpStatus.NOT_ACCEPTABLE);
+        }
 
         // Put the InputFile into a data preperator => DF with relevant values
         DataPreperator dataPreperator = null;
