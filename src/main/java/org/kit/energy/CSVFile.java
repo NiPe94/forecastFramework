@@ -11,6 +11,7 @@ public class CSVFile extends InputFile{
     private String delimeter;
     private String labelColumnIndex;
     private String featureColumnsIndexes;
+    private String indices;
 
     public boolean isHasHeader() {
         return hasHeader;
@@ -50,5 +51,11 @@ public class CSVFile extends InputFile{
         this.featureColumnsIndexes = featureColumnsIndexes;
     }
 
+    public String getIndices() {
+        return indices;
+    }
 
+    public void setIndices(String indices) {
+        this.indices = indices;
+    }
 }

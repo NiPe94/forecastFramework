@@ -96,7 +96,38 @@
         }
 
     }
+    function startSpark() {
+        var sparkURL = $('#sparkInput').val();
+        if(sparkURL==''){
+            sparkURL = 'local';
+        }
+        var postURL = '/startSpark';
+        $.post(postURL,sparkURL,function(data,status){
+            console.log("Data: "+data+" Status: "+status);
+        });
+
+    }
+    function deleteAllData() {
+
+        var buttons = $('button').filter(function(idx) {
+            return this.innerHTML == 'Load';
+        });
+        buttons.each(function(){
+            $(this).attr('class','btn btn-primary active')
+        });
+
+        $.post('/deleteData',function(data,status){
+            console.log("Data: "+data+" Status: "+status);
+        })
+    }
     function addData() {
+
+        var buttonState = $(document.activeElement).attr('class');
+        if(buttonState=='btn btn-primary disabled'){
+            return 0;
+        }
+
+        var button = $(document.activeElement).attr('class','btn btn-primary disabled');
 
         var contentDiv = $(document.activeElement).closest('.content');
 
@@ -156,10 +187,24 @@
                 tags: tagsInput
             };
         }
+        /*
+        $.post(url,data,function(data,status){
+            if(status != 'success'){
+                button.attr('class','btn btn-primary active');
+            }
+        });
+        */
 
         $.post(url,data,function(data,status){
             console.log("Data: "+data+" Status: "+status);
-        });
+        })
+            .done(function(){
+
+            })
+            .fail(function(xhr, textStatus, errorThrown){
+                button.attr('class','btn btn-primary active');
+                alert('could not send the data to the server');
+            });
 
     }
 
@@ -184,7 +229,7 @@
         <li><a data-toggle="tab" href="#about">About</a></li>
     </ul>
 
-    <form class="form-horizontal" action="#" th:action="@{/}" th:object="${forecast}" method="post">
+    <form class="form-horizontal" action="" th:action="@{/}" th:object="${forecast}" method="post">
         <fieldset>
         <div class="tab-content">
 
@@ -252,7 +297,7 @@
                         <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" th:field="*{sparkURL}" class="form-control input-md" />
                     </div>
                     <div class="col-md-1">
-                        <button type="submit" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary">Load</button>
+                        <button type="button" style="width: 100%; font-size: large" align="right" name="action" value="spark" class="btn btn-primary" th:onclick="|startSpark()|">Load</button>
                     </div>
                 </div>
             </div>
@@ -263,11 +308,11 @@
             <div id="data" class="tab-pane fade">
                 <h3>Data</h3>
 
-                <!-- Delete loaded Data - Button -->
+                <!-- Delete loaded Data - Button  -->
                 <div class="form-group">
                     <div class="col-md-4"></div>
                     <div class="col-md-2">
-                        <button type="submit" title="Delete the Data loaded on the server" style="font-size: large" align="right" name="action" value="deleteData" class="btn btn-primary">Delete loaded Data</button>
+                        <button type="button" title="Delete the Data loaded on the server" style="font-size: large" align="right" name="action" value="deleteData" class="btn btn-primary" th:onclick="|deleteAllData()|">Delete loaded Data</button>
                     </div>
                 </div>
 
@@ -277,14 +322,14 @@
                     <div class="form-group">
                         <label class="col-md-4 control-label" for="dataInput">Data Path:</label>
                         <div class="col-md-4">
-                            <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                            <input data-toggle="tooltip" title="file path to a csv file" id="dataInput" name="dataInput" type="text" placeholder="path" class="form-control input-md" />
                         </div>
                     </div>
                     <!-- Type -->
                     <div class="form-group">
                         <label class="col-md-4 control-label" for="selectInputType">Data Type:</label>
                         <div class="col-md-2">
-                            <select id="selectInputType" name="selectInputType" class="form-control" th:field="*{fileCSV.delimeter}" >
+                            <select id="selectInputType" name="selectInputType" class="form-control" >
                                 <option th:value = "0">---Choose option---</option>
                                 <option value="1" th:value="csv" ><b>CSV</b></option>
                                 <option value="2" th:value="tsdb" ><b>TSDB</b></option>
@@ -309,14 +354,14 @@
                     <div class="form-group">
                         <label class="col-md-4 control-label" >Data Path:</label>
                         <div class="col-md-4">
-                            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" th:field="*{fileCSV.dataPath}" placeholder="path" class="form-control input-md" />
+                            <input data-toggle="tooltip" title="file path to a csv file" name="dataInput" type="text" placeholder="path" class="form-control input-md" />
                         </div>
                     </div>
                     <!-- Type -->
                     <div class="form-group">
                         <label class="col-md-4 control-label" for="selectInputType2">Data Type:</label>
                         <div class="col-md-2">
-                            <select id="selectInputType2" name="selectInputType2" class="form-control" th:field="*{fileCSV.delimeter}" >
+                            <select id="selectInputType2" name="selectInputType2" class="form-control" >
                                 <option th:value = "0">---Choose option---</option>
                                 <option value="1" th:value="csv" ><b>CSV</b></option>
                                 <option value="2" th:value="tsdb" ><b>TSDB</b></option>
@@ -402,7 +447,7 @@
                 <div class="form-group" id="pastHorizon" style="display: none">
                     <label class="col-md-4 control-label" for="pastHorizonInput">Past Values for modeling:</label>
                     <div class="col-md-4">
-                        <input id="pastHorizonInput" th:field="*{modeling.horizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
+                        <input id="pastHorizonInput" th:field="*{modeling.pastHorizon}" name="textinput4" type="text" placeholder="number of datapoints in the past" class="form-control input-md" />
                     </div>
                 </div>
 

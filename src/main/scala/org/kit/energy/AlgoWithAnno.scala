@@ -29,7 +29,9 @@ class AlgoWithAnno extends AlgoPlugin{
   }
 
   def applyModel(input: DataFrame, model: Transformer): DataFrame = {
-    val transformedData = model.transform(input)
+
+    val transformedData = model.transform(input).select("prediction")
+
     return transformedData
   }
 

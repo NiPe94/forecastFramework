@@ -62,19 +62,18 @@ class JSONDataPreperator extends DataPreperator{
     timeDF.show()
     pointDF.show()
 
+    // zip label with features
+    val a = timeDF
+    val b = pointDF
+    // Merge rows
+    val rows = a.rdd.zip(b.rdd).map{
+      case (rowLeft, rowRight) => Row.fromSeq(rowLeft.toSeq ++ rowRight.toSeq)}
+    // Merge schemas
+    val schema = StructType(a.schema.fields ++ b.schema.fields)
+    // Create new data frame
+    val finalDataToReturn = spark.createDataFrame(rows, schema)
 
-    // Ziel: Dataframe mit Spalten time|value
-    // Seq(time,value), schema: (time: String, value: String)
-    // spark.createDataframe(seq,schema)
-
-    val bla = 0
-
-    //val timelist = times.toList
-    //val pointlist = points.toList
-
-    // At this point, we have a list for the time data and the amplitude data
-
-    return spark.emptyDataFrame
+    return finalDataToReturn
 
 
 

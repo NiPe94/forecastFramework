@@ -4,6 +4,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -41,48 +42,87 @@ public class FormularController {
     @Autowired
     private AlgorithmFactory algorithmFactory;
 
-    // Handling: 2 Users, first uses spark actually and second wants to stop spark
     private SparkEnvironment sparkEnvironment;
 
-    @PostMapping(value = "/addData")
-    public ResponseEntity<?> addData(@Valid @RequestBody String myString, HttpSession mySession){
-        System.out.println("The session: "+mySession.getId());
-        Map<String,Class<?>> bla = algorithmFactory.getRegisteredAlgos();
-        
-        myString = myString.replace("%2C",",");
-        System.out.println(myString);
-        return ResponseEntity.ok(myString);
-    }
-
-    @PostMapping(value = "/", params = "action=spark")
-    public String loadSpark(Model model, @ModelAttribute("forecast") Forecast forecast) {
-        if(forecast.getSparkURL().equals("")){
-            forecast.setSparkURL("local");
-        }
+    @GetMapping(value="/stopSpark")
+    public ResponseEntity<?> stopSpark(){
         if(sparkEnvironment != null){
             sparkEnvironment.stopSpark();
         }
-        sparkEnvironment = new SparkEnvironment(forecast.getSparkURL());
-        SparkSession sparkSession = sparkEnvironment.getInstance();
-        System.out.println("the current url: "+forecast.getSparkURL());
-        System.out.println("the current spark version: "+sparkSession.version());
-
-        model.addAttribute("forecast", new Forecast());
-        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-
-        return "ForecastFormularMenue";
+        sparkEnvironment = null;
+        return ResponseEntity.ok("stopped Spark now");
     }
 
-    @PostMapping(value = "/", params = "action=deleteData")
-    public String deleteData(Model model, HttpSession mySession) {
 
-        String sessionId = mySession.getId();
+    @PostMapping(value = "/addData")
+    public ResponseEntity<?> addData(@Valid @RequestBody String myString){
 
-        //sparkSingleton.deleteDataWith(sessionId); :D
+        Map<String,Class<?>> bla = algorithmFactory.getRegisteredAlgos();
 
-        model.addAttribute("forecast", new Forecast());
-        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-        return "ForecastFormularMenue";
+        if(sparkEnvironment == null){
+            return new ResponseEntity<String>("No Spark available", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        // parse input data => InputFile
+        DataInputParser dataInputParser = new DataInputParser();
+        InputFile fileToLoad = dataInputParser.parseInput(myString);
+
+        if(fileToLoad == null){
+            return new ResponseEntity<String>("format error", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        // Put the InputFile into a data preperator => DF with relevant values
+        DataPreperator dataPreperator = null;
+        if(fileToLoad.getClass() == CSVFile.class){
+            dataPreperator = new CSVDataPreperator();
+        }
+        if(fileToLoad.getClass() == TSDBFile.class){
+            dataPreperator = new JSONDataPreperator();
+        }
+        Dataset<Row> dataset = null;
+        try {
+            dataset = dataPreperator.prepareDataset(fileToLoad,sparkEnvironment.getInstance());
+        } catch (Exception e){
+            return new ResponseEntity<String>("Failed to load data", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+
+        // Put the DF into the current spark Environment with info if it's a feature or label
+        sparkEnvironment.addData(dataset,fileToLoad.getDataPurpose());
+
+        return ResponseEntity.ok(myString);
+    }
+
+    @PostMapping(value = "/startSpark")
+    public ResponseEntity<?> loadSpark(@Valid @RequestBody String myString) {
+
+        String sparkURL = myString.replace("=","");
+
+        System.out.println(sparkURL);
+
+        sparkURL = "";
+        if(sparkURL.equals("")){
+            sparkURL = "local";
+        }
+        if(sparkEnvironment != null){
+            System.out.println("trying to stop spark");
+            sparkEnvironment.stopSpark();
+        }
+        sparkEnvironment = new SparkEnvironment(sparkURL);
+        SparkSession sparkSession = sparkEnvironment.getInstance();
+        System.out.println("the current url: "+sparkURL);
+        System.out.println("the current spark version: "+sparkSession.version());
+
+        return ResponseEntity.ok(myString);
+    }
+
+    @PostMapping(value = "/deleteData")
+    public ResponseEntity<?> deleteData() {
+        if(sparkEnvironment == null){
+            return new ResponseEntity<String>("Failed to load data", HttpStatus.NOT_ACCEPTABLE);
+        }
+        sparkEnvironment.deleteData();
+        return ResponseEntity.ok("");
     }
 
     @PostMapping(value = "/", params = "action=reloadAlgorithms")
@@ -95,40 +135,6 @@ public class FormularController {
 
     @GetMapping("/test")
     public String testPreperator(Model model) {
-
-        /* load csv data
-        CSVDataPreperator csvDataPreperator = new CSVDataPreperator();
-
-        CSVFile csvFile = new CSVFile();
-        csvFile.setDelimeter("2");
-        csvFile.setHasHeader(true);
-        csvFile.setFeatureColumnsIndexes("0");
-        csvFile.setLabelColumnIndex("1");
-        csvFile.setDataPath("test_data.csv");
-
-        SparkSession sparkSession = SparkSession
-                .builder()
-                .master("local")
-                .appName("New Name")
-                .config("spark.some.config.option", "some-value")
-                .getOrCreate();
-
-        csvDataPreperator.prepareDataset(csvFile,sparkSession);
-        */
-        /* train model?
-        SparkSession sparkSession = SparkSession
-                .builder()
-                .master("local")
-                .appName("New Name")
-                .config("spark.some.config.option", "some-value")
-                .getOrCreate();
-
-        Dataset<Row> myRow = sparkSession.read().format("libsvm").load("sparkExample.txt");
-
-        LinearRegressionSparkExample myExample = new LinearRegressionSparkExample();
-
-        myExample.train(myRow);
-        */
 
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
@@ -147,24 +153,18 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
+    //@PostMapping(value="/",params = "action=perform")
+    //public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
+
     @PostMapping(value="/",params = "action=perform")
     public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
+
+        System.out.println("forecast is getting started");
 
         // some vars
         boolean modellingDone = false;
         String modelParameters = "";
         String[] modelParametersArray;
-
-        // validate input data
-        Validator validator = new Validator(forecast.getFileCSV());
-        model.addAttribute("validatorError", !validator.isValid());
-        model.addAttribute("validatorMessage", validator.getMessage());
-
-        // When file is a dir or does not exist, return to form and display a error bar
-        if (!validator.isValid()) {
-            model.addAttribute("modellingDone", modellingDone);
-            return "ForecastFormularMenue";
-        }
 
         // create a forecastAlgorithm and copy its values to the plugin-object, which will be used for the forecast
         AlgoPlugin algoPlugin = algorithmFactory.createAlgo(myWrapper);
@@ -180,7 +180,7 @@ public class FormularController {
         }
 
         // start the algorithm
-        modelParameters = modelingPipe.startForecasting(forecast, algoPlugin, startModeling, startApplication);
+        modelParameters = modelingPipe.startForecasting(forecast, algoPlugin, startModeling, startApplication, sparkEnvironment);
 
         // save the parameters
         modelParametersArray = modelParameters.split(" ");
