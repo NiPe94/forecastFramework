@@ -13,12 +13,11 @@ public class Forecast {
     private String savePathCSV;
     private PerformType performType;
     private String result;
-    private ArrayList<InputFile> featureFiles;
+    private ArrayList<InputFile> featureFiles = new ArrayList<>();
     private InputFile labelFile;
-    private CSVFile fileCSV;
-    private CSVFile labelCSV;
     private Modeling modeling;
     private String sparkURL;
+    private String nameOfUsedAlgorithm;
 
     public String getSavePathCSV() {
         return savePathCSV;
@@ -44,22 +43,6 @@ public class Forecast {
         this.performType = performType;
     }
 
-    public CSVFile getFileCSV() {
-        return fileCSV;
-    }
-
-    public void setFileCSV(CSVFile fileCSV) {
-        this.fileCSV = fileCSV;
-    }
-
-    public CSVFile getLabelCSV() {
-        return labelCSV;
-    }
-
-    public void setLabelCSV(CSVFile labelCSV) {
-        this.labelCSV = labelCSV;
-    }
-
     public Modeling getModeling() {
         return modeling;
     }
@@ -74,5 +57,29 @@ public class Forecast {
 
     public void setSparkURL(String sparkURL) {
         this.sparkURL = sparkURL;
+    }
+
+    public String getNameOfUsedAlgorithm() {
+        return nameOfUsedAlgorithm;
+    }
+
+    public void setNameOfUsedAlgorithm(String nameOfUsedAlgorithm) {
+        this.nameOfUsedAlgorithm = nameOfUsedAlgorithm;
+    }
+
+    public ArrayList<InputFile> getFeatureFiles() {
+        return featureFiles;
+    }
+
+    public void addFeatureFile(InputFile featureFile) {
+        this.featureFiles.add(featureFile);
+    }
+
+    public InputFile getLabelFile() {
+        return labelFile;
+    }
+
+    public void setLabelFile(InputFile labelFile) {
+        this.labelFile = labelFile;
     }
 }

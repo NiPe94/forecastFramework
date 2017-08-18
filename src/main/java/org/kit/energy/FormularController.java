@@ -53,7 +53,6 @@ public class FormularController {
         return ResponseEntity.ok("stopped Spark now");
     }
 
-
     @PostMapping(value = "/addData")
     public ResponseEntity<?> addData(@Valid @RequestBody String myString){
 
@@ -83,6 +82,7 @@ public class FormularController {
         try {
             dataset = dataPreperator.prepareDataset(fileToLoad,sparkEnvironment.getInstance());
         } catch (Exception e){
+            System.out.println(e.toString());
             return new ResponseEntity<String>("Failed to load data", HttpStatus.NOT_ACCEPTABLE);
         }
 
@@ -96,11 +96,15 @@ public class FormularController {
     @PostMapping(value = "/startSpark")
     public ResponseEntity<?> loadSpark(@Valid @RequestBody String myString) {
 
-        String sparkURL = myString.replace("=","");
+        String sparkURL = myString
+                .replace("=","")
+                .replace("%5B","[")
+                .replace("%5D","]");
 
         System.out.println(sparkURL);
 
-        sparkURL = "";
+        System.out.println("spark URL: "+sparkURL);
+
         if(sparkURL.equals("")){
             sparkURL = "local";
         }
@@ -110,7 +114,7 @@ public class FormularController {
         }
         sparkEnvironment = new SparkEnvironment(sparkURL);
         SparkSession sparkSession = sparkEnvironment.getInstance();
-        System.out.println("the current url: "+sparkURL);
+        System.out.println("the current spark url: "+sparkURL);
         System.out.println("the current spark version: "+sparkSession.version());
 
         return ResponseEntity.ok(myString);
@@ -119,7 +123,7 @@ public class FormularController {
     @PostMapping(value = "/deleteData")
     public ResponseEntity<?> deleteData() {
         if(sparkEnvironment == null){
-            return new ResponseEntity<String>("Failed to load data", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<String>("Failed to delete data", HttpStatus.NOT_ACCEPTABLE);
         }
         sparkEnvironment.deleteData();
         return ResponseEntity.ok("");
@@ -129,6 +133,7 @@ public class FormularController {
     public String reloadAlgorithms(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+        model.addAttribute("meta",new WrapperDatasetMetadata());
 
         return "ForecastFormularMenue";
     }
@@ -138,6 +143,7 @@ public class FormularController {
 
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+        model.addAttribute("meta",new WrapperDatasetMetadata());
 
         return "ForecastFormularMenue";
     }
@@ -147,17 +153,15 @@ public class FormularController {
 
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+        model.addAttribute("meta",new WrapperDatasetMetadata());
 
         //poster.getIt();
 
         return "ForecastFormularMenue";
     }
 
-    //@PostMapping(value="/",params = "action=perform")
-    //public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
-
     @PostMapping(value="/",params = "action=perform")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
 
         System.out.println("forecast is getting started");
 
@@ -179,13 +183,43 @@ public class FormularController {
             startModeling = false;
         }
 
+        if(sparkEnvironment.getInstance()==null){
+            modellingDone = true;
+            model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
+            model.addAttribute("modellingDone", modellingDone);
+            return "ForecastFormularMenue";
+        }
+
         // start the algorithm
         modelParameters = modelingPipe.startForecasting(forecast, algoPlugin, startModeling, startApplication, sparkEnvironment);
 
         // save the parameters
         modelParametersArray = modelParameters.split(" ");
+
+        String sparkURL = forecast.getSparkURL();
+        if(sparkURL.equals("")) {
+            sparkURL = "local[*]";
+            forecast.setSparkURL(sparkURL);
+        }
         forecast.getModeling().setModelParameters(modelParametersArray);
+        forecast.setNameOfUsedAlgorithm(algoPlugin.getClass().getSimpleName());
+
+        // parse metadata to set forecasts' dataset metadata
+        DataInputParser dataInputParser = new DataInputParser();
+        String[] metadataLines = meta.getMetadata().split("\n");
+        for(String currentString : metadataLines){
+            InputFile fileToShow = dataInputParser.parseInput(currentString);
+            String purpose = fileToShow.getDataPurpose();
+            if(purpose.equals("feature")){
+                forecast.addFeatureFile(fileToShow);
+            }
+            if(purpose.equals("label")){
+                forecast.setLabelFile(fileToShow);
+            }
+        }
+
         forecast.setResult(jsonWriter.writeJSON(forecast));
+
 
         modellingDone = true;
 
