@@ -35,9 +35,9 @@ public class AlgorithmFactory {
         try {
             algoPlugin = (AlgoPlugin) algoClass.newInstance();
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            System.out.println(e.toString());
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            System.out.println(e.toString());
         }
 
         Set<Field> fields = getAllFields(algoPlugin.getClass(),withAnnotation(AlgoParam.class));

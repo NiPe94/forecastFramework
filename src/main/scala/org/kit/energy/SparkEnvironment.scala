@@ -1,5 +1,6 @@
 package org.kit.energy
 
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 /**
@@ -22,6 +23,7 @@ sealed class SparkEnvironment protected (val masterAdress:String){
       .master(masterAdress)
       .appName("Forecast Service")
       .getOrCreate()
+
     return spark
   }
 
@@ -47,6 +49,7 @@ sealed class SparkEnvironment protected (val masterAdress:String){
   def deleteData() : Unit = {
     this.features = null
     this.label = null
+    println("all data is now set to null")
   }
 
   def getFeatures() : List[DataFrame] = {

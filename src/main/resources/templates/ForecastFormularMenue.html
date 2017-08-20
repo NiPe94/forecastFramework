@@ -17,10 +17,6 @@
 
     $(document).ready(function(){
 
-        console.log("start");
-
-        //$('[data-toggle="tooltip"]').tooltip();
-
         // empty the parameter elements inside the div, when a new algorithm is selected
         $('#selectnew').change(function(){
             $('#dynamic').empty();
@@ -103,7 +99,7 @@
         }
         var postURL = '/startSpark';
         $.post(postURL,sparkURL,function(data,status){
-            console.log("Data: "+data+" Status: "+status);
+            // data = local, status = success
         });
 
     }
@@ -187,19 +183,15 @@
                 tags: tagsInput
             };
         }
-        /*
-        $.post(url,data,function(data,status){
-            if(status != 'success'){
-                button.attr('class','btn btn-primary active');
-            }
-        });
-        */
 
         $.post(url,data,function(data,status){
-            console.log("Data: "+data+" Status: "+status);
+
         })
-            .done(function(){
-
+            .done(function(data, status){
+                // save data to a hidden input tag. After all data is send there, send the text from input field to server so it has all metadata
+                var metadata1 = $('#hiddenMetadataForDatasets').val();
+                var metadata2 = data + '\n' + metadata1;
+                $('#hiddenMetadataForDatasets').val(metadata2);
             })
             .fail(function(xhr, textStatus, errorThrown){
                 button.attr('class','btn btn-primary active');
@@ -224,12 +216,15 @@
 <div class="container">
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#spark">Load Spark</a></li>
-        <li><a data-toggle="tab" href="#data">Load Data</a></li>
-        <li><a data-toggle="tab" href="#algorithms">Perform Forecast</a></li>
+        <li><a data-toggle="tab" href="#data" id="dataTabMenu">Load Data</a></li>
+        <li><a data-toggle="tab" href="#algorithms" id="algoTabMenu">Perform Forecast</a></li>
         <li><a data-toggle="tab" href="#about">About</a></li>
     </ul>
 
     <form class="form-horizontal" action="" th:action="@{/}" th:object="${forecast}" method="post">
+
+        <input class="form-control input-md" id="hiddenMetadataForDatasets" name="hiddenMetadataForDatasets" type="hidden" data-th-value="${meta.metadata}" th:field="${meta.metadata}" />
+
         <fieldset>
         <div class="tab-content">
 
@@ -271,12 +266,11 @@
                 </p>
                 <h3>Related Work</h3>
                 <p>
-                    The following list contains some references to related work:
+                    The following list contains some references for further investigations:
                 <ul>
-                    <li>Forecasting principles and practise</li>
-                    <li>Angel,Andi Veröffentlichung</li>
-                    <li>Spring Boot</li>
-                    <li>The Apache Spark dokumentation:</li>
+                    <li>HYNDMAN, Rob J.; ATHANASOPOULOS, George: Forecasting: principles and practice. OTexts, 2014 <a href="https://www.otexts.org/fpp">(Link)</a></li>
+                    <li>THOMPSON, John: Spring Boot Web application - Part 2 - Using Thymeleaf. Spring Framework Guru, 2015 <a href="https://springframework.guru/spring-boot-web-application-part-2-using-thymeleaf/">(Link)</a></li>
+                    <li>SPINDLER, Heiko: Machine Learning mit Apache Spark 2. Heise Developer, 2017 <a href="https://www.heise.de/developer/artikel/Machine-Learning-mit-Apache-Spark-2-3657735.html">(Link)</a></li>
                 </ul>
                 </p>
 
