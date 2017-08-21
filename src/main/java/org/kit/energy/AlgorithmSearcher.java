@@ -92,16 +92,25 @@ public class AlgorithmSearcher {
         }
         */
 
-        Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
-
-        Reflections reflections = new Reflections("org.kit.energy", new FieldAnnotationsScanner(), new SubTypesScanner());
-
         /*
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder().setUrls(
                         ClasspathHelper.forClassLoader(cl)
                 ).addUrls(urls).addClassLoader(cl).addScanners(new SubTypesScanner(),new FieldAnnotationsScanner()));
         */
+
+        File myFile = new File("C:/Users/qa5147/Documents/Klassen/testTemplate-1.0-SNAPSHOT.jar");
+        URLClassLoader ucl = null;
+        try {
+            ucl = new URLClassLoader(new URL[]{myFile.toURI().toURL()}, System.class.getClassLoader());
+        } catch (MalformedURLException e) {
+            System.out.println(e.toString());
+        }
+
+        Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
+
+        Reflections reflections = new Reflections(new FieldAnnotationsScanner(), new SubTypesScanner(), ucl);
+
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
