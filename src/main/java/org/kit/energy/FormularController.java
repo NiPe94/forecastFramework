@@ -65,7 +65,14 @@ public class FormularController {
 
         // parse input data => InputFile
         DataInputParser dataInputParser = new DataInputParser();
-        InputFile fileToLoad = dataInputParser.parseInput(myString);
+
+        InputFile fileToLoad = null;
+        try{
+            fileToLoad = dataInputParser.parseInput(myString);
+        }catch(Exception parserE){
+            System.out.println(parserE.toString());
+            return ResponseEntity.badRequest().build();
+        }
 
         if(fileToLoad == null){
             return new ResponseEntity<String>("format error", HttpStatus.NOT_ACCEPTABLE);
@@ -84,7 +91,7 @@ public class FormularController {
             dataset = dataPreperator.prepareDataset(fileToLoad,sparkEnvironment.getInstance());
         } catch (Exception e){
             System.out.println(e.toString());
-            return new ResponseEntity<String>("Failed to load data", HttpStatus.NOT_ACCEPTABLE);
+            return ResponseEntity.badRequest().build();
         }
 
 

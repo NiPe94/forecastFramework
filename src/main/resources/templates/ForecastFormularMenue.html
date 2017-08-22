@@ -101,9 +101,9 @@
         $.post(postURL,sparkURL,function(data,status){
 
         }).done(function(data, status){
-            $('#sparkGroup').attr('class','form-group has-success has-feedback')
+            $('#sparkGroup').attr('class','form-group has-success has-feedback');
         }).fail(function(xhr, textStatus, errorThrown){
-            $('#sparkGroup').attr('class','form-group has-error has-feedback')
+            $('#sparkGroup').attr('class','form-group has-error has-feedback');
         });
 
     }
@@ -196,10 +196,13 @@
                 var metadata1 = $('#hiddenMetadataForDatasets').val();
                 var metadata2 = data + '\n' + metadata1;
                 $('#hiddenMetadataForDatasets').val(metadata2);
+
+                $(document.activeElement).attr('class','btn btn-success disabled');
             })
             .fail(function(xhr, textStatus, errorThrown){
                 button.attr('class','btn btn-primary active');
-                alert('could not send the data to the server');
+
+                $(document.activeElement).attr('class','btn btn-danger');
             });
 
     }
