@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.spark.SparkException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -101,10 +102,6 @@ public class FormularController {
                 .replace("%5B","[")
                 .replace("%5D","]");
 
-        System.out.println(sparkURL);
-
-        System.out.println("spark URL: "+sparkURL);
-
         if(sparkURL.equals("")){
             sparkURL = "local";
         }
@@ -112,10 +109,17 @@ public class FormularController {
             System.out.println("trying to stop spark");
             sparkEnvironment.stopSpark();
         }
-        sparkEnvironment = new SparkEnvironment(sparkURL);
-        SparkSession sparkSession = sparkEnvironment.getInstance();
-        System.out.println("the current spark url: "+sparkURL);
-        System.out.println("the current spark version: "+sparkSession.version());
+        try{
+            sparkEnvironment = new SparkEnvironment(sparkURL);
+            SparkSession sparkSession = sparkEnvironment.getInstance();
+            System.out.println("the current spark url: "+sparkURL);
+            System.out.println("the current spark version: "+sparkSession.version());
+        }catch(Exception sparkExc){
+            sparkEnvironment = null;
+            System.out.println(sparkExc.toString());
+            return ResponseEntity.notFound().build();
+        }
+
 
         return ResponseEntity.ok(myString);
     }

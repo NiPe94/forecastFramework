@@ -99,7 +99,7 @@ public class AlgorithmSearcher {
                         ClasspathHelper.forClassLoader(cl)
                 ).addUrls(urls).addClassLoader(cl).addScanners(new SubTypesScanner(),new FieldAnnotationsScanner()));
         */
-
+        /*
         String pathToJar = "C:/Users/qa5147/Documents/Klassen/testJar.jar";
 
         JarFile jarFile = null;
@@ -136,14 +136,17 @@ public class AlgorithmSearcher {
                 ec.printStackTrace();
             }
         }
+        */
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-        Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(), cl);
+        //Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(), cl);
+
+        Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner());
 
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
-        subtypes.add(c);
+        //subtypes.add(c);
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
 

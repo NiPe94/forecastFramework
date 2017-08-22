@@ -99,7 +99,11 @@
         }
         var postURL = '/startSpark';
         $.post(postURL,sparkURL,function(data,status){
-            // data = local, status = success
+
+        }).done(function(data, status){
+            $('#sparkGroup').attr('class','form-group has-success has-feedback')
+        }).fail(function(xhr, textStatus, errorThrown){
+            $('#sparkGroup').attr('class','form-group has-error has-feedback')
         });
 
     }
@@ -285,9 +289,9 @@
             <div id="spark" class="tab-pane fade in active">
                 <h3>Spark</h3>
                 <!-- Load Spark From-->
-                <div class="form-group">
+                <div class="form-group" id="sparkGroup">
                     <label class="col-md-4 control-label" for="sparkInput">Load Spark from:</label>
-                    <div class="col-md-3">
+                    <div class="col-md-3" >
                         <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" th:field="*{sparkURL}" class="form-control input-md" />
                     </div>
                     <div class="col-md-1">
