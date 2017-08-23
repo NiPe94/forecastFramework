@@ -23,7 +23,7 @@ class Benchmark extends AlgoPlugin{
 
     var benchResult:List[String] = List("")
     var currentResult = ""
-    val repartition16 = 4
+    val repartition16 = 32
     val storageLevelNone = StorageLevel.NONE
     val storageLevelWith = StorageLevel.MEMORY_ONLY
 

@@ -22,22 +22,9 @@ class AlgoWithAnno extends AlgoPlugin{
 
   def train(inputData: DataFrame): Transformer = {
     // set regression parameter and start the regression
-    val cachedInput = inputData.persist(StorageLevel.MEMORY_ONLY).repartition(repart.toInt)
     val lrModelStart = new LinearRegression().setRegParam(regParam.toDouble).setElasticNetParam(elasticNet.toDouble)
 
-    val t11 = System.nanoTime()
-    var lrModel = lrModelStart.fit(cachedInput)
-    val duration1 = ((System.nanoTime() - t11)/1e9d)
-
-    val t12 = System.nanoTime()
-    val evaluation = lrModel.evaluate(cachedInput)
-    val duration2 = ((System.nanoTime() - t12)/1e9d)
-
-    println()
-    println("***********************")
-    println("training: "+ duration1 +" evaluation: "+ duration2)
-    println("***********************")
-    println()
+    var lrModel = lrModelStart.fit(inputData)
 
     return lrModel
   }

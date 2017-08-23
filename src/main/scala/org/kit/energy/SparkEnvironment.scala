@@ -18,6 +18,7 @@ sealed class SparkEnvironment protected (val masterAdress:String){
     if(this.spark != null){
       return this.spark
     }
+    println("used adress for spark: "+masterAdress)
     this.spark = SparkSession
       .builder()
       .master(masterAdress)

@@ -30,7 +30,34 @@
             $('#featureOptions').empty();
             loadFeatureTypeOptions();
         })
+
+        // https://www.mkyong.com/spring-boot/spring-boot-ajax-example/
+        $("#forecastForm").submit(function (event) {
+            //stop submit the form, we will post it manually.
+            event.preventDefault();
+
+            fire_ajax_submit();
+        });
     });
+
+    function fire_ajax_submit() {
+
+        var json = $('#forecastForm').serialize();
+
+        var postURL = '/test';
+
+        $('#singlebutton').attr('class','btn btn-primary');
+
+        $.post(postURL,JSON.stringify(json),function(data,status){
+
+        }).done(function(data, status){
+            alert('forecast success, data: '+data);
+        }).fail(function(xhr, textStatus, errorThrown){
+            document.getElementById("progress").style.display="none";
+            $('#singlebutton').attr('class','btn btn-danger');
+        });
+
+    }
 
     function getParametersForAlgorithm() {
         var selectedAlgo = $('#selectnew').val();
@@ -99,7 +126,11 @@
         }
         var postURL = '/startSpark';
         $.post(postURL,sparkURL,function(data,status){
-            // data = local, status = success
+
+        }).done(function(data, status){
+            $('#sparkGroup').attr('class','form-group has-success has-feedback');
+        }).fail(function(xhr, textStatus, errorThrown){
+            $('#sparkGroup').attr('class','form-group has-error has-feedback');
         });
 
     }
@@ -192,10 +223,13 @@
                 var metadata1 = $('#hiddenMetadataForDatasets').val();
                 var metadata2 = data + '\n' + metadata1;
                 $('#hiddenMetadataForDatasets').val(metadata2);
+
+                $(document.activeElement).attr('class','btn btn-success disabled');
             })
             .fail(function(xhr, textStatus, errorThrown){
                 button.attr('class','btn btn-primary active');
-                alert('could not send the data to the server');
+
+                $(document.activeElement).attr('class','btn btn-danger');
             });
 
     }
@@ -221,7 +255,7 @@
         <li><a data-toggle="tab" href="#about">About</a></li>
     </ul>
 
-    <form class="form-horizontal" action="" th:action="@{/}" th:object="${forecast}" method="post">
+    <form id="forecastForm" class="form-horizontal" action="" th:action="@{/test}" th:object="${forecast}" method="post">
 
         <input class="form-control input-md" id="hiddenMetadataForDatasets" name="hiddenMetadataForDatasets" type="hidden" data-th-value="${meta.metadata}" th:field="${meta.metadata}" />
 
@@ -285,9 +319,9 @@
             <div id="spark" class="tab-pane fade in active">
                 <h3>Spark</h3>
                 <!-- Load Spark From-->
-                <div class="form-group">
+                <div class="form-group" id="sparkGroup">
                     <label class="col-md-4 control-label" for="sparkInput">Load Spark from:</label>
-                    <div class="col-md-3">
+                    <div class="col-md-3" >
                         <input data-toggle="tooltip" title="file path to a csv file" id="sparkInput" name="sparkInput" type="text" placeholder="local" th:field="*{sparkURL}" class="form-control input-md" />
                     </div>
                     <div class="col-md-1">

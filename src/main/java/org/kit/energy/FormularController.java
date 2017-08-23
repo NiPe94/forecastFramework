@@ -1,5 +1,6 @@
 package org.kit.energy;
 
+import org.apache.spark.SparkException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -64,7 +65,14 @@ public class FormularController {
 
         // parse input data => InputFile
         DataInputParser dataInputParser = new DataInputParser();
-        InputFile fileToLoad = dataInputParser.parseInput(myString);
+
+        InputFile fileToLoad = null;
+        try{
+            fileToLoad = dataInputParser.parseInput(myString);
+        }catch(Exception parserE){
+            System.out.println(parserE.toString());
+            return ResponseEntity.badRequest().build();
+        }
 
         if(fileToLoad == null){
             return new ResponseEntity<String>("format error", HttpStatus.NOT_ACCEPTABLE);
@@ -83,7 +91,7 @@ public class FormularController {
             dataset = dataPreperator.prepareDataset(fileToLoad,sparkEnvironment.getInstance());
         } catch (Exception e){
             System.out.println(e.toString());
-            return new ResponseEntity<String>("Failed to load data", HttpStatus.NOT_ACCEPTABLE);
+            return ResponseEntity.badRequest().build();
         }
 
 
@@ -101,10 +109,6 @@ public class FormularController {
                 .replace("%5B","[")
                 .replace("%5D","]");
 
-        System.out.println(sparkURL);
-
-        System.out.println("spark URL: "+sparkURL);
-
         if(sparkURL.equals("")){
             sparkURL = "local";
         }
@@ -112,10 +116,17 @@ public class FormularController {
             System.out.println("trying to stop spark");
             sparkEnvironment.stopSpark();
         }
-        sparkEnvironment = new SparkEnvironment(sparkURL);
-        SparkSession sparkSession = sparkEnvironment.getInstance();
-        System.out.println("the current spark url: "+sparkURL);
-        System.out.println("the current spark version: "+sparkSession.version());
+        try{
+            sparkEnvironment = new SparkEnvironment(sparkURL);
+            SparkSession sparkSession = sparkEnvironment.getInstance();
+            System.out.println("the current spark url: "+sparkURL);
+            System.out.println("the current spark version: "+sparkSession.version());
+        }catch(Exception sparkExc){
+            sparkEnvironment = null;
+            System.out.println(sparkExc.toString());
+            return ResponseEntity.notFound().build();
+        }
+
 
         return ResponseEntity.ok(myString);
     }
@@ -138,14 +149,13 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
-    @GetMapping("/test")
-    public String testPreperator(Model model) {
+    @PostMapping("/test")
+    public ResponseEntity<?> testPreperator(@Valid @RequestBody Forecast forecast) {
 
-        model.addAttribute("forecast", new Forecast());
-        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-        model.addAttribute("meta",new WrapperDatasetMetadata());
+        System.out.println("the data got: ");
+        System.out.println(forecast.toString());
 
-        return "ForecastFormularMenue";
+        return ResponseEntity.ok(forecast);
     }
 
     @GetMapping("/")
@@ -159,6 +169,10 @@ public class FormularController {
 
         return "ForecastFormularMenue";
     }
+
+    //@PostMapping(value="/",params = "action=perform")
+    //public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
+
 
     @PostMapping(value="/",params = "action=perform")
     public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {

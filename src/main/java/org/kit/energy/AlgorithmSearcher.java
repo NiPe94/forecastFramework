@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,17 +93,68 @@ public class AlgorithmSearcher {
         }
         */
 
-        Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
-
-        Reflections reflections = new Reflections("org.kit.energy", new FieldAnnotationsScanner(), new SubTypesScanner());
-
         /*
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder().setUrls(
                         ClasspathHelper.forClassLoader(cl)
                 ).addUrls(urls).addClassLoader(cl).addScanners(new SubTypesScanner(),new FieldAnnotationsScanner()));
         */
+
+        /*String pathToJar = "C:/Users/qa5147/Documents/Klassen/testJavaTemplate1.0.jar";
+
+        JarFile jarFile = null;
+        try {
+            jarFile = new JarFile(pathToJar);
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+        Enumeration<JarEntry> enumJars = jarFile.entries();
+        URL url = null;
+        try {
+            url = new URL("jar:file:" + pathToJar+"!/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        URL[] urls = { url };
+        //URLClassLoader cl = URLClassLoader.newInstance(urls);
+        URLClassLoader urlClassLoader = new URLClassLoader(urls,System.class.getClassLoader());
+        Class<? extends AlgoPlugin> c = null;
+        while(enumJars.hasMoreElements()){
+            JarEntry je = enumJars.nextElement();
+            if(je.isDirectory() || !je.getName().endsWith(".class")){
+                continue;
+            }
+            // -6 because of .class
+            String className = je.getName().substring(0,je.getName().length()-6);
+            System.out.println("current class name: "+className);
+            className = className.replace('/', '.');
+            try {
+                if(className.equals("JavaAlgorithmExample")){
+                    c = (Class<? extends AlgoPlugin>)urlClassLoader.loadClass(className);
+                    System.out.println("uii: "+c.getName());
+                }
+            } catch (ClassNotFoundException ec) {
+                ec.printStackTrace();
+            }
+        }*/
+
+        /*Reflections reflections = new Reflections(
+                new ConfigurationBuilder().setUrls(
+                        ClasspathHelper.forClassLoader(urlClassLoader)
+                ).addClassLoader(urlClassLoader).addScanners(new FieldAnnotationsScanner(),new SubTypesScanner())
+        );
+        */
+
+
+        Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
+
+        //Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(), urlClassLoader);
+
+        Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner());
+
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
+
+        //subtypes.add(c);
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
 
@@ -116,7 +168,9 @@ public class AlgorithmSearcher {
 
             // get fields with the annotaion AlgoParam
             Set<Field> fields = getAllFields(plugin, withAnnotation(AlgoParam.class));
-            //ArrayList<Field> fields = getFieldsWithAnnotation(plugin,"AlgoParam");
+            if(plugin.getSimpleName().equals("AlgorithmExample")){
+                System.out.println("field length: "+fields.size());
+            }
 
             if(!fields.isEmpty()){
 
