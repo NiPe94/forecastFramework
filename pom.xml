@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>org.kit.energy</groupId>
                 <artifactId>forecastFramework-api</artifactId>
-                <version>${project.version}</version>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <!-- Reflections to scan class path -->

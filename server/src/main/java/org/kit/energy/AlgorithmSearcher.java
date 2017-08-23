@@ -105,6 +105,17 @@ public class AlgorithmSearcher {
 
         URLClassLoader urlClassLoader = new URLClassLoader(urls,System.class.getClassLoader());
 
+        /*
+        Class<?> myClass = null;
+        try {
+            myClass = urlClassLoader.loadClass("bla.test.TestTemplate");
+            System.out.println(myClass.getSimpleName());
+        } catch (ClassNotFoundException e) {
+            System.out.println("Fehler: "+e.toString());
+        }
+        */
+
+        /*
         Class loadedClass = null;
         try {
             loadedClass = urlClassLoader.loadClass("TestTemplate");
@@ -112,9 +123,11 @@ public class AlgorithmSearcher {
             e.printStackTrace();
         }
 
+
         System.out.println("loaded: " + loadedClass.getSimpleName());
         System.out.println(AlgoPlugin.class.isAssignableFrom(loadedClass));
         System.out.println(loadedClass.isAssignableFrom(AlgoPlugin.class));
+        */
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 

@@ -44,14 +44,14 @@
 
         var json = $('#forecastForm').serialize();
 
-        var postURL = '/';
+        var postURL = '/test';
 
         $('#singlebutton').attr('class','btn btn-primary');
 
         $.post(postURL,JSON.stringify(json),function(data,status){
 
         }).done(function(data, status){
-            alert('forecast success, data: '+data);
+            document.getElementById("progress").style.display="none";
         }).fail(function(xhr, textStatus, errorThrown){
             document.getElementById("progress").style.display="none";
             $('#singlebutton').attr('class','btn btn-danger');

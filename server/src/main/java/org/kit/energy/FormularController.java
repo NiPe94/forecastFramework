@@ -148,10 +148,10 @@ public class FormularController {
     }
 
     @PostMapping("/test")
-    public ResponseEntity<?> testPreperator(@Valid @RequestBody Forecast forecast) {
+    public ResponseEntity<?> testPreperator(@Valid @RequestBody String forecast) {
 
         System.out.println("the data got: ");
-        System.out.println(forecast.toString());
+        System.out.println(forecast);
 
         return ResponseEntity.ok(forecast);
     }
