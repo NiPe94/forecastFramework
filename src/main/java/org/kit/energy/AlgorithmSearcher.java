@@ -99,8 +99,8 @@ public class AlgorithmSearcher {
                         ClasspathHelper.forClassLoader(cl)
                 ).addUrls(urls).addClassLoader(cl).addScanners(new SubTypesScanner(),new FieldAnnotationsScanner()));
         */
-        /*
-        String pathToJar = "C:/Users/qa5147/Documents/Klassen/testJar.jar";
+
+        /*String pathToJar = "C:/Users/qa5147/Documents/Klassen/testJavaTemplate1.0.jar";
 
         JarFile jarFile = null;
         try {
@@ -116,7 +116,8 @@ public class AlgorithmSearcher {
             e.printStackTrace();
         }
         URL[] urls = { url };
-        URLClassLoader cl = URLClassLoader.newInstance(urls);
+        //URLClassLoader cl = URLClassLoader.newInstance(urls);
+        URLClassLoader urlClassLoader = new URLClassLoader(urls,System.class.getClassLoader());
         Class<? extends AlgoPlugin> c = null;
         while(enumJars.hasMoreElements()){
             JarEntry je = enumJars.nextElement();
@@ -128,19 +129,26 @@ public class AlgorithmSearcher {
             System.out.println("current class name: "+className);
             className = className.replace('/', '.');
             try {
-                if(className.equals("AlgorithmExample")){
-                    c = (Class<? extends AlgoPlugin>)cl.loadClass(className);
-                    System.out.println("uii: "+c.getSimpleName());
+                if(className.equals("JavaAlgorithmExample")){
+                    c = (Class<? extends AlgoPlugin>)urlClassLoader.loadClass(className);
+                    System.out.println("uii: "+c.getName());
                 }
             } catch (ClassNotFoundException ec) {
                 ec.printStackTrace();
             }
-        }
+        }*/
+
+        /*Reflections reflections = new Reflections(
+                new ConfigurationBuilder().setUrls(
+                        ClasspathHelper.forClassLoader(urlClassLoader)
+                ).addClassLoader(urlClassLoader).addScanners(new FieldAnnotationsScanner(),new SubTypesScanner())
+        );
         */
+
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-        //Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(), cl);
+        //Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(), urlClassLoader);
 
         Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner());
 

@@ -30,7 +30,34 @@
             $('#featureOptions').empty();
             loadFeatureTypeOptions();
         })
+
+        // https://www.mkyong.com/spring-boot/spring-boot-ajax-example/
+        $("#forecastForm").submit(function (event) {
+            //stop submit the form, we will post it manually.
+            event.preventDefault();
+
+            fire_ajax_submit();
+        });
     });
+
+    function fire_ajax_submit() {
+
+        var json = $('#forecastForm').serialize();
+
+        var postURL = '/test';
+
+        $('#singlebutton').attr('class','btn btn-primary');
+
+        $.post(postURL,JSON.stringify(json),function(data,status){
+
+        }).done(function(data, status){
+            alert('forecast success, data: '+data);
+        }).fail(function(xhr, textStatus, errorThrown){
+            document.getElementById("progress").style.display="none";
+            $('#singlebutton').attr('class','btn btn-danger');
+        });
+
+    }
 
     function getParametersForAlgorithm() {
         var selectedAlgo = $('#selectnew').val();
@@ -228,7 +255,7 @@
         <li><a data-toggle="tab" href="#about">About</a></li>
     </ul>
 
-    <form class="form-horizontal" action="" th:action="@{/}" th:object="${forecast}" method="post">
+    <form id="forecastForm" class="form-horizontal" action="" th:action="@{/test}" th:object="${forecast}" method="post">
 
         <input class="form-control input-md" id="hiddenMetadataForDatasets" name="hiddenMetadataForDatasets" type="hidden" data-th-value="${meta.metadata}" th:field="${meta.metadata}" />
 

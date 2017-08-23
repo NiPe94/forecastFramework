@@ -149,14 +149,13 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
-    @GetMapping("/test")
-    public String testPreperator(Model model) {
+    @PostMapping("/test")
+    public ResponseEntity<?> testPreperator(@Valid @RequestBody Forecast forecast) {
 
-        model.addAttribute("forecast", new Forecast());
-        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-        model.addAttribute("meta",new WrapperDatasetMetadata());
+        System.out.println("the data got: ");
+        System.out.println(forecast.toString());
 
-        return "ForecastFormularMenue";
+        return ResponseEntity.ok(forecast);
     }
 
     @GetMapping("/")
@@ -170,6 +169,10 @@ public class FormularController {
 
         return "ForecastFormularMenue";
     }
+
+    //@PostMapping(value="/",params = "action=perform")
+    //public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
+
 
     @PostMapping(value="/",params = "action=perform")
     public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
