@@ -28,6 +28,7 @@
     <modules>
         <module>api</module>
         <module>server</module>
+        <module>testtemplate</module>
     </modules>
 
     <properties>
