@@ -1,11 +1,16 @@
 package org.kit.energy;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.kit.energy.api.AlgoParam;
+import org.kit.energy.api.AlgoPlugin;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllFields;
 import static org.reflections.ReflectionUtils.withAnnotation;

@@ -1,4 +1,4 @@
-package org.kit.energy;
+package org.kit.energy.api;
 
 import org.apache.spark.ml.PipelineModel;
 import org.apache.spark.sql.Dataset;

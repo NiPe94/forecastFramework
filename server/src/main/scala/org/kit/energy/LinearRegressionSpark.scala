@@ -4,6 +4,7 @@ import org.apache.spark.ml.{PipelineModel, PipelineStage, Transformer}
 import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.storage.StorageLevel
+import org.kit.energy.api.{AlgoParam, AlgoPlugin}
 
 /**
   * Created by qa5147 on 19.06.2017.

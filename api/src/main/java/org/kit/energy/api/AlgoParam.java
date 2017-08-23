@@ -1,6 +1,4 @@
-package org.kit.energy;
-
-import org.apache.commons.digester.annotations.rules.BeanPropertySetter;
+package org.kit.energy.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

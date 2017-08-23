@@ -4,6 +4,7 @@ import java.lang.reflect.Field
 
 import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.kit.energy.api.AlgoPlugin
 import org.springframework.stereotype.Component
 
 
