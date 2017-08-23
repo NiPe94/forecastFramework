@@ -11,15 +11,18 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 import static org.reflections.ReflectionUtils.getAllFields;
@@ -90,15 +93,8 @@ public class AlgorithmSearcher {
                 ).addUrls(urls).addClassLoader(cl).addScanners(new SubTypesScanner(),new FieldAnnotationsScanner()));
         */
 
-        /*String pathToJar = "C:/Users/qa5147/Documents/Klassen/testJavaTemplate1.0.jar";
+        String pathToJar = "C:/Users/Nightcrawler/IdeaProjects/forecastFramework/testtemplate/target/test-template-0.0.1-SNAPSHOT.jar";
 
-        JarFile jarFile = null;
-        try {
-            jarFile = new JarFile(pathToJar);
-        } catch (IOException io) {
-            io.printStackTrace();
-        }
-        Enumeration<JarEntry> enumJars = jarFile.entries();
         URL url = null;
         try {
             url = new URL("jar:file:" + pathToJar+"!/");
@@ -106,35 +102,19 @@ public class AlgorithmSearcher {
             e.printStackTrace();
         }
         URL[] urls = { url };
-        //URLClassLoader cl = URLClassLoader.newInstance(urls);
+
         URLClassLoader urlClassLoader = new URLClassLoader(urls,System.class.getClassLoader());
-        Class<? extends AlgoPlugin> c = null;
-        while(enumJars.hasMoreElements()){
-            JarEntry je = enumJars.nextElement();
-            if(je.isDirectory() || !je.getName().endsWith(".class")){
-                continue;
-            }
-            // -6 because of .class
-            String className = je.getName().substring(0,je.getName().length()-6);
-            System.out.println("current class name: "+className);
-            className = className.replace('/', '.');
-            try {
-                if(className.equals("JavaAlgorithmExample")){
-                    c = (Class<? extends AlgoPlugin>)urlClassLoader.loadClass(className);
-                    System.out.println("uii: "+c.getName());
-                }
-            } catch (ClassNotFoundException ec) {
-                ec.printStackTrace();
-            }
-        }*/
 
-        /*Reflections reflections = new Reflections(
-                new ConfigurationBuilder().setUrls(
-                        ClasspathHelper.forClassLoader(urlClassLoader)
-                ).addClassLoader(urlClassLoader).addScanners(new FieldAnnotationsScanner(),new SubTypesScanner())
-        );
-        */
+        Class loadedClass = null;
+        try {
+            loadedClass = urlClassLoader.loadClass("TestTemplate");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
+        System.out.println("loaded: " + loadedClass.getSimpleName());
+        System.out.println(AlgoPlugin.class.isAssignableFrom(loadedClass));
+        System.out.println(loadedClass.isAssignableFrom(AlgoPlugin.class));
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
