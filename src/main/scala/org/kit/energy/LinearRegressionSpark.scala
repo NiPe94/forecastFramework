@@ -8,7 +8,7 @@ import org.apache.spark.storage.StorageLevel
 /**
   * Created by qa5147 on 19.06.2017.
   */
-class AlgoWithAnno extends AlgoPlugin{
+class LinearRegressionSpark extends AlgoPlugin{
 
 
   @AlgoParam(name="Regularization", value="0")

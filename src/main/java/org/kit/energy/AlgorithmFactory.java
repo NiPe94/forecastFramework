@@ -68,7 +68,12 @@ public class AlgorithmFactory {
     }
 
     public List<ForecastAlgorithm> getForecastAlgorithms(){
-        Map<ForecastAlgorithm, Class<?>> loadedPlugins = algorithmSearcher.beginSearch("org.kit.energy");
+        Map<ForecastAlgorithm, Class<?>> loadedPlugins = null;
+        try {
+            loadedPlugins = algorithmSearcher.beginSearch("org.kit.energy");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Map<String, Class<?>> registeredAlgos = new HashedMap();
         for(Map.Entry<ForecastAlgorithm, Class<?>> entry : loadedPlugins.entrySet()){
             registeredAlgos.put(entry.getKey().getAlgoName(),entry.getValue());
