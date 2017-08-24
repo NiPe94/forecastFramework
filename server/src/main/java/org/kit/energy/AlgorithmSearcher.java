@@ -39,61 +39,7 @@ public class AlgorithmSearcher {
 
     public Map<ForecastAlgorithm, Class<?>> beginSearch(String path){
 
-        path = "C:/Users/qa5147/Documents/Klassen/"; //path = "org.kit.energy";
-
-        /*
-        // test
-        List<Path> myList;
-        List<Class<? extends AlgoPlugin>> myClassList = new ArrayList<>();
-
-        // go through each jar file and put the algoPlugin-class to a set
-        try (Stream<Path> paths = Files.walk(Paths.get(path))) {
-            myList = paths
-                    .filter(f -> f.toString().endsWith(".jar"))
-                    .collect(Collectors.toList());
-
-
-            for(Path p : myList){
-                Class<? extends AlgoPlugin> currentClass = readJarFile(p.toString());
-                if(currentClass != null){
-                    myClassList.add(currentClass);
-                }
-            }
-        }
-        catch (IOException e){
-            System.out.println(e.toString());
-        }
-        System.out.println("loaded class list with plugins");
-        // test
-
-        // test
-        Set<Class<? extends AlgoPlugin>> subtypes = new HashSet<>(myClassList);
-        // test
-
-        URL[] urls = new URL[0];
-        try {
-            urls = new URL[]{ new URL("file://C:/Users/qa5147/Documents/Klassen/") };
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
-
-        File myFile = new File("C:/Users/qa5147/Documents/Klassen/testTemplate-1.0-SNAPSHOT.jar");
-        URLClassLoader cl = null;
-        try {
-            cl = new URLClassLoader(new URL[] {myFile.toURI().toURL()}, System.class.getClassLoader());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        */
-
-        /*
-        Reflections reflections = new Reflections(
-                new ConfigurationBuilder().setUrls(
-                        ClasspathHelper.forClassLoader(cl)
-                ).addUrls(urls).addClassLoader(cl).addScanners(new SubTypesScanner(),new FieldAnnotationsScanner()));
-        */
-
-        String pathToJar = "C:/Users/Nightcrawler/IdeaProjects/forecastFramework/testtemplate/target/test-template-0.0.1-SNAPSHOT.jar";
+        String pathToJar = "C:/Users/qa5147/IdeaProjects/forecastFramework/testtemplate/target/test-template-0.0.1-SNAPSHOT.jar";
 
         URL url = null;
         try {
@@ -103,41 +49,31 @@ public class AlgorithmSearcher {
         }
         URL[] urls = { url };
 
-        URLClassLoader urlClassLoader = new URLClassLoader(urls,System.class.getClassLoader());
+        URLClassLoader urlClassLoader = new URLClassLoader(urls,ForecastFrameworkApplication.class.getClassLoader());
 
-        /*
-        Class<?> myClass = null;
+
+        Class<? extends AlgoPlugin> myClass = null;
         try {
-            myClass = urlClassLoader.loadClass("bla.test.TestTemplate");
+            myClass = (Class<? extends AlgoPlugin>) urlClassLoader.loadClass("bla.test.TestTemplate");
             System.out.println(myClass.getSimpleName());
+            Class myInterfaces = myClass.getInterfaces()[0];
+            // true: boolean assignable = myInterfaces.isAssignableFrom(myClass);
+            // true: boolean assignable = AlgoPlugin.class.isAssignableFrom(myClass);
+            boolean assignable = AlgoPlugin.class.isAssignableFrom(myClass);
+            System.out.println("Interface assignable from the testTemplate?: "+assignable);
         } catch (ClassNotFoundException e) {
             System.out.println("Fehler: "+e.toString());
         }
-        */
-
-        /*
-        Class loadedClass = null;
-        try {
-            loadedClass = urlClassLoader.loadClass("TestTemplate");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-
-        System.out.println("loaded: " + loadedClass.getSimpleName());
-        System.out.println(AlgoPlugin.class.isAssignableFrom(loadedClass));
-        System.out.println(loadedClass.isAssignableFrom(AlgoPlugin.class));
-        */
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-        //Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(), urlClassLoader);
-
-        Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner());
+        Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(),urlClassLoader);
 
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
-        //subtypes.add(c);
+        subtypes.add(myClass);
+
+        System.out.println("length of subtypeList: "+subtypes.size());
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
 
@@ -151,9 +87,6 @@ public class AlgorithmSearcher {
 
             // get fields with the annotaion AlgoParam
             Set<Field> fields = getAllFields(plugin, withAnnotation(AlgoParam.class));
-            if(plugin.getSimpleName().equals("AlgorithmExample")){
-                System.out.println("field length: "+fields.size());
-            }
 
             if(!fields.isEmpty()){
 

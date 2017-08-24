@@ -16,7 +16,7 @@ public class TestTemplate implements AlgoPlugin {
     public String testPara = "";
 
     public Transformer train(Dataset<Row> input) {
-
+        System.out.println("oh my god, i start yeah!!!!");
         return null;
     }
 

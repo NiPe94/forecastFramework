@@ -32,12 +32,14 @@
         })
 
         // https://www.mkyong.com/spring-boot/spring-boot-ajax-example/
+        /*
         $("#forecastForm").submit(function (event) {
             //stop submit the form, we will post it manually.
             event.preventDefault();
 
             fire_ajax_submit();
         });
+        */
     });
 
     function fire_ajax_submit() {
@@ -102,19 +104,19 @@
         var selectedType = $('#selectaction').val();
 
         document.getElementById('pastHorizon').style.display="none";
-        document.getElementById('horizon').style.display="none";
+        //document.getElementById('horizon').style.display="none";
         document.getElementById('predictedData').style.display="none";
 
         if(selectedType=='Modeling'){
             document.getElementById('pastHorizon').style.display="block";
-            document.getElementById('horizon').style.display="block";
+            //document.getElementById('horizon').style.display="block";
         }
         if(selectedType=='Application'){
             document.getElementById('predictedData').style.display="block";
         }
         if(selectedType=='Both'){
             document.getElementById('pastHorizon').style.display="block";
-            document.getElementById('horizon').style.display="block";
+            //document.getElementById('horizon').style.display="block";
             document.getElementById('predictedData').style.display="block";
         }
 
@@ -255,7 +257,7 @@
         <li><a data-toggle="tab" href="#about">About</a></li>
     </ul>
 
-    <form id="forecastForm" class="form-horizontal" action="" th:action="@{/test}" th:object="${forecast}" method="post">
+    <form id="forecastForm" class="form-horizontal" action="" th:action="@{/}" th:object="${forecast}" method="post">
 
         <input class="form-control input-md" id="hiddenMetadataForDatasets" name="hiddenMetadataForDatasets" type="hidden" data-th-value="${meta.metadata}" th:field="${meta.metadata}" />
 
@@ -479,13 +481,14 @@
                     </div>
                 </div>
 
-                <!-- Forecast Horizon -->
+                <!-- Forecast Horizon
                 <div class="form-group" id="horizon" style="display: none">
                     <label class="col-md-4 control-label" for="horizonInput">Forecast Horizon:</label>
                     <div class="col-md-4">
                         <input id="horizonInput" th:field="*{modeling.horizon}" name="textinput4" type="text" placeholder="number of datapoints in future" class="form-control input-md" />
                     </div>
                 </div>
+                -->
 
                 <!-- Select Algorithm -->
                 <div class="form-group">
