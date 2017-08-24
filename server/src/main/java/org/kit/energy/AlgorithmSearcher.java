@@ -53,16 +53,19 @@ public class AlgorithmSearcher {
         URLClassLoader urlClassLoader = new URLClassLoader(urls,ForecastFrameworkApplication.class.getClassLoader());
 
 
+        /*
         Class<? extends AlgoPlugin> myClass = null;
         try {
-            myClass = (Class<? extends AlgoPlugin>) urlClassLoader.loadClass("bla.test.TestTemplate");
+            myClass = (Class<? extends AlgoPlugin>) urlClassLoader.loadClass("ExampleAlgo");
         } catch (ClassNotFoundException e) {
             System.out.println("Fehler: "+e.toString());
-        }
+        }*/
+
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-        Reflections reflections = new Reflections(templatePackageStructure,new FieldAnnotationsScanner(), new SubTypesScanner(),urlClassLoader);
+        //templatePackageStructure
+        Reflections reflections = new Reflections(templatePackageStructure,urlClassLoader,new FieldAnnotationsScanner(), new SubTypesScanner());
 
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
@@ -90,31 +93,12 @@ public class AlgorithmSearcher {
                     // create and set Parameter object with values from the annotation
                     AlgoParameter algoParameter = new AlgoParameter();
 
-                    //Annotation paremeterAnnotation = getAnnotationWithName(f,"AlgoParam");
-
-                    /*
-                    // extract name and value from the annotation
-                    String parameterString = paremeterAnnotation.toString();
-
-                    int firstIndex = parameterString.indexOf("name=")+5;
-                    int secondIndex = parameterString.indexOf(", value",firstIndex);
-                    String name = parameterString.substring(firstIndex,secondIndex);
-
-                    firstIndex = parameterString.indexOf("value=")+6;
-                    secondIndex = parameterString.indexOf(")",firstIndex);
-                    String value = parameterString.substring(firstIndex,secondIndex);
-                    */
-
                     algoParameter.setName(algoParam.name().toString());
                     algoParameter.setValue(algoParam.value().toString());
-
-                    //algoParameter.setName(name);
-                    //algoParameter.setValue(value);
 
                     // add the paras to their lists
                     parameterList.add(algoParameter);
 
-                    //paraList.add(algoParam);
                 }
                 forecastAlgorithm.setAlgoParameters(parameterList);
                 forecastAlgorithmsWithPlugins.put(forecastAlgorithm,plugin);
@@ -128,7 +112,7 @@ public class AlgorithmSearcher {
 
         Class<? extends AlgoPlugin> classToReturn = null;
         URL[] urls = { new URL("jar:file:" + path+"!/") };
-        URLClassLoader cl = URLClassLoader.newInstance(urls,ClassLoader.getSystemClassLoader());
+        URLClassLoader cl = URLClassLoader.newInstance(urls,ForecastFrameworkApplication.class.getClassLoader());
 
         try {
             JarInputStream myJarFile = new JarInputStream(new FileInputStream(path));
@@ -139,6 +123,7 @@ public class AlgorithmSearcher {
                 if ((myJar.getName().endsWith(".class"))) {
                     String className = myJar.getName().replaceAll("/", "\\.");
                     String myClass = className.substring(0, className.lastIndexOf('.'));
+                    System.out.println("Now the class: "+myClass);
                     Class c = cl.loadClass(myClass);
                     boolean containsAlgoPluginInterface = false;
                     if(c.getInterfaces().length != 0){
@@ -160,27 +145,4 @@ public class AlgorithmSearcher {
         return classToReturn;
     }
 
-    private ArrayList<Field> getFieldsWithAnnotation(Class<? extends AlgoPlugin> plugin, String annotationName){
-        Field[] myFields = plugin.getDeclaredFields();
-        ArrayList<Field> cleandedFields = new ArrayList<>();
-        boolean annotationInside = false;
-        for(Field fi: myFields){
-            Annotation[] currentAnnos = fi.getAnnotations();
-            for(Annotation currentAnno : currentAnnos){
-                annotationInside = (currentAnno.annotationType().getSimpleName().equals(annotationName));
-            }
-            if(annotationInside){cleandedFields.add(fi);}
-        }
-        return cleandedFields;
-    }
-
-    private Annotation getAnnotationWithName(Field f, String annoName){
-        Annotation[] currentAnnos = f.getAnnotations();
-        boolean annotationInside = false;
-        for(Annotation currentAnno : currentAnnos){
-            annotationInside = currentAnno.annotationType().getSimpleName().equals(annoName);
-            if(annotationInside){return currentAnno;}
-        }
-        return null;
-    }
 }
