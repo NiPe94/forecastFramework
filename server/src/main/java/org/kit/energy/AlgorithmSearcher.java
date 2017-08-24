@@ -39,7 +39,8 @@ public class AlgorithmSearcher {
 
     public Map<ForecastAlgorithm, Class<?>> beginSearch(String path){
 
-        String pathToJar = "C:/Users/qa5147/IdeaProjects/forecastFramework/testtemplate/target/test-template-0.0.1-SNAPSHOT.jar";
+        String pathToJar = "C:/Users/qa5147/Documents/Klassen/testFinal.jar";
+        String templatePackageStructure = "bla.test";
 
         URL url = null;
         try {
@@ -55,25 +56,17 @@ public class AlgorithmSearcher {
         Class<? extends AlgoPlugin> myClass = null;
         try {
             myClass = (Class<? extends AlgoPlugin>) urlClassLoader.loadClass("bla.test.TestTemplate");
-            System.out.println(myClass.getSimpleName());
-            Class myInterfaces = myClass.getInterfaces()[0];
-            // true: boolean assignable = myInterfaces.isAssignableFrom(myClass);
-            // true: boolean assignable = AlgoPlugin.class.isAssignableFrom(myClass);
-            boolean assignable = AlgoPlugin.class.isAssignableFrom(myClass);
-            System.out.println("Interface assignable from the testTemplate?: "+assignable);
         } catch (ClassNotFoundException e) {
             System.out.println("Fehler: "+e.toString());
         }
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-        Reflections reflections = new Reflections("",new FieldAnnotationsScanner(), new SubTypesScanner(),urlClassLoader);
+        Reflections reflections = new Reflections(templatePackageStructure,new FieldAnnotationsScanner(), new SubTypesScanner(),urlClassLoader);
 
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
-        subtypes.add(myClass);
-
-        System.out.println("length of subtypeList: "+subtypes.size());
+        //subtypes.add(myClass);
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
 
