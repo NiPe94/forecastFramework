@@ -3,6 +3,7 @@ package org.kit.energy;
 import org.apache.commons.collections.map.HashedMap;
 import org.kit.energy.api.AlgoParam;
 import org.kit.energy.api.AlgoPlugin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -23,7 +24,8 @@ public class AlgorithmFactory {
 
     private ArrayList<ForecastAlgorithm> loadedForecastAlgorithms;
     private Map<String, Class<?>> registeredAlgos = new HashMap();
-    private AlgorithmSearcher algorithmSearcher = new AlgorithmSearcher();
+    @Autowired
+    private AlgorithmSearcher algorithmSearcher;
 
     // ***********************************************************************
 

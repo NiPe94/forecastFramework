@@ -7,9 +7,15 @@ import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -17,10 +23,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -34,42 +37,40 @@ import static org.reflections.ReflectionUtils.withAnnotation;
 @Component
 public class AlgorithmSearcher {
 
-    @Autowired
-    private Environment environment;
+    private final String finalPath;
+
+    public AlgorithmSearcher(@Value("${plugin.loading.path}") String path){
+        this.finalPath = path;
+    }
 
     public Map<ForecastAlgorithm, Class<?>> beginSearch(String path){
 
-        String pathToJar = "C:/Users/qa5147/Documents/Klassen/testFinal.jar";
-        String templatePackageStructure = "bla.test";
+        String templatePackageStructure = "";
 
-        URL url = null;
-        try {
-            url = new URL("jar:file:" + pathToJar+"!/");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        String pathToJars = this.finalPath;
+
+        // go through each jar in the specific directory and load the plugins from there
+        ArrayList<Class<? extends AlgoPlugin>> loadedPlugins = new ArrayList<>();
+        File[] files = new File(pathToJars).listFiles();
+        for(File file : files){
+            if(file.isFile() && file.getName().endsWith(".jar")){
+                Class<? extends AlgoPlugin> currentClass = null;
+                try {
+                    currentClass = readJarFile((pathToJars+file.getName()));
+                    loadedPlugins.add(currentClass);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        URL[] urls = { url };
-
-        URLClassLoader urlClassLoader = new URLClassLoader(urls,ForecastFrameworkApplication.class.getClassLoader());
-
-
-        /*
-        Class<? extends AlgoPlugin> myClass = null;
-        try {
-            myClass = (Class<? extends AlgoPlugin>) urlClassLoader.loadClass("ExampleAlgo");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Fehler: "+e.toString());
-        }*/
-
 
         Map<ForecastAlgorithm, Class<?>> forecastAlgorithmsWithPlugins = new HashedMap();
 
-        //templatePackageStructure
-        Reflections reflections = new Reflections(templatePackageStructure,urlClassLoader,new FieldAnnotationsScanner(), new SubTypesScanner());
+        Reflections reflections = new Reflections(templatePackageStructure,ForecastFrameworkApplication.class.getClassLoader(),new FieldAnnotationsScanner(), new SubTypesScanner());
 
         Set<Class<? extends AlgoPlugin>> subtypes = reflections.getSubTypesOf(AlgoPlugin.class);
 
-        //subtypes.add(myClass);
+        subtypes.addAll(loadedPlugins);
 
         for( Class<? extends AlgoPlugin> plugin : subtypes){
 
@@ -123,7 +124,6 @@ public class AlgorithmSearcher {
                 if ((myJar.getName().endsWith(".class"))) {
                     String className = myJar.getName().replaceAll("/", "\\.");
                     String myClass = className.substring(0, className.lastIndexOf('.'));
-                    System.out.println("Now the class: "+myClass);
                     Class c = cl.loadClass(myClass);
                     boolean containsAlgoPluginInterface = false;
                     if(c.getInterfaces().length != 0){
@@ -132,10 +132,7 @@ public class AlgorithmSearcher {
                         }
                     }
                     if(containsAlgoPluginInterface){
-                        System.out.println("class to return was found: "+c.getSimpleName());
                         return c;
-                    } else{
-                        System.out.println("plugin interface not found for class "+c.getSimpleName());
                     }
                 }
             }

@@ -168,10 +168,6 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
-    //@PostMapping(value="/",params = "action=perform")
-    //public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
-
-
     @PostMapping(value="/",params = "action=perform")
     public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
 
