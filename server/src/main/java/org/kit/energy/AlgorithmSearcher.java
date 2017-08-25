@@ -101,9 +101,9 @@ public class AlgorithmSearcher {
                     parameterList.add(algoParameter);
 
                 }
-                forecastAlgorithm.setAlgoParameters(parameterList);
-                forecastAlgorithmsWithPlugins.put(forecastAlgorithm,plugin);
             }
+            forecastAlgorithm.setAlgoParameters(parameterList);
+            forecastAlgorithmsWithPlugins.put(forecastAlgorithm,plugin);
 
         }
         return forecastAlgorithmsWithPlugins;
