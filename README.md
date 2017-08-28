@@ -30,7 +30,7 @@ This software uses and works with following technologies and versions:
 3. Run the ``ForecastFrameworkApplication`` class
 4. Type ``localhost:8080`` into your browser and the following page appears:
 
-![Screenshot](screenshots/firstPage.png)
+![Screenshot](screenshots/firstPage.PNG)
 
 5. Fore more details on how to use the service, please read my bachelor thesis or select the ``About`` tab of the web page
 
