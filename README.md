@@ -23,6 +23,7 @@ This software uses and works with following technologies and versions:
 | Java | 1.8 |
 | Maven | 3.3.9 |
 | Spring Boot | 1.4.3.RELEASE |
+| Thymeleaf | 3.0.7 | 
 | Scala | 2.11.8 |
 | Spark | 2.1.0 |
 
