@@ -15,8 +15,9 @@ The software prototype proposed in this repository is called `Forecast Service`.
 * Produce a prediction using a already trained machine learning model
 
 This software uses and works with following technologies and versions:
+
 | Technology | Version |
-| -------------- | :----------: |
+| ---------- | ---------- |
 | Java | 1.8 |
 | Maven | 3.3.9 |
 | Spring Boot | 1.4.3.RELEASE |
