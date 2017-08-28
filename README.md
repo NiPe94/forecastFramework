@@ -27,6 +27,12 @@ This software uses and works with following technologies and versions:
 | Scala | 2.11.8 |
 | Spark | 2.1.0 |
 
+The project contains serveral modules:
+* The server module consists of the logic for the webservice, including Spring Boot, Thymeleaf and Spark.
+* Inside the api module, there are the interfaces to be implemented when creating a new algorithm plugin.
+* The testtemplate module can be used as an alternative way to implement a new java based algorithm plugin. Just change the java class inside, build the module and put the resulting .jar file to the specific directory referenced in the application.properties file from the server module.
+* The examples directory has the scala project inside explained in the section `Differences for the Scala plugin`.
+
 ## How to: use it
 1. Clone the repository
 2. Import the project into IntelliJ as a Maven project
