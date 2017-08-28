@@ -13,7 +13,7 @@ import org.kit.energy.api.AlgoPlugin;
  */
 public class TestTemplate implements AlgoPlugin {
 
-    @AlgoParam(name="testReg",value = "0.6")
+    @AlgoParam(name="testReg",value = "0.62")
     public String testPara = "";
 
     @AlgoParam(name="testNet",value = "1")
