@@ -5,6 +5,8 @@ Repository with the software prototype developed during my Bachelor Thesis @ KIT
 * General Information
 * How to: use it
 * How to: write a plugin for it
+    * Differences for the Java plugin
+    * Differences for the Scala plugin
 * Limitations
 
 ## General Information
