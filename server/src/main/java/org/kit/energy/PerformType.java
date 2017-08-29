@@ -1,7 +1,7 @@
 package org.kit.energy;
 
 /**
- * Created by qa5147 on 27.01.2017.
+ * Enumeration for action types to be performed after pressing the button "start" on the web ui
  */
 public enum PerformType {
     Modeling, Application, Both

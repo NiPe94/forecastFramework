@@ -4,9 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Ein Prototyp für Energie-Prognosen in Java.
- * Diese Klasse repräsentiert den Einstiegspunkt und dient als Controller im MVC-Kontext
- *
+ * The main class which starts Spring Boot and its embedded Tomcat server
  * @author Nico Peter
  * @version 1.0
  */
@@ -14,9 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ForecastFrameworkApplication{
 
     /**
-     * Hauptprogramm
+     * Main program
      *
-     * @param args Kommandozeilenparameter
+     * @param args command line arguments
      */
 	public static void main(String[] args) {
 		SpringApplication.run(ForecastFrameworkApplication.class, args);

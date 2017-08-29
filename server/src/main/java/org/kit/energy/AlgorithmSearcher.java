@@ -32,17 +32,30 @@ import static org.reflections.ReflectionUtils.getAllFields;
 import static org.reflections.ReflectionUtils.withAnnotation;
 
 /**
- * Created by qa5147 on 28.06.2017.
+ * Class to get algorithms via reflection from a directory
  */
 @Component
 public class AlgorithmSearcher {
 
+    /**
+     * String with a path to a directory in which forecast algorithms as jar files are located.
+     */
     private final String finalPath;
 
+    /**
+     * Sets the directory path with a variable loaded from the application.properties file from the resources folder.
+     * @param path the directory path loaded from application.properties.
+     */
     public AlgorithmSearcher(@Value("${plugin.loading.path}") String path){
         this.finalPath = path;
     }
 
+    /**
+     * gets a mapping between algorithms names and algorithm classes via reflecion api with the help of a path from application.properties.
+     * First the algorithms from jar files will get parsed, then they will be added to a set which will be processed to produce algorithm objects for the web ui.
+     * @return a mapping between algorithm names and algorithm classes.
+     * @throws MalformedURLException If the provided url to the directory with jar files is not valid.
+     */
     public Map<ForecastAlgorithm, Class<?>> beginSearch(String path){
 
         String templatePackageStructure = "org.kit.energy";
@@ -109,6 +122,13 @@ public class AlgorithmSearcher {
         return forecastAlgorithmsWithPlugins;
     }
 
+    /**
+     * Gets a class from a jar file which implements the AlgoPlugin interface.
+     * For that, a url to an jar entry is required.
+     * @param path the path to a specific jar inside the directory defined in application.properties.
+     * @return a class which implements the AlgoPlugin interface.
+     * @see AlgoPlugin
+     */
     private Class<? extends AlgoPlugin> readJarFile(String path) throws MalformedURLException {
 
         Class<? extends AlgoPlugin> classToReturn = null;

@@ -4,7 +4,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 /**
-  * Created by qa5147 on 19.06.2017.
+  * Class to hold an spark instance for a specific url and to hold uploaded input data from the web ui.
   */
 sealed class SparkEnvironment protected (val masterAdress:String){
 

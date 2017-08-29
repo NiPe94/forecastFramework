@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by qa5147 on 23.01.2017.
+ * POJO for forecast metadata, which will be filled via the web ui
  */
 public class Forecast {
 

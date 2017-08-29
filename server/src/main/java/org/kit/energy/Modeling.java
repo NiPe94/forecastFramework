@@ -1,7 +1,7 @@
 package org.kit.energy;
 
 /**
- * Created by qa5147 on 30.01.2017.
+ * POJO for model training metadata
  */
 public class Modeling {
 

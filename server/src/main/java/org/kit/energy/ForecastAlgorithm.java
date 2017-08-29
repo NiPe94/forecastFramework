@@ -3,7 +3,7 @@ package org.kit.energy;
 import java.util.ArrayList;
 
 /**
- * Created by qa5147 on 29.06.2017.
+ * POJO for an forecast algorithm loaded by the AlgorithmSearcher class
  */
 public class ForecastAlgorithm {
     String algoName;

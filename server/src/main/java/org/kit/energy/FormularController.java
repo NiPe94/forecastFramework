@@ -23,26 +23,50 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by qa5147 on 23.01.2017.
+ * Controller to handle URLs from the generated web ui, to add data to the spark environment class and
+ * to start forecasts or model trainings.
  */
 @Controller
 public class FormularController {
 
-
+    /**
+     * Object to process a forecast or model training.
+     * @see ForecastPipeline
+     */
     @Autowired
     private ForecastPipeline modelingPipe;
 
+    /**
+     * Object to get time series from a OpenTSDB database.
+     * @see TSDBService
+     */
     @Autowired
-    private TelnetPostToTSDB poster;
+    private TSDBService tsdbService;
 
+    /**
+     * Object to generate a json out of a forecast object which will be displayed on the web ui after performing a forecast or model training.
+     * @see JSONWriter
+     */
     @Autowired
     private JSONWriter jsonWriter;
 
+    /**
+     * Factory for registering and creating forecast algorithms during runtime.
+     * @see AlgorithmFactory
+     */
     @Autowired
     private AlgorithmFactory algorithmFactory;
 
+    /**
+     * Object to get access to spark and to hold loaded time series.
+     * @see SparkEnvironment
+     */
     private SparkEnvironment sparkEnvironment;
 
+    /**
+     * GET Request with URL "/stopSpark" to stop the currently running spark environment.
+     * @see SparkEnvironment
+     */
     @GetMapping(value="/stopSpark")
     public ResponseEntity<?> stopSpark(){
         if(sparkEnvironment != null){
@@ -52,10 +76,15 @@ public class FormularController {
         return ResponseEntity.ok("stopped Spark now");
     }
 
+    /**
+     * POST Request with URL "/addData" to upload time series to the spark environment.
+     * Therefore the metadata from the web ui is parsed and then a DataFrame object is generated out of it.
+     * @param ajaxString The String created from the web ui with metadata about a time series to upload.
+     */
     @PostMapping(value = "/addData")
-    public ResponseEntity<?> addData(@Valid @RequestBody String myString){
+    public ResponseEntity<?> addData(@Valid @RequestBody String ajaxString){
 
-        Map<String,Class<?>> bla = algorithmFactory.getRegisteredAlgos();
+        Map<String,Class<?>> justToUpdate = algorithmFactory.getRegisteredAlgos();
 
         if(sparkEnvironment == null){
             return new ResponseEntity<String>("No Spark available", HttpStatus.NOT_ACCEPTABLE);
@@ -66,7 +95,7 @@ public class FormularController {
 
         InputFile fileToLoad = null;
         try{
-            fileToLoad = dataInputParser.parseInput(myString);
+            fileToLoad = dataInputParser.parseInput(ajaxString);
         }catch(Exception parserE){
             System.out.println(parserE.toString());
             return ResponseEntity.badRequest().build();
@@ -82,6 +111,12 @@ public class FormularController {
             dataPreperator = new CSVDataPreperator();
         }
         if(fileToLoad.getClass() == TSDBFile.class){
+            String jsonData = tsdbService.getIt(fileToLoad.getDataPath());
+            TSDBFile tsdbFile = new TSDBFile();
+            tsdbFile.setDataPurpose(fileToLoad.getDataPurpose());
+            tsdbFile.setDataPath(fileToLoad.getDataPath());
+            tsdbFile.setJsonData(jsonData);
+            fileToLoad = tsdbFile;
             dataPreperator = new JSONDataPreperator();
         }
         Dataset<Row> dataset = null;
@@ -96,13 +131,18 @@ public class FormularController {
         // Put the DF into the current spark Environment with info if it's a feature or label
         sparkEnvironment.addData(dataset,fileToLoad.getDataPurpose());
 
-        return ResponseEntity.ok(myString);
+        return ResponseEntity.ok(ajaxString);
     }
 
+    /**
+     * POST request with URL "/startSpark" to start a new local spark environment or to get access to an existing one.
+     * @see SparkEnvironment
+     * @param ajaxString The String created from the web ui containing a url to a spark master node.
+     */
     @PostMapping(value = "/startSpark")
-    public ResponseEntity<?> loadSpark(@Valid @RequestBody String myString) {
+    public ResponseEntity<?> loadSpark(@Valid @RequestBody String ajaxString) {
 
-        String sparkURL = myString
+        String sparkURL = ajaxString
                 .replace("=","")
                 .replace("%5B","[")
                 .replace("%5D","]");
@@ -126,9 +166,12 @@ public class FormularController {
         }
 
 
-        return ResponseEntity.ok(myString);
+        return ResponseEntity.ok(ajaxString);
     }
 
+    /**
+     * POST Request with URL "/deleteData" to delete all currently uploaded data from the spark environment.
+     */
     @PostMapping(value = "/deleteData")
     public ResponseEntity<?> deleteData() {
         if(sparkEnvironment == null){
@@ -138,6 +181,12 @@ public class FormularController {
         return ResponseEntity.ok("");
     }
 
+    /**
+     * POST Request with URL "/" and action parameter to reload the list of currently available forecast algorithms on teh web ui.
+     * @param model The model object from Spring Boot which will automatically be injected in this method and hold relevant objects for the web ui to be rendered.
+     * @return the thymeleaf template "ForecastFormularMenue"  which has the new algorithm list inside.
+     * @see Model
+     */
     @PostMapping(value = "/", params = "action=reloadAlgorithms")
     public String reloadAlgorithms(Model model) {
         model.addAttribute("forecast", new Forecast());
@@ -147,15 +196,16 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
-    @PostMapping("/test")
-    public ResponseEntity<?> testPreperator(@Valid @RequestBody String forecast) {
-
-        System.out.println("the data got: ");
-        System.out.println(forecast);
-
-        return ResponseEntity.ok(forecast);
+    @GetMapping("/test")
+    public ResponseEntity<?> testPreperator() {
+        return ResponseEntity.ok("test");
     }
 
+    /**
+     * GET Request with URL "/" to load the web ui.
+     * @param model The model object from Spring Boot which will automatically be injected in this method and hold relevant objects for the web ui to be rendered.
+     * @return the thymeleaf template "ForecastFormularMenue"  which holds and renders relevant metadata objects.
+     */
     @GetMapping("/")
     public String indexForm(Model model) {
 
@@ -163,15 +213,18 @@ public class FormularController {
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
         model.addAttribute("meta",new WrapperDatasetMetadata());
 
-        //poster.getIt();
-
         return "ForecastFormularMenue";
     }
 
+    /**
+     * POST Request with URL "/" and action parameter to start a forecast or model training.
+     * @param forecast The forecast meta data object
+     * @param meta The meta data object to hold the metadata from all uploaded time series, so it can be displayed on the web ui.
+     * @param myWrapper The forecast algorithm to be loaded, choosen by a user on the web ui.
+     * @param model The model object from Spring Boot which will automatically be injected in this method and hold relevant objects for the web ui to be rendered.
+     */
     @PostMapping(value="/",params = "action=perform")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model, BindingResult bindResult) {
-
-        System.out.println("forecast is getting started");
+    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model) {
 
         // some vars
         boolean modellingDone = false;
@@ -237,6 +290,11 @@ public class FormularController {
         return "ForecastFormularMenue";
     }
 
+    /**
+     * GET Request with URL "/parameters/" followed by a algorithm name to load all parameters from an selected algorithm.
+     * Therefore a thymeleaf fragment is used in order to render the parameters in a html page.
+     * @param algoName The name of the selected algorithm from the web ui.
+     */
     @GetMapping("/parameters/{algoName}")
     public String getParametersForAlgorithm(Model model, @PathVariable("algoName") String algoName){
 
@@ -249,6 +307,11 @@ public class FormularController {
         return "parameters :: parameterList";
     }
 
+    /**
+     * GET Request with URL "/inputTypeOptions/" followed by a data type (csv or tsdb).
+     * Via a thymeleaf fragment, the relevant data parameters, corresponding to a selected data type by a user, are getting loaded on the web ui.
+     * Here the data parameters for the "Label Data" and "Feature Data" sections of the "Load Data" tab are getting loaded.
+     */
     @GetMapping("/inputTypeOptions/{datatype}")
     public String getDataTypeOptions(Model model, @PathVariable("datatype") String datatype){
 
@@ -256,18 +319,32 @@ public class FormularController {
         return fragmentString;
     }
 
+    /**
+     * GET Request with URL "/additionalInputs/" followed by a data type (csv or tsdb).
+     * Via a thymeleaf fragment, the relevant data parameters, corresponding to a selected data type by a user, are getting loaded on the web ui.
+     * Here the data parameters for the "Additional Feature Data" section of the "Load Data" tab is getting loaded.
+     */
     @GetMapping("/additionalInputs/{datatype}")
     public String getAdditionalInputs(Model model, @PathVariable("datatype") String datatype){
         String fragmentString = "additionalInputs :: "+datatype;
         return fragmentString;
     }
 
+    /**
+     * GET Request with URL "/plugins/" to load all available algorithms without using the web ui.
+     * @return a list with currently available algorithms.
+     */
     @GetMapping(value = "/plugins", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
     public @ResponseBody List<ForecastAlgorithm> getAllPlugins(){
         List<ForecastAlgorithm> forecastAlgorithms = algorithmFactory.getForecastAlgorithms();
         return forecastAlgorithms;
     }
 
+    /**
+     * GET Request with URL "/plugins/" followed by an algorithm name to load a specific available algorithm without using the web ui.
+     * @return a specific currently available algorithm.
+     * @param pluginName The name of the algorithm to be returned.
+     */
     @GetMapping(value = "/plugins/{pluginName}", produces = {"application/json","text/xml"}, consumes = MediaType.ALL_VALUE)
     public @ResponseBody ForecastAlgorithm getPluginWithName(@PathVariable(value="pluginName") String pluginName){
         List<ForecastAlgorithm> forecastAlgorithms = algorithmFactory.getForecastAlgorithms();
@@ -279,18 +356,6 @@ public class FormularController {
             }
         }
         return forecastAlgorithmToReturn;
-    }
-
-    @PostMapping(value= "/execute")
-    public @ResponseBody String executeWithAlgorithm(@RequestBody ForecastAlgorithm forecastAlgorithm){
-        String message = "Did not work!";
-        if(forecastAlgorithm != null){
-            System.out.println("The Algorithm from the JSON: ");
-            System.out.println(forecastAlgorithm);
-            message = "It works!";
-            // load the current algorithm plugins and search for the name, then start the forecasting
-        }
-        return message;
     }
 
 }

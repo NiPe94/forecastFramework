@@ -9,12 +9,11 @@ import org.apache.spark.sql.functions.{col, concat_ws, udf}
 import org.springframework.stereotype.Component
 
 /**
-  * Created by qa5147 on 02.02.2017.
+  * Class to pre process a csv file to generate a DataFrame for the spark environment.
   */
 @Component
 class CSVDataPreperator extends DataPreperator{
 
-  //(dataPath: String, hasHead: Boolean, delimeter: String, labelIndex: String, featuresIndex: String, spark: SparkSession)
   def prepareDataset(input: InputFile, spark: SparkSession): sql.DataFrame = {
 
     // WINDOWS: set system var for hadoop fileserver emulating via installed winutils.exe
@@ -30,8 +29,6 @@ class CSVDataPreperator extends DataPreperator{
     val dataPath = csvFile.getDataPath
 
     var finalData = spark.emptyDataFrame
-    val pastIndex = 2
-    val horizont = 1
 
     try {
 
@@ -43,7 +40,6 @@ class CSVDataPreperator extends DataPreperator{
         .option("mode", "DROPMALFORMED")
         .load(dataPath)
 
-      val shift = 2
 
       // get all columns of the dataset (Array[String])
       val dataColumns = inputData.columns
@@ -65,7 +61,6 @@ class CSVDataPreperator extends DataPreperator{
 
       // user defined functions
       val toDouble = udf[Double, String](_.replace(",",".").toDouble)
-      //val toVector = udf((i: String) => (Vectors.dense(i.split(",").map(str => str.toDouble)): org.apache.spark.ml.linalg.Vector))
       val toVector = udf((i: String) => (Vectors.dense(i.split(",").map(str => str.replace(",",".").toDouble)): org.apache.spark.ml.linalg.Vector))
 
       // create a coloumn in which all features are inside, divided by ","

@@ -15,10 +15,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.apache.http.protocol.HTTP.USER_AGENT;
 
 /**
- * Created by qa5147 on 07.06.2017.
+ * Class to send/get data to/from a OpenTSDB database
  */
 @Component
-public class TelnetPostToTSDB {
+public class TSDBService {
+
+    /**
+     * Example of how to send data to a openTSDB database via Telnet with java.
+     */
     public void telIt(){
         // POST via telnet, but not so important as getting the data
         long unixTimestamp = Instant.now().getEpochSecond();
@@ -35,20 +39,22 @@ public class TelnetPostToTSDB {
         }
     }
 
-    public void getIt(){
+    /**
+     * Gets the time series as json from a openTSDB database.
+     * @param url The URL pointing to the location of the TSDB database.
+     */
+    public String getIt(String url){
         try{
-            System.out.println("new data via http GET will be loaded!");
-            String url = "http://localhost:4242/api/query?start=1497225600&m=sum:NewMetrik";
+            // for example "http://localhost:4242/api/query?start=1497225600&end=1497312000&m=sum:NewMetrik&{tag=key}";
+            if(!url.startsWith("http://") && !url.startsWith("https://")){
+                url = "http://"+url;
+            }
             URL urlObj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
 
             con.setRequestMethod("GET");
 
             con.setRequestProperty("User-Agent", USER_AGENT);
-
-            int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
 
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
@@ -60,18 +66,13 @@ public class TelnetPostToTSDB {
             }
             in.close();
 
-            //print result
-            System.out.println("The resulting String:");
-            System.out.println(response.toString());
-
-            JSONDataPreperator jsonDataPreperator = new JSONDataPreperator();
-            SparkSession spark = SparkSession.builder().master("local").getOrCreate();
-            InputFile myFile = new TSDBFile();
-            jsonDataPreperator.prepareDataset(myFile,spark);
+            return response.toString();
 
         }
         catch(Exception e){
-            e.printStackTrace();
+            System.out.println(e.toString());
         }
+
+        return "";
     }
 }

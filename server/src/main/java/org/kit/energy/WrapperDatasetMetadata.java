@@ -1,7 +1,7 @@
 package org.kit.energy;
 
 /**
- * Created by qa5147 on 18.08.2017.
+ * Class to hold the metadata from all uploaded time series
  */
 public class WrapperDatasetMetadata {
     private String metadata;

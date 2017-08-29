@@ -3,7 +3,7 @@ package org.kit.energy;
 import java.io.File;
 
 /**
- * Created by qa5147 on 30.01.2017.
+ * POJO for csv file metadata
  */
 public class CSVFile extends InputFile{
 

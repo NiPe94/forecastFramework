@@ -1,9 +1,16 @@
 package org.kit.energy;
 
 /**
- * Created by qa5147 on 26.07.2017.
+ * Class to read the input time series metadata from the ajax requests
  */
 public class DataInputParser {
+
+    /**
+     * Gets a object with metadata about a input time series.
+     * @param jsonString the json string from a ajax request which holds the metadata of a input time series.
+     * @return the input time series which will be uploaded to the spark environment
+     * @see InputFile
+     */
     public InputFile parseInput(String jsonString){
 
         jsonString = jsonString.replace("%2C",",");
@@ -15,8 +22,6 @@ public class DataInputParser {
         beginning = jsonString.indexOf("as=");
         end = jsonString.indexOf("&",beginning);
         String dataPurpose = jsonString.substring(beginning+3,end);
-
-        int böa = 0;
 
         if(jsonString.contains("type=csv")){
             CSVFile csvFile = new CSVFile();
@@ -71,6 +76,7 @@ public class DataInputParser {
             // extract tags
             beginning = jsonString.indexOf("tags=");
             String tags = jsonString.substring(beginning+5).replaceAll("%3D","=");
+            tags = tags.replace(" ","");
 
             // extract from
             beginning = jsonString.indexOf("from=");
@@ -86,7 +92,11 @@ public class DataInputParser {
             beginning = jsonString.indexOf("path=");
             end = jsonString.indexOf("&",beginning);
             String originalPath = jsonString.substring(beginning+5,end).replaceAll("%2F","/");
-            String finalPath="";
+            originalPath = originalPath.replace("%3A",":");
+            if(!originalPath.endsWith("/")){
+                originalPath = originalPath + "/";
+            }
+            String finalPath = originalPath + "api/query?start="+fromDate+"&end="+toDate+"&m=avg:"+metric+"&{"+tags+"}";
 
             tsdbFile.setDataPath(finalPath);
 

@@ -1,12 +1,16 @@
 package org.kit.energy;
 
 /**
- * Created by qa5147 on 29.05.2017.
+ * Interface for different input data sources
  */
 public abstract class InputFile {
 
     private String dataPath;
     private String dataType;
+
+    /**
+     * Holds the String "label" or "feature"
+     */
     private String dataPurpose;
 
     public String getDataPath() {

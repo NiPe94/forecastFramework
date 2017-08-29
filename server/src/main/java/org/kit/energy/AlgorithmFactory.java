@@ -17,22 +17,48 @@ import static org.reflections.ReflectionUtils.getAllFields;
 import static org.reflections.ReflectionUtils.withAnnotation;
 
 /**
- * Created by qa5147 on 13.06.2017.
+ * Factory to register and create forecast algorithms which will be used by the webservice.
  */
 @Component
 public class AlgorithmFactory {
 
+    /**
+     * List with objects of type ForecastAlgorithm, generated with the loaded algorithms from the algorithmSearcher.
+     * This list will be parsed in the thymeleaf template "ForecastFormularMenue.html"
+     * to display all currently available algorithms from a specific directory during runtime.
+     * Additionally the list will be used to create an algorithm chosen by a user via the web ui.
+     * @see ForecastAlgorithm
+     */
     private ArrayList<ForecastAlgorithm> loadedForecastAlgorithms;
+
+    /**
+     * Mapping of algorithm names to algorithm classes from the algorithmSearcher.
+     * So with a given algorithm name from the web ui, the corresponding class can be instantiated.
+     */
     private Map<String, Class<?>> registeredAlgos = new HashMap();
+
+    /**
+     * Object to load currently available algorithm classes from a specific directory.
+     * @see AlgorithmSearcher
+     */
     @Autowired
     private AlgorithmSearcher algorithmSearcher;
 
-    // ***********************************************************************
-
+    /**
+     * Gets the mapping between algorithm names and algorithm classes.
+     * @return a mapping between algorithm names and algorithm classes
+     */
     public Map<String, Class<?>> getRegisteredAlgos(){
         return registeredAlgos;
     }
 
+    /**
+     * creates an instance of the algorithm chosen by a user via the web ui including changed algorithm parameters.
+     * @param forecastAlgorithm the algorithm chosen and configured by a user via the web ui.
+     * @return the instantiated algorithm class for a forecast or model training.
+     * @see AlgoPlugin
+     * @throws InstantiationException,IllegalAccessException If a algorithm class can't be instantiated or can't be accessed
+     */
     public AlgoPlugin createAlgo(ForecastAlgorithm forecastAlgorithm){
 
         Class algoClass = registeredAlgos.get(forecastAlgorithm.getAlgoName());
@@ -52,7 +78,7 @@ public class AlgorithmFactory {
         String fieldAnnotationName;
         String parameterValue = "";
 
-        // all annotated fields
+        // get all annotated fields
         for(Field field: fields){
             Class<?> type = field.getType();
             if(type.isAssignableFrom(String.class)){
@@ -74,6 +100,13 @@ public class AlgorithmFactory {
         return algoPlugin;
     }
 
+    /**
+     * Gets a list of currently available forecast algorithms with the help of the algorithmSearcher object.
+     * Updates the map registeredAlgos and the list loadedForecastAlgorithms.
+     * @return a new list with forecast algorithms
+     * @see AlgorithmSearcher
+     * @throws Exception If the reflection api has got an error
+     */
     public List<ForecastAlgorithm> getForecastAlgorithms(){
         Map<ForecastAlgorithm, Class<?>> loadedPlugins = null;
         try {
@@ -92,6 +125,12 @@ public class AlgorithmFactory {
         return listToReturn;
     }
 
+    /**
+     * Gets a list of algorithm parameters for a specific loaded algorithm name.
+     * Is used by the controller when parameters got requested directly.
+     * @return a list of algorithm parameters.
+     * @see AlgoParameter
+     */
     public ArrayList<AlgoParameter> getParametersForName(String name){
         ArrayList<AlgoParameter> algoParameters = new ArrayList<>();
         for(ForecastAlgorithm forecastAlgorithm : loadedForecastAlgorithms){

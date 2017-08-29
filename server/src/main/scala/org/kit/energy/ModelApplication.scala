@@ -6,7 +6,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.functions.round
 
 /**
-  * Created by qa5147 on 29.05.2017.
+  * Class to perform a prediction
   */
 class ModelApplication {
 

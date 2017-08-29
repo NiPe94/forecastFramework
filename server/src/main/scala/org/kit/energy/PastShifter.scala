@@ -7,7 +7,7 @@ import org.apache.spark.sql.functions.{desc, lag, monotonically_increasing_id}
 import org.apache.spark.sql.types.StructType
 
 /**
-  * Created by qa5147 on 09.08.2017.
+  * Class to lag the input data so a ARX model can be generated
   */
 // Uses the past-shift-parameter to lag the data for building a AR-model
 class PastShifter {

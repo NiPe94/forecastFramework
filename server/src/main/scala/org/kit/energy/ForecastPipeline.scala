@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component
 
 
 /**
-  * Created by qa5147 on 29.05.2017.
+  * Class to process a forecast or model training. The DataCombiner combines the already loaded input data to one DataFrame
+  * which then will be lagged via the PastShifter to generate a ARX model. After performing a trainign or prediction,
+  * the resulting metadata will be returned.
   */
 @Component
 class ForecastPipeline {
@@ -64,8 +66,6 @@ class ForecastPipeline {
         predictedData = algoPlugin.applyModel(combinedData,loadedModel)
       }
 
-      println("start saving prediction data")
-
       // save existing predicted dataFrame
       if(predictedData!=null){
         predictedData
@@ -76,8 +76,6 @@ class ForecastPipeline {
           .mode("overwrite")
           .save(savePathCSV)
       }
-
-      println("end saving prediction data")
 
       return forecastResult
 

@@ -9,7 +9,7 @@ import org.kit.energy.api.AlgoParam;
 import org.kit.energy.api.AlgoPlugin;
 
 /**
- * @author Robin Engel
+ * This class can be used to implement and build an java based algorithm for the webservice
  */
 public class TestTemplate implements AlgoPlugin {
 

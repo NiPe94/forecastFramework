@@ -6,7 +6,7 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.functions.{concat, concat_ws, lit, udf, lag}
 
 /**
-  * Created by qa5147 on 08.08.2017.
+  * Class to combine the already loaded input time series from the spark environment to one single DataFrame to be used by an algorithm
   */
 class DataCombiner {
 
@@ -55,7 +55,6 @@ class DataCombiner {
       }
       ab = ab.withColumnRenamed(ab.columns(ab.columns.length-1),"features").select("features")
     }
-
     else {
       ab = features(0).withColumnRenamed("data","features").select("features")
     }

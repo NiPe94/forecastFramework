@@ -1,7 +1,7 @@
 package org.kit.energy;
 
 /**
- * Created by qa5147 on 12.07.2017.
+ * POJO for metadata from a OpenTSDB json file
  */
 public class TSDBFile extends InputFile {
     String jsonData;

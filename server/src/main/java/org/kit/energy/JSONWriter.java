@@ -7,7 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * Created by qa5147 on 08.06.2017.
+ * Class to generate a json out of a Forecast object to be displayed on the browser,
+ * after performing a model training or a forecast
  */
 @Component
 public class JSONWriter {
@@ -15,8 +16,6 @@ public class JSONWriter {
         Gson gson = new Gson();
         String resultString = gson.toJson(forecast);
 
-        //2. Convert object to JSON string and save into a file directly
-        //String completePath = forecast.getModeling().getSavePathModel() + forecast.getModeling().getAlgoType() + ".JSON";
         String completePath = forecast.getModeling().getSavePathModel() +".JSON";
         try (FileWriter writer = new FileWriter(completePath)) {
 
