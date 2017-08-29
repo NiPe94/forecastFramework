@@ -45,7 +45,7 @@ public class AlgorithmSearcher {
 
     public Map<ForecastAlgorithm, Class<?>> beginSearch(String path){
 
-        String templatePackageStructure = "";
+        String templatePackageStructure = "org.kit.energy";
 
         String pathToJars = this.finalPath;
 
