@@ -16,6 +16,16 @@ import org.springframework.stereotype.Component
 @Component
 class ForecastPipeline {
 
+  /**
+    * Starts a forecast or model training and returns resulting metadata.
+    * @param forecast the forecast metadata object from the web ui which holds for example the path where results are getting saved to.
+    * @param performModeling the decision whether to start a model training.
+    * @param performModelApplication the decision whether to start a prediction.
+    * @param sparkEnv the spark environment which holds the uploaded data and the spark framework.
+    * @see SparkEnvironment
+    * @return a String representing metadata of results and used parameters for the model training or prediction.
+    *         It will be displayed on the web ui after the model training or prediction has finished.
+    */
   def startForecasting(forecast:Forecast, algoPlugin:AlgoPlugin, performModeling:Boolean, performModelApplication:Boolean, sparkEnv:SparkEnvironment) : String = {
 
     var forecastResult = ""
@@ -84,6 +94,11 @@ class ForecastPipeline {
     }
   }
 
+  /**
+    * Gets the resulting coefficients from a trained model via reflection.
+    * @param transformer the trained model.
+    * @return a String representing the coefficients of a trained model.
+    */
   private def getResultString(transformer:Transformer) : String = {
     // model parameters to return
     val coefficients = transformer.getClass.getDeclaredField("coefficients")

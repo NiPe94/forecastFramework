@@ -6,10 +6,17 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.functions.{concat, concat_ws, lit, udf, lag}
 
 /**
-  * Class to combine the already loaded input time series from the spark environment to one single DataFrame to be used by an algorithm
+  * Class to combine the already loaded input time series from the spark environment to one single DataFrame to be used by an algorithm.
   */
 class DataCombiner {
 
+  /**
+    * Combines all DataFrames uploaded in the spark environment to one single DataFrame object so it cab be used by an algorithm.
+    * @param spark the spark session to access the spark framework.
+    * @param features all uploaded feature data which consists of vectors with values of type double.
+    * @param labelData the uploaded label data which consists of values of type double.
+    * @return a new DataFrame representing all uploaded data with one column for the combined features and one column for the label.
+    */
   def combineLoadedData(labelData:DataFrame, features:List[DataFrame], spark:SparkSession) : DataFrame = {
 
     // combine the feature dataframes List[DF] with [4,78] [2,3] => DF with [4,78,2,3]

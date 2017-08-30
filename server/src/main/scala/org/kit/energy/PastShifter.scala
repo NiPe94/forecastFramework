@@ -7,11 +7,22 @@ import org.apache.spark.sql.functions.{desc, lag, monotonically_increasing_id}
 import org.apache.spark.sql.types.StructType
 
 /**
-  * Class to lag the input data so a ARX model can be generated
+  * Class to lag the input data so a ARX model can be generated.
+  * For more information about lagging, visit:
+  * databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html
+  * stackoverflow.com/questions/41158115/spark-sql-window-function-lag
+  * spark.apache.org/docs/1.6.0/api/R/lag.html
+  * www.otexts.org/fpp/8/3
   */
-// Uses the past-shift-parameter to lag the data for building a AR-model
 class PastShifter {
 
+  /**
+    * lags the input DataFrame to be able to train a arx model.
+    * @param inputData the input DataFrame which has features and label values inside.
+    * @param spark the access to the spark framework.
+    * @param shiftParameter the number of shifts to be applied to the input data. So for a AR(1) model, this is 1.
+    * @return a DataFrame with new lagged features.
+    */
   def shiftData(inputData:DataFrame, spark:SparkSession, shiftParameter:Int) : DataFrame = {
 
     var i=1
@@ -58,48 +69,6 @@ class PastShifter {
     finalData = output.select("featuresFinal","label")
     finalData = finalData.withColumnRenamed("featuresFinal","features").select("features","label")
 
-    // andreas bartschats code: ***************************
-
-    /*
-    // define an ordering
-    val w = Window.orderBy("Time")
-
-    // create new columns
-    val dataTmp = data
-      .withColumn("Load-Min", lag("Load", 1).over(w) )
-      .withColumn("Load-Hour", lag("Load", 60).over(w) )
-      .withColumn("Load-Day", lag("Load", 1440).over(w) )
-      .withColumn("Load-Week", lag("Load", 10080).over(w) )
-
-    println("dataTmp tuple: " + dataTmp.count() )
-  // */
-    /*
-    // now create a feature vector column
-    // https://spark.apache.org/docs/2.1.0/ml-features.html#vectorassembler
-    val assembler = new VectorAssembler()
-      .setInputCols(Array("Load-Min", "Load-Hour", "Load-Day", "Load-Week"))
-      .setOutputCol("Features")
-
-    // apply assembler
-    val output = assembler.transform(data)
-    //.filter(dataTmp("Time").geq("2012-01-08 00:00:00"))  // 10 080 values
-    println("output tuple: " + output.count() )
-
-    val output2 = output.filter(output("Time").gt(10080))
-    println("output2 tuple: " + output2.count() )
-
-
-    // commented
-    val format = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss")
-    //unix_timestamp($"dts", "MM/dd/yyyy HH:mm:ss").cast("timestamp")
-    val output2 = output.filter(output("Time").gt(new
-Timestamp(format.parse("2012-01-01 00:01:00").getTime)))  // 10 080 values
-    // // end commented
-
-    return output2
-    */
-
-    //***************************
 
     return finalData
   }
