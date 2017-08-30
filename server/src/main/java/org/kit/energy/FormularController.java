@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +30,6 @@ public class FormularController {
 
     /**
      * Object to process a forecast or model training.
-     * @see ForecastPipeline
      */
     @Autowired
     private ForecastPipeline modelingPipe;
@@ -59,13 +57,11 @@ public class FormularController {
 
     /**
      * Object to get access to spark and to hold loaded time series.
-     * @see SparkEnvironment
      */
     private SparkEnvironment sparkEnvironment;
 
     /**
      * GET Request with URL "/stopSpark" to stop the currently running spark environment.
-     * @see SparkEnvironment
      */
     @GetMapping(value="/stopSpark")
     public ResponseEntity<?> stopSpark(){
@@ -181,23 +177,33 @@ public class FormularController {
         return ResponseEntity.ok("");
     }
 
-    /**
-     * POST Request with URL "/" and action parameter to reload the list of currently available forecast algorithms on teh web ui.
-     * @param model The model object from Spring Boot which will automatically be injected in this method and hold relevant objects for the web ui to be rendered.
-     * @return the thymeleaf template "ForecastFormularMenue"  which has the new algorithm list inside.
-     * @see Model
-     */
-    @PostMapping(value = "/", params = "action=reloadAlgorithms")
-    public String reloadAlgorithms(Model model) {
+    //@PostMapping(value = "/", params = "action=reloadAlgorithms")
+    /*public String reloadAlgorithms(Model model) {
         model.addAttribute("forecast", new Forecast());
         model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
         model.addAttribute("meta",new WrapperDatasetMetadata());
 
         return "ForecastFormularMenue";
     }
+    */
+    /**
+     * POST Request with URL "/" and action parameter to reload the list of currently available forecast algorithms on teh web ui.
+     * @param model The model object from Spring Boot which will automatically be injected in this method and hold relevant objects for the web ui to be rendered.
+     * @return the thymeleaf template "ForecastFormularMenue"  which has the new algorithm list inside.
+     * @see Model
+     */
+    @GetMapping(value = "/reloadAlgorithms")
+    public @ResponseBody List<ForecastAlgorithm> reloadAlgorithms(Model model) {
+        return algorithmFactory.getForecastAlgorithms();
+    }
 
-    @GetMapping("/test")
-    public ResponseEntity<?> testPreperator() {
+    @PostMapping("/test")
+    public ResponseEntity<?> testPreperator(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model) {
+
+        System.out.println("check whether the elements are null: ");
+        System.out.println("forecast: "+(forecast==null)+" "+forecast.getSparkURL() + " "+forecast.getPerformType());
+        System.out.println("meta datas: "+(meta==null)+" "+meta.getMetadata());
+        System.out.println("chosen Algo: "+(myWrapper==null)+" name: "+myWrapper.getAlgoName()+" paras:"+myWrapper.getAlgoParameters().toString());
         return ResponseEntity.ok("test");
     }
 
@@ -223,11 +229,10 @@ public class FormularController {
      * @param myWrapper The forecast algorithm to be loaded, choosen by a user on the web ui.
      * @param model The model object from Spring Boot which will automatically be injected in this method and hold relevant objects for the web ui to be rendered.
      */
-    @PostMapping(value="/",params = "action=perform")
-    public String submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model) {
+    @PostMapping(value="/perform")
+    public ResponseEntity<?> submitTestForm(@ModelAttribute("forecast") Forecast forecast, @ModelAttribute("meta") WrapperDatasetMetadata meta, @ModelAttribute("wrapper") ForecastAlgorithm myWrapper, Model model) {
 
         // some vars
-        boolean modellingDone = false;
         String modelParameters = "";
         String[] modelParametersArray;
 
@@ -245,10 +250,7 @@ public class FormularController {
         }
 
         if(sparkEnvironment.getInstance()==null){
-            modellingDone = true;
-            model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-            model.addAttribute("modellingDone", modellingDone);
-            return "ForecastFormularMenue";
+            return ResponseEntity.badRequest().body("No spark environment loaded");
         }
 
         // start the algorithm
@@ -263,7 +265,7 @@ public class FormularController {
             forecast.setSparkURL(sparkURL);
         }
         forecast.getModeling().setModelParameters(modelParametersArray);
-        forecast.setNameOfUsedAlgorithm(algoPlugin.getClass().getSimpleName());
+        forecast.setUsedAlgorithm(myWrapper);
 
         // parse metadata to set forecasts' dataset metadata
         DataInputParser dataInputParser = new DataInputParser();
@@ -279,15 +281,7 @@ public class FormularController {
             }
         }
 
-        forecast.setResult(jsonWriter.writeJSON(forecast));
-
-
-        modellingDone = true;
-
-        model.addAttribute("algoList",algorithmFactory.getForecastAlgorithms());
-        model.addAttribute("modellingDone", modellingDone);
-
-        return "ForecastFormularMenue";
+        return ResponseEntity.ok(jsonWriter.writeJSON(forecast));
     }
 
     /**

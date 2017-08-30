@@ -57,7 +57,7 @@ public class AlgorithmFactory {
      * @param forecastAlgorithm the algorithm chosen and configured by a user via the web ui.
      * @return the instantiated algorithm class for a forecast or model training.
      * @see AlgoPlugin
-     * @throws InstantiationException,IllegalAccessException If a algorithm class can't be instantiated or can't be accessed
+     * @throws InstantiationException,IllegalAccessException
      */
     public AlgoPlugin createAlgo(ForecastAlgorithm forecastAlgorithm){
 
@@ -105,7 +105,6 @@ public class AlgorithmFactory {
      * Updates the map registeredAlgos and the list loadedForecastAlgorithms.
      * @return a new list with forecast algorithms
      * @see AlgorithmSearcher
-     * @throws Exception If the reflection api has got an error
      */
     public List<ForecastAlgorithm> getForecastAlgorithms(){
         Map<ForecastAlgorithm, Class<?>> loadedPlugins = null;

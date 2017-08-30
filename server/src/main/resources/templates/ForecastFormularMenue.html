@@ -32,30 +32,58 @@
         })
 
         // https://www.mkyong.com/spring-boot/spring-boot-ajax-example/
-        /*
+
         $("#forecastForm").submit(function (event) {
             //stop submit the form, we will post it manually.
             event.preventDefault();
 
             fire_ajax_submit();
         });
-        */
+
     });
+
+    function update_algorithms() {
+        var currentURL = '/reloadAlgorithms';
+        $.get(currentURL,function(data,status){
+
+        }).done(function(data,status){
+
+            $('#selectnew').find('option').remove().end();
+            var algoSelection = $('#selectnew');
+
+            $.each(data, function() {
+                algoSelection.append($("<option />").val(this.algoName).text(this.algoName));
+            });
+
+            getParametersForAlgorithm();
+
+        }).fail(function(textStatus){
+
+        });
+    }
 
     function fire_ajax_submit() {
 
         var json = $('#forecastForm').serialize();
 
-        var postURL = '/test';
+        var postURL = '/perform';
+
+        document.getElementById("resultWindow").style.display="none";
 
         $('#singlebutton').attr('class','btn btn-primary');
 
-        $.post(postURL,JSON.stringify(json),function(data,status){
+        $.post(postURL,json,function(data,status){
 
         }).done(function(data, status){
             document.getElementById("progress").style.display="none";
+            //resultWindow, textarea
+            document.getElementById("resultWindow").style.display="block";
+            $('#textarea').val(data);
+
+
         }).fail(function(xhr, textStatus, errorThrown){
             document.getElementById("progress").style.display="none";
+            document.getElementById("resultWindow").style.display="none";
             $('#singlebutton').attr('class','btn btn-danger');
         });
 
@@ -493,14 +521,14 @@
                 <!-- Select Algorithm -->
                 <div class="form-group">
                     <label class="col-md-4 control-label" for="selectnew">Select Algorithm:</label>
-                    <div class="col-md-4">
+                    <div class="col-md-4" id="algorithmDiv">
                         <select id="selectnew" name="selectnew" class="form-control">
                             <option th:value = "0">---Choose option---</option>
                             <option th:each="algorithm : ${algoList}" th:value="${algorithm.algoName}" th:text="${algorithm.algoName}"></option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" style="width: 50%; font-size: large" align="right" name="action" value="reloadAlgorithms" class="btn btn-primary">Reload</button>
+                        <button id="updateButton" type="button" style="width: 50%; font-size: large" align="right" name="action" value="reloadAlgorithms" class="btn btn-primary" th:onclick="|update_algorithms()|">Reload</button>
                     </div>
                 </div>
 
@@ -527,10 +555,10 @@
                 </div>
 
                 <!-- Result -->
-                <div class="form-group" th:if="${modellingDone} == true">
+                <div class="form-group" style="display: none" id="resultWindow">
                     <label class="col-md-4 control-label" for="textarea">Forecast result:</label>
                     <div class="col-md-4">
-                        <textarea class="form-control" id="textarea" name="textarea" th:text="*{result}"></textarea>
+                        <textarea class="form-control" id="textarea" name="textarea"></textarea>
                     </div>
                 </div>
             </div>

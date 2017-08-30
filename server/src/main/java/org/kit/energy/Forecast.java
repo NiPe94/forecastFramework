@@ -12,12 +12,19 @@ public class Forecast {
 
     private String savePathCSV;
     private PerformType performType;
-    private String result;
     private ArrayList<InputFile> featureFiles = new ArrayList<>();
     private InputFile labelFile;
     private Modeling modeling;
     private String sparkURL;
-    private String nameOfUsedAlgorithm;
+    private ForecastAlgorithm usedAlgorithm;
+
+    public ForecastAlgorithm getUsedAlgorithm() {
+        return usedAlgorithm;
+    }
+
+    public void setUsedAlgorithm(ForecastAlgorithm usedAlgorithm) {
+        this.usedAlgorithm = usedAlgorithm;
+    }
 
     public String getSavePathCSV() {
         return savePathCSV;
@@ -25,14 +32,6 @@ public class Forecast {
 
     public void setSavePathCSV(String savePathCSV) {
         this.savePathCSV = savePathCSV;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
     }
 
     public PerformType getPerformType() {
@@ -57,14 +56,6 @@ public class Forecast {
 
     public void setSparkURL(String sparkURL) {
         this.sparkURL = sparkURL;
-    }
-
-    public String getNameOfUsedAlgorithm() {
-        return nameOfUsedAlgorithm;
-    }
-
-    public void setNameOfUsedAlgorithm(String nameOfUsedAlgorithm) {
-        this.nameOfUsedAlgorithm = nameOfUsedAlgorithm;
     }
 
     public ArrayList<InputFile> getFeatureFiles() {
