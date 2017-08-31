@@ -237,6 +237,9 @@ public class FormularController {
         String[] modelParametersArray;
 
         // create a forecastAlgorithm and copy its values to the plugin-object, which will be used for the forecast
+        if(myWrapper.getAlgoParameters()==null){
+            return ResponseEntity.badRequest().body("No algorithm select!");
+        }
         AlgoPlugin algoPlugin = algorithmFactory.createAlgo(myWrapper);
 
         boolean startModeling = true, startApplication = true;
@@ -249,8 +252,12 @@ public class FormularController {
             startModeling = false;
         }
 
-        if(sparkEnvironment.getInstance()==null){
+        if(sparkEnvironment==null || sparkEnvironment.getInstance()==null){
             return ResponseEntity.badRequest().body("No spark environment loaded");
+        }
+
+        if((sparkEnvironment.getFeatures() == null || sparkEnvironment.getFeatures().isEmpty()) || sparkEnvironment.getLabel() == null){
+            return ResponseEntity.badRequest().body("There have to be both, label data and feature data, to be already uploaded in order to perform a forecast or model training. ");
         }
 
         // start the algorithm

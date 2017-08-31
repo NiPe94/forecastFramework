@@ -81,9 +81,18 @@
             $('#textarea').val(data);
 
 
-        }).fail(function(xhr, textStatus, errorThrown){
+        }).fail(function(xhr, textStatus){
+            var errorMsg = '';
+            var valFromPerform = $('#selectaction').val();
+            if(valFromPerform=='0'){
+            errorMsg += 'No perform type selected! ';
+            }
+            if(errorMsg == ''){
+            errorMsg = xhr.responseText;
+            }
             document.getElementById("progress").style.display="none";
-            document.getElementById("resultWindow").style.display="none";
+            document.getElementById("resultWindow").style.display="block";
+            $('#textarea').val(errorMsg);
             $('#singlebutton').attr('class','btn btn-danger');
         });
 
